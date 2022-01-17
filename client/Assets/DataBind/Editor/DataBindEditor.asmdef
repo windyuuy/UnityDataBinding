@@ -1,0 +1,19 @@
+{
+    "name": "DataBindEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:987fc81b61b78b843959a40e81de74d7",
+        "GUID:a002709b7dd49d64d88c1faa791c757e"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
