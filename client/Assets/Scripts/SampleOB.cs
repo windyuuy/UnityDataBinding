@@ -1,21 +1,21 @@
 
-// ĞèÒªÒıÓÃDataBindingÃüÃû¿Õ¼ä
+// éœ€è¦å¼•ç”¨DataBindingå‘½åç©ºé—´
 using DataBinding;
-// Ä¿Ç°Ö»Ö§³Ö¼àÌıDataBinding.CollectionExtÖĞµÄÈİÆ÷Àà¶ÔÏó£¬²»Ö§³ÖÏµÍ³ÄÚÖÃÈİÆ÷¶ÔÏó£¨Èç£ºSystem.Collection.Generic.List¡¢System.Collection.Generic.Dictionary£©¡£
+// ç›®å‰åªæ”¯æŒç›‘å¬DataBinding.CollectionExtä¸­çš„å®¹å™¨ç±»å¯¹è±¡ï¼Œä¸æ”¯æŒç³»ç»Ÿå†…ç½®å®¹å™¨å¯¹è±¡ï¼ˆå¦‚ï¼šSystem.Collection.Generic.Listã€System.Collection.Generic.Dictionaryï¼‰ã€‚
 using DataBinding.CollectionExt;
 
-// ĞèÒªÌí¼ÓObservableÌØĞÔ£¬Ê¹Ä¿±ê³ÉÎª¿É¹Û²ì¶ÔÏó
+// éœ€è¦æ·»åŠ Observableç‰¹æ€§ï¼Œä½¿ç›®æ ‡æˆä¸ºå¯è§‚å¯Ÿå¯¹è±¡
 [Observable]
 public class SampleOB
 {
-    // ×¢Òâ£º±ØĞëÊ¹ÓÃÊôĞÔ×Ö¶Î
-    public double KKK { get; set; } = 234;
+	// æ³¨æ„ï¼šå¿…é¡»ä½¿ç”¨å±æ€§å­—æ®µ
+	public double KKK { get; set; } = 234;
 
-    // DataBinding.CollectionExt.List ÈİÆ÷Êı¾İ
-    // ×¢Òâ£º±ØĞëÊ¹ÓÃÊôĞÔ×Ö¶Î
-    public List<int> IntList { get; set; } = new List<int> { 1, 2, 3, 4 };
+	// DataBinding.CollectionExt.List å®¹å™¨æ•°æ®
+	// æ³¨æ„ï¼šå¿…é¡»ä½¿ç”¨å±æ€§å­—æ®µ
+	public List<int> IntList { get; set; } = new List<int> { 1, 2, 3, 4 };
 
-    // DataBinding.CollectionExt.Dictionary ÈİÆ÷Êı¾İ
-    // ×¢Òâ£º±ØĞëÊ¹ÓÃÊôĞÔ×Ö¶Î
-    public Dictionary<double, string> NumDictionary { get; set; } = new Dictionary<double, string>();
+	// DataBinding.CollectionExt.Dictionary å®¹å™¨æ•°æ®
+	// æ³¨æ„ï¼šå¿…é¡»ä½¿ç”¨å±æ€§å­—æ®µ
+	public Dictionary<double, string> NumDictionary { get; set; } = new Dictionary<double, string>();
 }

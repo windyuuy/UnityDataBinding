@@ -4,46 +4,46 @@ using DataBinding;
 
 public class Hello : MonoBehaviour
 {
-    public void Start()
-    {
-        Debug.Log("start");
-        var sampleHost = new SampleHost();
+	public void Start()
+	{
+		Debug.Log("start");
+		var sampleHost = new SampleHost();
 
-        // ¼àÌı±í´ïÊ½
-        sampleHost.Watch("QQ+hello.KKK", (host, value, oldValue) =>
-        {
-            Debug.Log("value changed;");
-            Debug.Log(value);
-        });
-        sampleHost.QQ = 2134;
-        sampleHost.hello.KKK = 3242;
-        // Í¨Öª±í´ïÊ½Öµ±ä»¯
-        vm.Tick.next();
+		// ç›‘å¬è¡¨è¾¾å¼
+		sampleHost.Watch("QQ+hello.KKK", (host, value, oldValue) =>
+		{
+			Debug.Log("value changed;");
+			Debug.Log(value);
+		});
+		sampleHost.QQ = 2134;
+		sampleHost.hello.KKK = 3242;
+		// é€šçŸ¥è¡¨è¾¾å¼å€¼å˜åŒ–
+		vm.Tick.next();
 
-        // ¼àÌı±í´ïÊ½
-        sampleHost.Watch("hello.IntList[2]", (host, value, oldValue) =>
-        {
-            Debug.Log("value changed;");
-            Debug.Log(value);
-        });
-        sampleHost.hello.IntList[2] = 44;
-        // Í¨Öª±í´ïÊ½Öµ±ä»¯
-        vm.Tick.next();
+		// ç›‘å¬è¡¨è¾¾å¼
+		sampleHost.Watch("hello.IntList[2]", (host, value, oldValue) =>
+		{
+			Debug.Log("value changed;");
+			Debug.Log(value);
+		});
+		sampleHost.hello.IntList[2] = 44;
+		// é€šçŸ¥è¡¨è¾¾å¼å€¼å˜åŒ–
+		vm.Tick.next();
 
-        // ¼àÌı±í´ïÊ½
-        sampleHost.Watch("hello.NumDictionary[123]", (host, value, oldValue) =>
-        {
-            Debug.Log("value changed;");
-            Debug.Log(value);
-        });
-        sampleHost.hello.NumDictionary[123] = "Äã±äÁË";
-        // Í¨Öª±í´ïÊ½Öµ±ä»¯
-        vm.Tick.next();
+		// ç›‘å¬è¡¨è¾¾å¼
+		sampleHost.Watch("hello.NumDictionary[123]", (host, value, oldValue) =>
+		{
+			Debug.Log("value changed;");
+			Debug.Log(value);
+		});
+		sampleHost.hello.NumDictionary[123] = "ä½ å˜äº†";
+		// é€šçŸ¥è¡¨è¾¾å¼å€¼å˜åŒ–
+		vm.Tick.next();
 
-    }
+	}
 
-    void Update()
-    {
-        
-    }
+	void Update()
+	{
+
+	}
 }
