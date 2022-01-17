@@ -6,3 +6,4 @@
 /Library
 /*.csproj
 /UTestInejctDataBind21.sln
+/Tools/sync2gitlab.bat
