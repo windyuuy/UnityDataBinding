@@ -1,7 +1,7 @@
 ﻿
 using DataBinding;
 
-public class SampleHost:IHostStand
+public class SampleHost:IStdHost
 {
     public SampleOB hello { get; set; }=new SampleOB();
 
