@@ -17,5 +17,5 @@ public class SampleOB
 
 	// DataBinding.CollectionExt.Dictionary 容器数据
 	// 注意：必须使用属性字段
-	public Dictionary<double, string> NumDictionary { get; set; } = new Dictionary<double, string>();
+	public Dictionary<int, string> NumDictionary { get; set; } = new Dictionary<int, string>();
 }
