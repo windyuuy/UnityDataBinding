@@ -43,7 +43,7 @@ public class SampleOB
 // 需要引用DataBinding命名空间
 using DataBinding;
 
-// 需要实现 IStdHost 观察者接口
+// 需要实现 IStdHost 观察者接口，实现 IStdHost 后，该观察者也会同时成为可观察对象。
 public class SampleHost:IStdHost
 {
     // 可嵌套引用可观察对象类型
