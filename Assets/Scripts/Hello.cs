@@ -10,13 +10,13 @@ public class Hello : MonoBehaviour
         Debug.Log("lkjwef");
         var sampleHost = new SampleHost();
 
-        sampleHost.GetHost()._Swatch("QQ+hello.KKK", (host, value, oldValue) =>
+        sampleHost.Watch("QQ+hello.KKK", (host, value, oldValue) =>
         {
-            console.log("value changed;", value);
+            Debug.Log("value changed;");
+            Debug.Log(value);
         });
-
         sampleHost.QQ = 2134;
-        sampleHost.hello.KKK = 3244;
+        sampleHost.hello.KKK = 3242;
         vm.Tick.next();
 
     }
