@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using DataBindService;
 using UnityEditor.Callbacks;
@@ -11,6 +10,7 @@ public class DataBindEntry
 	[PostProcessBuild(1000)]
 	private static void OnPostprocessBuildPlayer(BuildTarget buildTarget, string buildPath)
 	{
+		Debug.LogWarning("OnPostprocessBuildPlayer");
 		hasSupport = false;
 	}
 
@@ -23,12 +23,14 @@ public class DataBindEntry
 		}
 		hasSupport = true;
 
+		Debug.LogWarning("SupportU3DDataBindPost");
 		SupportU3DDataBind();
 	}
 	[InitializeOnLoadMethod]
 	public static void SupportU3DDataBind()
 	{
 
+		Debug.LogWarning("SupportU3DDataBind");
 		BindEntry.SupportU3DDataBind();
 
 	}
