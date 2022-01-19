@@ -1,37 +1,70 @@
 
-using UnityEngine;
 using DataBindService;
 using UnityEditor.Callbacks;
 using UnityEditor;
 
-public class DataBindEntry
+using System.IO;
+using System.Linq;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
+using System.Diagnostics;
+
+namespace DataBinding.Editor.DataBindEntry
 {
-	private static bool hasSupport = false;
-	[PostProcessBuild(1000)]
-	private static void OnPostprocessBuildPlayer(BuildTarget buildTarget, string buildPath)
-	{
-		Debug.LogWarning("OnPostprocessBuildPlayer");
-		hasSupport = false;
-	}
 
-	[PostProcessScene]
-	public static void SupportU3DDataBindPost()
+	public class DataBindEntry
 	{
-		if (hasSupport == true)
+		public static bool HasSupport = false;
+		[PostProcessBuild(1000)]
+		private static void OnPostprocessBuildPlayer(BuildTarget buildTarget, string buildPath)
 		{
-			return;
+			HasSupport = false;
 		}
-		hasSupport = true;
 
-		Debug.LogWarning("SupportU3DDataBindPost");
-		SupportU3DDataBind();
+		[PostProcessScene]
+		public static void SupportU3DDataBindPost()
+		{
+			if (HasSupport == true)
+			{
+				return;
+			}
+			HasSupport = true;
+
+			SupportU3DDataBind();
+		}
+		[InitializeOnLoadMethod]
+		public static void SupportU3DDataBind()
+		{
+
+			BindEntry.SupportU3DDataBind();
+		}
+
 	}
-	[InitializeOnLoadMethod]
-	public static void SupportU3DDataBind()
-	{
 
-		Debug.LogWarning("SupportU3DDataBind");
-		BindEntry.SupportU3DDataBind();
+	public class MyCustomBuildProcessor0
+	{
+		public virtual void HandleDLLs(BuildReport report)
+		{
+		}
+
+	}
+
+	public class MyCustomBuildProcessor : MyCustomBuildProcessor0, IPostBuildPlayerScriptDLLs
+	{
+		public int callbackOrder { get { return 0; } }
+
+		[Conditional("UNITY_2019_1_OR_NEWER")]
+		public new void HandleDLLs(BuildReport report)
+		{
+			var filePath = report.files.Single(file => file.path.EndsWith("Assembly-CSharp.dll")).path;
+			var binaryPath = Path.GetDirectoryName(filePath);
+			BindEntry.SupportDataBind(filePath, new BindOptions());
+		}
+
+		public void OnPostBuildPlayerScriptDLLs(BuildReport report)
+		{
+			HandleDLLs(report);
+		}
 
 	}
 
