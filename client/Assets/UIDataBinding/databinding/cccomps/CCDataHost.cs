@@ -18,11 +18,11 @@ namespace UI.DataBinding
 
 		public virtual DataHub dataHub { get; set; } = new DataHub();
 
-		public override void onAfterAttach()
+		public override void onRequireAttach()
 		{
 			this.onAttach();
 		}
-		public override void onAfterDeattach()
+		public override void onRequireDeattach()
 		{
 			this.onDeattach();
 		}
@@ -35,7 +35,7 @@ namespace UI.DataBinding
 			this.dataHub.running = false;
 		}
 
-		protected virtual void observeData(object data)
+		public virtual void observeData(object data)
 		{
 			this.dataHub.observeData(data);
 		}
@@ -50,7 +50,7 @@ namespace UI.DataBinding
 			this.dataHub.unsetDataHost();
 		}
 
-		protected override void __preload()
+		protected override void onPreload()
 		{
 			this.integrate();
 		}

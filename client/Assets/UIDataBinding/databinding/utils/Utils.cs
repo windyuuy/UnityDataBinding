@@ -68,6 +68,19 @@ public static class Utils
 		return component.gameObject.activeInHierarchy;
 	}
 
+	public static bool IsEnabledInHierarchy(this Component component)
+	{
+		if (component is MonoBehaviour)
+		{
+			var mc = component as MonoBehaviour;
+			return mc.enabled && mc.gameObject.activeInHierarchy;
+		}
+		else
+		{
+			return component.gameObject.activeInHierarchy;
+		}
+	}
+
 	public static Transform[] GetChildren(this Transform transform)
 	{
 		var children = new Transform[transform.childCount];

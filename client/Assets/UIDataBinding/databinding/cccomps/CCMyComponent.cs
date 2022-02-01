@@ -6,6 +6,11 @@ namespace UI.DataBinding
 {
 	public class CCMyComponent : MonoBehaviour
 	{
+		/**
+		 * 启用延迟链接
+		 */
+		public static readonly bool EnableLazyAttach = true;
+
 		public CCMyComponent() : base()
 		{
 			this._isCreating = this.markCreating();
@@ -19,10 +24,6 @@ namespace UI.DataBinding
 			}
 		}
 
-		/**
-		 * 启用延迟链接
-		 */
-		public static readonly bool EnableLazyAttach = true;
 		protected static List<CCMyComponent> _creatingList = new List<CCMyComponent>();
 		protected bool _isCreating = false;
 		protected virtual bool markCreating()
@@ -30,11 +31,6 @@ namespace UI.DataBinding
 			CCMyComponent._creatingList.Add(this);
 			return true;
 		}
-
-		// public void _deleteAttr(string attr)
-		// {
-		// 	delete(this as any)[attr];
-		// }
 
 		protected virtual void onPreDestroy()
 		{
@@ -47,14 +43,19 @@ namespace UI.DataBinding
 			this.onPreDestroy();
 		}
 
-		public virtual void onCreate()
-		{
-			this.onPreload();
-		}
-		protected virtual void __preload()
+		protected virtual void Awake()
 		{
 			if (this._isCreating)
 			{
+				this._isCreating = false;
+				this.onPreload();
+			}
+		}
+		public virtual void HandleLoaded()
+		{
+			if (this._isCreating)
+			{
+				this._isCreating = false;
 				this.onPreload();
 			}
 		}
@@ -123,7 +124,7 @@ namespace UI.DataBinding
 		{
 			this.updateAttach();
 		}
-		public virtual void onAfterAttach()
+		public virtual void onRequireAttach()
 		{
 			this.isAttachCalled = true;
 			this.updateAttach();
@@ -132,7 +133,7 @@ namespace UI.DataBinding
 		{
 			this.updateAttach();
 		}
-		public virtual void onAfterDeattach()
+		public virtual void onRequireDeattach()
 		{
 			this.isAttachCalled = false;
 			this.updateAttach();

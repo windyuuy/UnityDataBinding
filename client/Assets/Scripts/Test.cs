@@ -10,7 +10,7 @@ public class Test : MonoBehaviour
     }
     void Awake()
     {
-        Debug.Log("OnLoad");
+        Debug.Log("OnLoad:"+this.name);
     }
     private void OnEnable()
     {
@@ -19,6 +19,21 @@ public class Test : MonoBehaviour
     public void OnTransformParentChanged()
     {
         Debug.Log("OnTransformParentChanged:"+this.name);
+    }
+    private void OnBeforeTransformParentChanged()
+    {
+        Debug.Log("OnBeforeTransformParentChanged:" + this.name);
+
+    }
+    private void OnRectTransformDimensionsChange()
+    {
+        Debug.Log("OnRectTransformDimensionsChange:" + this.name);
+
+    }
+    private void OnRectTransformRemoved()
+    {
+        Debug.Log("OnRectTransformRemoved:" + this.name);
+
     }
     public void OnTransformChildrenChanged()
     {

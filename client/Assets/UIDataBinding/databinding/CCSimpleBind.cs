@@ -10,7 +10,7 @@ namespace UI.DataBinding
 	[AddComponentMenu("DataDrive/CCSimpleBind")]
 	public class CCSimpleBind : CCDataBindBase
 	{
-		[InspectorName("主属性")]
+		[InspectorName("主属性")][Multiline]
 		public string key = "";
 
 		[InspectorName("可见性")]
