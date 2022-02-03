@@ -15,7 +15,7 @@ namespace DataBinding.UIBind
 			Application.wantsToQuit += () =>
 			{
 				isRuntimeMode = false;
-				return false;
+				return true;
 			};
 		}
 #else
@@ -81,16 +81,16 @@ namespace DataBinding.UIBind
 
 		protected static bool isPreloading = false;
 		protected virtual void handlePreload()
-        {
+		{
 			var loading = false;
-            if (!isPreloading)
-            {
+			if (!isPreloading)
+			{
 				isPreloading = true;
 				loading = true;
-            }
+			}
 			this.onPreload();
-            if (loading)
-            {
+			if (loading)
+			{
 				isPreloading = false;
 				loading = false;
 				this.afterPreload();
@@ -101,9 +101,9 @@ namespace DataBinding.UIBind
 
 		}
 		protected virtual void afterPreload()
-        {
+		{
 			CCNodeLife.HandleHierachyChanging();
-        }
+		}
 
 		protected virtual void onAttach()
 		{
