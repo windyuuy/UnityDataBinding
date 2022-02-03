@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	[AddComponentMenu("DataDrive/CCToggleBind")]
 	public class CCToggleBind : CCDataBindBase
 	{
-		[InspectorName("是否选中")]
+		[Rename("是否选中")]
 		public string kIsChecked = "";
+
+		[HideInInspector]
+		public object target;
 
 		/**
 		 * 更新显示状态
@@ -41,8 +44,9 @@ namespace UI.DataBinding
 		public virtual void setIsChecked(bool newValue)
 		{
 			var toggle = this.GetComponent<Toggle>();
-			if (toggle)
+			if (toggle != null)
 			{
+				this.target = toggle;
 				toggle.isOn = newValue;
 			}
 		}

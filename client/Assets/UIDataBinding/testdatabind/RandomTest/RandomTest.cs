@@ -2,24 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DataBinding;
-using UI.DataBinding;
+using DataBinding.UIBind;
 
 namespace TestRandom
 {
-    class TestData:IStdHost
-    {
-        public string hello { get; set; } = "hello1";
-    }
-    public class RandomTest : MonoBehaviour
-    {
-        TestData testData=new TestData();
-        // Start is called before the first frame update
-        void Awake()
-        {
-            var ccDataHost = this.GetComponent<CCDataHost>();
-            ccDataHost.observeData(this.testData);
-        }
+	class TestData : IStdHost
+	{
+		public string hello { get; set; } = "hello1";
+		public string imageSrc { get; set; } = "image2";
+	}
+	public class RandomTest : MonoBehaviour
+	{
+		TestData testData = new TestData();
+		// Start is called before the first frame update
+		void Awake()
+		{
+			var ccDataHost = this.GetOrAddComponent<CCDataHost>();
+			ccDataHost.observeData(this.testData);
 
-    }
+			this.testData.hello = "hello2";
+			this.testData.imageSrc = "doge_cartoon";
+			vm.Tick.next();
+		}
+
+	}
 
 }

@@ -3,25 +3,20 @@ using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
 	[AddComponentMenu("DataDrive/CCSimpleBind")]
 	public class CCSimpleBind : CCDataBindBase
 	{
-		[InspectorName("主属性")][Multiline]
+		[Rename("主属性")]
 		public string key = "";
 
-		[InspectorName("可见性")]
-		public string visible = "";
-
-		[InspectorName("点击响应")]
-		public CCSimpleBindClickFuncInfo[] clickTriggers = new CCSimpleBindClickFuncInfo[0];
-
-		[InspectorName("忽略undefined值")]
+		[Rename("忽略undefined值")]
 		public bool ignoreUndefinedValue = true;
 
+		[HideInInspector]
 		public object target;
 
 		public virtual ISEventCleanInfo2<object, object> watchValueChange<T>(string key, Action<T, T> call)
@@ -42,26 +37,11 @@ namespace UI.DataBinding
 			});
 		}
 
-		protected override bool needAttach()
-		{
-			if (!string.IsNullOrEmpty(this.visible))
-			{
-				// 支持visible设置
-				return this.isAttachCalled && this.enabled && !!this.IsActiveInHierarchy();
-			}
-			else
-			{
-				return this.isAttachCalled && this.enabledInHierarchy;
-			}
-		}
-
 		/**
 		 * 更新显示状态
 		 */
 		protected override void onBindItems()
 		{
-			this.checkVisible();
-
 			if (!string.IsNullOrEmpty(this.key))
 			{
 				this.checkLabel();
@@ -69,24 +49,6 @@ namespace UI.DataBinding
 				// 设立优先级
 				var ret = this.checkProgressBar() || this.checkSprite();
 			}
-		}
-
-		public virtual bool checkVisible()
-		{
-			if (string.IsNullOrEmpty(this.visible))
-			{
-				return false;
-			}
-			var node = this.transform;
-			if (node == null)
-			{
-				return false;
-			}
-			this.watchValueChange<bool>(this.visible, (newValue, oldValue) =>
-			{
-				if (Utils.isValid(node, true)) node.gameObject.SetActive(newValue);
-			});
-			return true;
 		}
 
 		// TODO: 完善文本赋值
@@ -114,13 +76,14 @@ namespace UI.DataBinding
 				return false;
 			}
 			this.target = progressComponent;
-			this.watchValueChange<number>(this.key, (newValue, oldValue) =>
+			this.watchValueChange<number?>(this.key, (newValue, oldValue) =>
 			{
 				if (progressComponent) progressComponent.value = (float)newValue;
 			});
 			return true;
 		}
 
+		[HideInInspector]
 		public string spriteTextureUrl;
 		public virtual bool checkSprite()
 		{
@@ -132,9 +95,9 @@ namespace UI.DataBinding
 			this.target = sprite;
 			this.watchValueChange<string>(this.key, (newValue, oldValue) =>
 			{
-				this.spriteTextureUrl = newValue;
-				if (sprite != null)
+				if (sprite != null && this.spriteTextureUrl != newValue)
 				{
+					this.spriteTextureUrl = newValue;
 					this.loadImage(newValue, sprite);
 				}
 			});
@@ -156,10 +119,21 @@ namespace UI.DataBinding
 
 			if (url.StartsWith("http"))
 			{
+				throw new NotImplementedException();
 			}
 			else
 			{
+				Resources.LoadAsync<Sprite>(url).completed += (ret) =>
+				{
+					var ret2 = ret as ResourceRequest;
+					Sprite sprite = ret2.asset as Sprite;
 
+					var image = this.target as Image;
+					if (image != null)
+					{
+						image.sprite = sprite;
+					}
+				};
 			}
 		}
 	}

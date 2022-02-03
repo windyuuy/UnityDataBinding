@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class TPresetWatchingExpr
 	{
@@ -20,10 +20,18 @@ namespace UI.DataBinding
 	{
 		public Object rawObj;
 		public DataBindHub bindHub;
+		public void addBindHub(IDataBindHub bindHub)
+		{
+			this.addBindHub((DataBindHub)bindHub);
+		}
 		public void addBindHub(DataBindHub bindHub)
 		{
 			this.bindHub = bindHub;
 			this.recoverWatchers();
+		}
+		public void removeBindHub(IDataBindHub bindHub)
+		{
+			this.removeBindHub((DataBindHub)bindHub);
 		}
 		public void removeBindHub(DataBindHub bindHub)
 		{

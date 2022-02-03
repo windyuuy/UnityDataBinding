@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	[AddComponentMenu("DataDrive/CCContainerBinding")]
 	public class CCContainerBinding : CCMyComponent, ICCContainerBinding
 	{
-		public virtual string bindSubExp { get; set; } = "";
+		public virtual string BindSubExp { get => bindSubExp; set => bindSubExp = value; }
+		[Rename("容器数据")]
+		[SerializeField]
+		protected string bindSubExp = "";
 
 		/**
 		 * 如果子节点没有添加 DialogChild, 那么强制为所有子节点添加 DialogChild

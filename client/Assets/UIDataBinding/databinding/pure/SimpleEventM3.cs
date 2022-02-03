@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public delegate void EventHandlerMV3<T1, T2, T3>(T1 msg1, T2 msg2, T3 msg3);
 

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
@@ -12,10 +12,10 @@ namespace UI.DataBinding
 		public number oid { get; set; } = ContainerItem.oidAcc++;
 		public number index = 0;
 
-		public DataHub realDataHub { get; set; }
+		public DataSourceHub realDataHub { get; set; }
 		public Object rawObj { get; set; }
 
-		public void setRealDataHub(DataHub realDataHub)
+		public void setRealDataHub(DataSourceHub realDataHub)
 		{
 			this.realDataHub = realDataHub;
 

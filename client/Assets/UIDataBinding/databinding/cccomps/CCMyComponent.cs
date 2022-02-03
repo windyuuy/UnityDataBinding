@@ -2,10 +2,26 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
-	public class CCMyComponent : MonoBehaviour
+	public class CCMyComponent : MonoBehaviour, ISerializationCallbackReceiver
 	{
+#if UNITY_EDITOR
+		protected static bool isRuntimeMode = false;
+		[UnityEditor.InitializeOnEnterPlayMode]
+		static void OnEnterPlayMode()
+		{
+			isRuntimeMode = true;
+			Application.wantsToQuit += () =>
+			{
+				isRuntimeMode = false;
+				return false;
+			};
+		}
+#else
+		protected static bool isRuntimeMode=true;
+#endif
+
 		/**
 		 * 启用延迟链接
 		 */
@@ -13,7 +29,10 @@ namespace UI.DataBinding
 
 		public CCMyComponent() : base()
 		{
-			this._isCreating = this.markCreating();
+			if (isRuntimeMode)
+			{
+				this._isCreating = this.markCreating();
+			}
 		}
 
 		public virtual CCNodeLife ccNodeLife
@@ -48,7 +67,7 @@ namespace UI.DataBinding
 			if (this._isCreating)
 			{
 				this._isCreating = false;
-				this.onPreload();
+				this.handlePreload();
 			}
 		}
 		public virtual void HandleLoaded()
@@ -56,14 +75,35 @@ namespace UI.DataBinding
 			if (this._isCreating)
 			{
 				this._isCreating = false;
-				this.onPreload();
+				this.handlePreload();
 			}
 		}
 
+		protected static bool isPreloading = false;
+		protected virtual void handlePreload()
+        {
+			var loading = false;
+            if (!isPreloading)
+            {
+				isPreloading = true;
+				loading = true;
+            }
+			this.onPreload();
+            if (loading)
+            {
+				isPreloading = false;
+				loading = false;
+				this.afterPreload();
+			}
+		}
 		protected virtual void onPreload()
 		{
 
 		}
+		protected virtual void afterPreload()
+        {
+			CCNodeLife.HandleHierachyChanging();
+        }
 
 		protected virtual void onAttach()
 		{
@@ -120,7 +160,7 @@ namespace UI.DataBinding
 		}
 		protected bool isAttachCalled = false;
 		protected bool isAttached = false;
-		protected virtual void onEnable()
+		protected virtual void OnEnable()
 		{
 			this.updateAttach();
 		}
@@ -129,7 +169,7 @@ namespace UI.DataBinding
 			this.isAttachCalled = true;
 			this.updateAttach();
 		}
-		protected virtual void onDisable()
+		protected virtual void OnDisable()
 		{
 			this.updateAttach();
 		}
@@ -139,5 +179,19 @@ namespace UI.DataBinding
 			this.updateAttach();
 		}
 
+		[HideInInspector]
+		public virtual bool IsPrefab { get; set; }
+		public virtual void OnBeforeSerialize()
+		{
+#if UNITY_EDITOR
+			this.IsPrefab = UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this);
+#else
+			this.IsPrefab = false;
+#endif
+		}
+
+		public virtual void OnAfterDeserialize()
+		{
+		}
 	}
 }

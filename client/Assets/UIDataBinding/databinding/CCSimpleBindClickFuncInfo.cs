@@ -1,10 +1,11 @@
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
+	[System.Serializable]
 	public class CCSimpleBindClickFuncInfo
 	{
-		[InspectorName("执行")]
-		public string callExpr = "";
+		[Rename("执行")]
+		public string callExpr;
 	}
 }

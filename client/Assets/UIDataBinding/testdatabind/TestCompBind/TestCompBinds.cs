@@ -1,23 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.DataBinding.Tests.TestCompBinds
+namespace DataBinding.UIBind.Tests.TestCompBinds
 {
+	using TButtonBindCallback = System.Action<DataBinding.UIBind.CCButtonBind, double>;
 	using number = System.Double;
 
-	class TRawData
+	class TRawData:IStdHost
 	{
-		public bool enabled = false;
-		public bool gray = false;
-		public System.Action<Component> doClick = (Component target) =>
+		public bool enabled { get; set; } = false;
+		public bool gray { get; set; } = false;
+		public TButtonBindCallback doClick { get; set; } = (CCButtonBind binder, double index) =>
 		{
-			console.log("click", target.name);
+			console.log("click", binder.name);
 		};
-		public string label = "hello";
-		public string spriteUrl = "textures/ui/common/pack/pop_btn_closed";
-		public bool visible = false;
-		public number progress = 0;
-		public bool isToggleCheck = false;
+		public string label { get; set; } = "hello";
+		public string spriteUrl { get; set; } = "doge_cartoon";
+		public bool visible { get; set; } = false;
+		public number progress { get; set; } = 0;
+		public bool isToggleCheck { get; set; } = false;
 	}
 
 	public class TestCompBinds : TestBase
@@ -31,12 +32,12 @@ namespace UI.DataBinding.Tests.TestCompBinds
 			{
 				enabled = false,
 				gray = false,
-				doClick = (Component target) =>
+				doClick = (CCButtonBind binder, double index) =>
 				{
-					console.log("click", target);
+					console.log("click0", binder.name);
 				},
 				label = "hello",
-				spriteUrl = "textures/ui/common/pack/pop_btn_closed",
+				spriteUrl = "doge_cartoon",
 				visible = false,
 				progress = 0,
 				isToggleCheck = false,
@@ -51,6 +52,10 @@ namespace UI.DataBinding.Tests.TestCompBinds
 
 			var BtnBind = this.cn("Button")!.GetComponent<CCButtonBind>();
 			var Btn = BtnBind.target!;
+			this.rawData.doClick = (CCButtonBind binder, double index) =>
+			{
+				console.log("click2", binder.name);
+			}; ;
 			this.rawData.enabled = true;
 			this.tick();
 			assert(Btn.interactable == this.rawData.enabled);
@@ -73,13 +78,13 @@ namespace UI.DataBinding.Tests.TestCompBinds
 			var SpriteBind = this.cn("Sprite")!.GetComponent<CCSimpleBind>();
 			var Sprite0 = SpriteBind.target as Image;
 			assert(SpriteBind.spriteTextureUrl == this.rawData.spriteUrl);
-			this.rawData.spriteUrl = "textures/ui/common/pack/pop_btn_closed";
+			this.rawData.spriteUrl = "doge_cartoon";
 			this.tick();
 			assert(SpriteBind.spriteTextureUrl == this.rawData.spriteUrl);
 			this.rawData.spriteUrl = "";
 			this.tick();
 			assert(Sprite0.sprite == null);
-			this.rawData.spriteUrl = "textures/ui/common/pack/pop_btn_closed";
+			this.rawData.spriteUrl = "doge_cartoon";
 			this.tick();
 			assert(SpriteBind.spriteTextureUrl == this.rawData.spriteUrl);
 
@@ -111,7 +116,7 @@ namespace UI.DataBinding.Tests.TestCompBinds
 			assert(Progress0.value == this.rawData.progress);
 
 
-			var ToggleBind = this.cn("Toggle")!.GetComponent<CCSimpleBind>();
+			var ToggleBind = this.cn("Toggle")!.GetComponent<CCToggleBind>();
 			var Toggle0 = ToggleBind.target as Toggle;
 			assert(Toggle0.isOn == this.rawData.isToggleCheck);
 			this.rawData.isToggleCheck = !this.rawData.isToggleCheck;
@@ -142,9 +147,7 @@ namespace UI.DataBinding.Tests.TestCompBinds
 			this.rawData.visible = false;
 			this.rawData.label = label0;
 			this.tick();
-			// @ts-ignore
 			assert(Visible0.activeSelf == this.rawData.visible);
-			// @ts-ignore
 			assert(VisibleLable.text == label1);
 			assert(VisibleSubLabel.text == label1);
 			this.rawData.visible = true;

@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public delegate void EventHandlerMV<T>(params T[] message);
 
@@ -83,7 +83,7 @@ namespace UI.DataBinding
 
 		public ISEventCleanInfo<T> on(string key, EventHandlerMV<T> callback)
 		{
-			if (this._events[key] == null)
+			if (this._events.ContainsKey(key) == false)
 			{
 				this._events[key] = new SimpleEventMV<T>();
 			}
@@ -139,7 +139,7 @@ namespace UI.DataBinding
 			value2[0] = pKey;
 			this._anyEvent.emit(value2);
 
-			if (this._events[key] != null)
+			if (this._events.ContainsKey(key))
 			{
 				var event1 = this._events[key];
 				if (event1 != null)

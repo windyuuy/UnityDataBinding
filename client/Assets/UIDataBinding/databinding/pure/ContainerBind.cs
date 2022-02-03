@@ -2,8 +2,9 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using DataBinding;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
@@ -11,11 +12,19 @@ namespace UI.DataBinding
 	{
 		public DataBindHub bindHub;
 		public Object rawObj;
-		public void addBindHub(DataBindHub bindHub)
+		public virtual void addBindHub(IDataBindHub bindHub)
+		{
+			this.addBindHub((DataBindHub)bindHub);
+		}
+		public virtual void addBindHub(DataBindHub bindHub)
 		{
 			this.bindHub = bindHub;
 		}
-		public void removeBindHub(DataBindHub bindHub)
+		public virtual void removeBindHub(IDataBindHub bindHub)
+		{
+			this.removeBindHub((DataBindHub)bindHub);
+		}
+		public virtual void removeBindHub(DataBindHub bindHub)
 		{
 			if (bindHub == null || this.bindHub == bindHub)
 			{
@@ -48,7 +57,7 @@ namespace UI.DataBinding
 							 var item = bindList[oid];
 							 if (item.realDataHub != null)
 							 {
-								 var ls = v1 as vm.IHost[];
+								 var ls = v1 as IStdHost[];
 								 // 确认是否需要换成 observeData
 								 item.realDataHub.setDataHost(ls[(int)item.index]);
 							 }
@@ -97,19 +106,19 @@ namespace UI.DataBinding
 			}
 		}
 
-		protected SimpleEventMV<object> onDataChangedEvent = new SimpleEventMV<object>();
+		protected SimpleEventMV2<object,object> onDataChangedEvent = new SimpleEventMV2<object,object>();
 
 
-		protected List<EventHandlerMV<object>> watcherList = new List<EventHandlerMV<object>>();
+		protected List<EventHandlerMV2<object,object>> watcherList = new List<EventHandlerMV2<object,object>>();
 
-		public EventHandlerMV<object> watchList(EventHandlerMV<object> call)
+		public EventHandlerMV2<object,object> watchList(EventHandlerMV2<object,object> call)
 		{
 			var watcher = this.onDataChangedEvent.on(call);
 			this.watcherList.Add(watcher);
 			return watcher;
 		}
 
-		public void unWatchList(EventHandlerMV<object> watcher)
+		public void unWatchList(EventHandlerMV2<object,object> watcher)
 		{
 			this.onDataChangedEvent.off(watcher);
 			this.watcherList.Remove(watcher);

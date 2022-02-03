@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class CCDataBindHub : CCMyComponent, ICCDataBindHub
 	{

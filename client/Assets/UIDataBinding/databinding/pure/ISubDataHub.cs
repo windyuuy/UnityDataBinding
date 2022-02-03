@@ -1,6 +1,6 @@
 using System;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
@@ -9,9 +9,9 @@ namespace UI.DataBinding
 
 		number oid { get; set; }
 
-		void setRealDataHub(DataHub realDataHub);
+		void setRealDataHub(DataSourceHub realDataHub);
 		Object rawObj { get; set; }
-		DataHub realDataHub { get; set; }
+		DataSourceHub realDataHub { get; set; }
 
 		void bindDataHost(object data);
 

@@ -2,13 +2,14 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using DataBinding;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class CCDataHost : CCMyComponent, ICCDataHost
 	{
 
-		public virtual vm.IHost dataHost
+		public virtual IStdHost dataHost
 		{
 			get
 			{
@@ -16,7 +17,7 @@ namespace UI.DataBinding
 			}
 		}
 
-		public virtual DataHub dataHub { get; set; } = new DataHub();
+		public virtual DataSourceHub dataHub { get; set; } = new DataSourceHub();
 
 		public override void onRequireAttach()
 		{
@@ -26,11 +27,11 @@ namespace UI.DataBinding
 		{
 			this.onDeattach();
 		}
-		protected override void onEnable()
+		protected override void OnEnable()
 		{
 			this.dataHub.running = true;
 		}
-		protected override void onDisable()
+		protected override void OnDisable()
 		{
 			this.dataHub.running = false;
 		}
@@ -40,7 +41,7 @@ namespace UI.DataBinding
 			this.dataHub.observeData(data);
 		}
 
-		protected virtual void setDataHost(vm.IHost dataHost)
+		protected virtual void setDataHost(IStdHost dataHost)
 		{
 			this.dataHub.setDataHost(dataHost);
 		}

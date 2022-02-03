@@ -4,11 +4,11 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class CCNodeLife : CCMyComponent
 	{
-		protected static Transform lastParent = null;
+		protected Transform lastParent = null;
 		protected static CCNodeLife alteringComp = null;
 		protected virtual void OnBeforeTransformParentChanged()
 		{
@@ -23,17 +23,22 @@ namespace UI.DataBinding
 		protected virtual void OnTransformParentChanged()
 		{
 			Debug.Log("OnTransformParentChanged:" + this.name);
+
+			// TODO: 处理父节点没有CCNodeLife托管的情况
 			if (alteringComp != this)
 			{
 				return;
 			}
 			alteringComp = null;
 
-			newlyLoaded.Add(this);
-			this.handleHierachyChanging();
+			if (!this.IsPrefab)
+			{
+				newlyLoaded.Add(this);
+			}
+			HandleHierachyChanging();
 		}
 
-		protected virtual void handleHierachyChanging()
+		public static void HandleHierachyChanging()
 		{
 			var anyThingDirty = true;
 
@@ -43,17 +48,23 @@ namespace UI.DataBinding
 				anyThingDirty = creatingList.Count > 0;
 				while (creatingList.Count > 0)
 				{
-					var comp = creatingList[0];
+					var compCreating = creatingList[0];
 					creatingList.RemoveAt(0);
-					comp.HandleLoaded();
+					if (!compCreating.IsPrefab)
+					{
+						compCreating.HandleLoaded();
+					}
 				}
 
 				anyThingDirty = anyThingDirty | newlyLoaded.Count > 0;
 				while (newlyLoaded.Count > 0)
 				{
-					var comp = newlyLoaded[0];
+					var compLifecycle = newlyLoaded[0];
 					newlyLoaded.RemoveAt(0);
-					ccNodeLife.handleParentChanged();
+					if (!compLifecycle.IsPrefab)
+					{
+						compLifecycle.handleParentChanged();
+					}
 				}
 			}
 		}
@@ -67,6 +78,19 @@ namespace UI.DataBinding
 			{
 				this._onParentChanged(newParent, oldParent);
 			}
+			else
+			{
+				var ts = this.transform;
+				var surfParent = DataBindHubHelper.seekSurfParent<CCNodeLife>(ts);
+				if (surfParent != null)
+				{
+					this.onAttach();
+				}
+				else
+				{
+					this.onDeattach();
+				}
+			}
 		}
 		// protected virtual void OnUpdate()
 		// {
@@ -77,7 +101,8 @@ namespace UI.DataBinding
 		{
 			this.integrate();
 		}
-		public static List<CCNodeLife> newlyLoaded = new List<CCNodeLife>();
+
+        public static List<CCNodeLife> newlyLoaded = new List<CCNodeLife>();
 		protected bool isLoaded = false;
 		protected virtual void integrate()
 		{
@@ -154,11 +179,11 @@ namespace UI.DataBinding
 				}
 			});
 		}
-		protected override void onEnable()
+		protected override void OnEnable()
 		{
 			this.updateInactiveChildrenAttach();
 		}
-		protected override void onDisable()
+		protected override void OnDisable()
 		{
 			this.updateInactiveChildrenAttach();
 		}

@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Linq.Ext;
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	/**
 	 * 确定CCContainerBind的具体绑定行为
@@ -13,10 +15,10 @@ namespace UI.DataBinding
 		/**
 		 * 如果子节点没有添加 DialogChild, 那么强制为所有子节点添加 DialogChild
 		 */
-		[InspectorName("自动收容子节点")]
+		[Rename("自动收容子节点")]
 		public bool bindChildren = true;
 
-		[InspectorName("使用容器选项覆盖")]
+		[Rename("使用容器选项覆盖")]
 		public bool overrideWithContainerOptions = true;
 
 		public virtual void integrate()
@@ -39,7 +41,7 @@ namespace UI.DataBinding
 			}
 		}
 
-		protected EventHandlerMV<object> watcher;
+		protected EventHandlerMV2<object, object> watcher;
 		protected List<object> oldList = new List<object>();
 		public virtual void relate()
 		{
@@ -50,12 +52,13 @@ namespace UI.DataBinding
 				{
 					this.bindChildren = ccContainerBind.bindChildren;
 				}
-				this.watcher = ccContainerBind.containerBind.watchList((object[] dataSources) =>
+				this.watcher = ccContainerBind.containerBind.watchList((object newValue, object oldValue) =>
 				{
+					var dataSources = ((System.Collections.IList)newValue);
 					var parent = this.transform;
 					var children = parent.GetChildren();
 					var childrenCount0 = children.Length;
-					var maxCount = dataSources.Length;
+					var maxCount = dataSources.Count;
 					var lastI = 0;
 					var childIndex = 0;
 					if (childrenCount0 == 0)
@@ -68,7 +71,7 @@ namespace UI.DataBinding
 						var tempNode = children[childrenCount0 - 1];
 						for (var i = 0; i < maxCount; childIndex++)
 						{
-							var child = children[childIndex];
+							var child = children.TryGet(childIndex);
 							if (childIndex == maxCount)
 							{
 								if (i == lastI)
@@ -100,7 +103,7 @@ namespace UI.DataBinding
 							{
 								ccItem.containerItem.index = i++;
 								var itemHost = dataSources[(int)ccItem.containerItem.index];
-								var itemHost1 = vm.Utils.implementHost(itemHost);
+								var itemHost1 = vm.Utils.implementStdHost(itemHost);
 								ccItem.bindDataHost(itemHost1);
 							});
 						}
@@ -135,8 +138,9 @@ namespace UI.DataBinding
 		 */
 		protected virtual Transform createItemNode(Transform tempNode, Transform parent)
 		{
-			var child = Instantiate(tempNode.gameObject);
-			child.transform.parent = parent;
+			var child = Instantiate(tempNode.gameObject, parent);
+			child.name = tempNode.name;
+			//child.transform.SetParent(parent);
 			return child.transform;
 		}
 

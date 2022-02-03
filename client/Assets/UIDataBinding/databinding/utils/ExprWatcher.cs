@@ -1,8 +1,9 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using DataBinding;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	/**
 	 * 表达式监听集合
@@ -12,12 +13,12 @@ namespace UI.DataBinding
 		/**
 		 * 检测的数据
 		 */
-		protected vm.IHost _host;
+		protected IStdHost _host;
 		/**
 		 * 检测数据对象
 		 * @param data
 		 */
-		protected virtual vm.IHost host
+		protected virtual IStdHost host
 		{
 			get
 			{
@@ -29,7 +30,7 @@ namespace UI.DataBinding
 
 		public virtual void observeData(T2 data)
 		{
-			this._host = vm.Utils.implementHost(data);
+			this._host = vm.Utils.implementStdHost(data);
 		}
 
 		/**
@@ -44,7 +45,7 @@ namespace UI.DataBinding
 				return null;
 			}
 
-			var watcher = this.host._Swatch(expOrFn, (host, newVal, oldVal) =>
+			var watcher = this.host.Watch(expOrFn, (host, newVal, oldVal) =>
 			{
 				cb(newVal, oldVal);
 			}, null, sync);

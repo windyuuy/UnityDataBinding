@@ -1,6 +1,6 @@
 
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class CCContainerItem : CCSubDataHub
 	{

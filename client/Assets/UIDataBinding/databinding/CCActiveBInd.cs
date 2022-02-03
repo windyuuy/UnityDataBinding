@@ -2,20 +2,25 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	[AddComponentMenu("DataDrive/CCActiveBind")]
 
 	public class CCActiveBind : CCDataBindBase
 	{
-		[InspectorName("可见性")]
-		string visible = "";
+		[Rename("可见性")]
+		public string visible = "";
 
 		protected override bool needAttach()
 		{
 			if (!string.IsNullOrEmpty(this.visible))
 			{
-				return this.isAttachCalled && this.enabled && !!this.transform.parent.IsActiveInHierarchy();
+				if(this.isAttachCalled && this.enabled)
+                {
+					var p = this.transform.parent;
+					return p != null ? p.IsActiveInHierarchy() : false;
+				}
+				return false;
 			}
 			else
 			{

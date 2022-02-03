@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class DialogHelper
 	{

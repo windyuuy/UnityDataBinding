@@ -1,25 +1,24 @@
 using System.Linq;
 using System.Linq.Ext;
-using UnityEngine;
 using DataBinding.CollectionExt;
 using UnityEngine.UI;
 
-namespace UI.DataBinding.Tests.TestContainer
+namespace DataBinding.UIBind.Tests.TestContainer
 {
 	using number = System.Double;
 
-	class TC2Item
+	class TC2Item : IStdHost
 	{
-		public string pp = "PP";
-		public string QQ = "QQ";
+		public string pp { get; set; } = "PP";
+		public string QQ { get; set; } = "QQ";
 	}
-	class TC1Item
+	class TC1Item : IStdHost
 	{
-		public List<TC2Item> C2 = new List<TC2Item>();
+		public List<TC2Item> C2 { get; set; } = new List<TC2Item>();
 	}
-	class TRawData
+	class TRawData:IStdHost
 	{
-		public List<TC1Item> C1 = new List<TC1Item>();
+		public List<TC1Item> C1 { get; set; } = new List<TC1Item>();
 	}
 	public class TestContainer : TestBase
 	{
@@ -43,9 +42,9 @@ namespace UI.DataBinding.Tests.TestContainer
 							{
 								QQ ="QQ2",
 								pp="PP2",
-                            },
-                        },
-                    },
+							},
+						},
+					},
 					new TC1Item()
 					{
 						C2 = new List<TC2Item>()
@@ -69,19 +68,23 @@ namespace UI.DataBinding.Tests.TestContainer
 		{
 			var C1 = this.cn("c")!;
 			var items = C1.GetComponentsInChildren<Text>();
-			assert(items[0].text == this.rawData.C1[0].C2[0].QQ);
-			assert(items[7].text == this.rawData.C1[1].C2[1].pp);
-			var Node0 = C1.cns("Node")[0];
-			var Node1 = C1.cns("Node")[1];
-			Node1.parent = null;
+			assert(C1.cnrff<Text>("Node[0]/sc/item[0]/Label").text == this.rawData.C1[0].C2[0].QQ);
+			assert(C1.cnrff<Text>("Node[1]/sc/item[1]/Label-001").text == this.rawData.C1[1].C2[1].pp);
+			var Node0 = C1.cnrf("Node[0]");
+			var Node1 = C1.cnrf("Node[1]");
+			//Node1.parent = null;
+			// TODO: 解决从场景移除节点的问题
+			Node1.gameObject.SetActive(false);
 			var sample0 = this.rawData.C1[1].C2[0].QQ;
+			assert(Node1.cnrff<Text>("sc/item[0]/Label").text == sample0);
 			var sample1 = "jjj";
 			this.rawData.C1[1].C2[0].QQ = sample1;
 			this.tick();
-			assert(items[4].text == sample0);
-			Node1.parent = C1;
+			assert(Node1.cnrff<Text>("sc/item[0]/Label").text == sample0);
+			//Node1.parent = C1;
+			Node1.gameObject.SetActive(true);
 			this.tick();
-			assert(items[4].text == sample1);
+			assert(C1.cnrff<Text>("Node[1]/sc/item[0]/Label").text == sample1);
 			this.rawData.C1.Add(new TC1Item()
 			{
 				C2 = new List<TC2Item>()
@@ -121,22 +124,24 @@ namespace UI.DataBinding.Tests.TestContainer
 			});
 			this.tick();
 			items = C1.GetComponentsInChildren<Text>();
-			assert(items[9].text == this.rawData.C1[1].C2[2].pp);
-			assert(items[17].text == this.rawData.C1[3].C2[1].pp);
+			assert(C1.cnrff<Text>("Node[1]/sc/item[2]/Label-001").text == this.rawData.C1[1].C2[2].pp);
+			assert(C1.cnrff<Text>("Node[3]/sc/item[1]/Label-001").text == this.rawData.C1[3].C2[1].pp);
 			this.tick();
 			this.rawData.C1.RemoveAt(1);
+			assert(C1.cnrs("Node").Select(n=>n.gameObject.activeSelf).ToArray().Length == this.rawData.C1.Count+1);
 			this.tick();
+			assert(C1.cnrs("Node").Where(n => n.gameObject.activeSelf).ToArray().Length == this.rawData.C1.Count);
 			this.rawData.C1.RemoveAt(0);
 			this.tick();
-			this.rawData.C1[0].C2.RemoveAt(2);
-			this.tick();
-			items = C1.GetComponentsInChildren<Text>();
+			assert(C1.cnrs("Node").Where(n => n.gameObject.activeSelf).ToArray().Length == this.rawData.C1.Count);
+			items = C1.GetComponentsInChildren<Text>(true);
 			assert(items.Length == 18);
 			items = items.Where(item => item.IsEnabledInHierarchy()).ToArray();
 			assert(items.Length == 8);
 			var sample2 = this.rawData.C1[1].C2[0].QQ;
-			Node1 = C1.cns("Node")[1];
-			Node1.parent = null;
+			Node1 = C1.cnrf("Node[1]");
+			//Node1.parent = null;
+			Node1.gameObject.SetActive(false);
 			this.tick();
 			this.rawData.C1[1].C2[0].QQ = "sample31";
 			this.tick();
@@ -147,10 +152,11 @@ namespace UI.DataBinding.Tests.TestContainer
 			var sample3 = "jjjxx";
 			this.rawData.C1[1].C2[0].QQ = sample3;
 			this.tick();
-			assert(items[4].text == sample2);
-			Node1.parent = C1;
+			assert(C1.cnrff<Text>("Node[1]/sc/item[0]/Label").text == sample2);
+			//Node1.parent = C1;
+			Node1.gameObject.SetActive(true);
 			this.tick();
-			assert(items[4].text == sample3);
+			assert(C1.cnrff<Text>("Node[1]/sc/item[0]/Label").text == sample3);
 		}
 		public override void testLazy()
 		{

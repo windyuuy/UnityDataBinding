@@ -1,6 +1,7 @@
 
+using DataBinding;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class CCSubDataHub : CCMyComponent, ICCSubDataHub
 	{
@@ -8,7 +9,7 @@ namespace UI.DataBinding
 
 		// ccDataHost!: CCDataHost
 
-		public virtual vm.IHost dataHost
+		public virtual IStdHost dataHost
 		{
 			get
 			{
@@ -25,7 +26,7 @@ namespace UI.DataBinding
 			}
 		}
 
-		// bindDataHost(dataHost: vm.IHost) {
+		// bindDataHost(dataHost: IStdHost) {
 		// this.ccDataHost.dataHub.setDataHost(dataHost)
 		// }
 

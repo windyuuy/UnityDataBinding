@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class TestBase : MonoBehaviour
 	{
@@ -73,7 +73,17 @@ namespace UI.DataBinding
 		public virtual void Start()
 		{
 			// this.scheduleOnce(() => {
-			this.test();
+			try
+			{
+				Debug.Log("Begin Test <" + this.name + ">");
+				this.test();
+				Debug.Log("Success Test <" + this.name + ">");
+			}
+			catch (System.Exception e)
+			{
+				Debug.LogError("Failed Test <" + this.name + ">");
+				Debug.LogException(e);
+			}
 
 
 
@@ -96,7 +106,7 @@ namespace UI.DataBinding
 			vm.Tick.next();
 		}
 
-		protected virtual void update()
+		protected virtual void Update()
 		{
 			this.tick();
 		}

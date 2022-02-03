@@ -1,10 +1,10 @@
 using UnityEngine;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public class CCDialogChild : CCSubDataHub, ICCDialogChild
 	{
-		[InspectorName("承接父容器数据源")]
+		[Rename("承接父容器数据源")]
 		[SerializeField]
 		protected bool _autoExtendDataSource = false;
 
@@ -21,7 +21,8 @@ namespace UI.DataBinding
 			}
 		}
 
-		[InspectorName("绑定子项数据源")]
+		[Rename("绑定子项数据源")]
+		[SerializeField]
 		private string _subKey = "";
 
 		public string subKey

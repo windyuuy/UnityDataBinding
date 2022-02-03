@@ -1,16 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
-	class C1Item
+	class C1Item : IStdHost
 	{
-		public string AV2;
+		public string AV2 { get; set; }
 	}
 
-	class TRawData
+	class TRawData:IStdHost
 	{
-		public C1Item C1 = new C1Item();
+		public C1Item C1 { get; set; } = new C1Item();
 	}
 	public class TestDialogChild : TestBase
 	{
@@ -33,12 +33,12 @@ namespace UI.DataBinding
 		protected override void initTestData()
 		{
 			this._rawData = new TRawData()
-            {
-				C1=new C1Item()
-                {
-					AV2="AAA",
-                },
-            };
+			{
+				C1 = new C1Item()
+				{
+					AV2 = "AAA",
+				},
+			};
 		}
 
 		public override void test()

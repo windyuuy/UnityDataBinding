@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
@@ -25,7 +25,14 @@ namespace UI.DataBinding
 		{
 			get
 			{
-				return this.parents[0];
+				if (this.parents.Count > 0)
+				{
+					return this.parents[0];
+				}
+				else
+				{
+					return null;
+				}
 			}
 			set
 			{

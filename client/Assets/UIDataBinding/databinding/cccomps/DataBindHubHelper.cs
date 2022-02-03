@@ -2,8 +2,9 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using DataBinding;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	public interface ICCIntegrate
 	{
@@ -19,13 +20,13 @@ namespace UI.DataBinding
 
 	public interface ICCDataHost : ICCIntegrate
 	{
-		vm.IHost dataHost { get; }
-		DataHub dataHub { get; set; }
+		IStdHost dataHost { get; }
+		DataSourceHub dataHub { get; set; }
 	}
 
 	public interface ICCSubDataHub : ICCIntegrate
 	{
-		vm.IHost dataHost { get; }
+		IStdHost dataHost { get; }
 		// ccDataHost: ICCDataHost
 		ISubDataHub subDataHub { get; }
 	}
@@ -52,19 +53,19 @@ namespace UI.DataBinding
 	public interface ICCContainerBinding : ICCIntegrate
 	{
 		ContainerBind containerBind { get; set; }
-		string bindSubExp { get; set; }
+		string BindSubExp { get; set; }
 	}
 
 	public class DataBindHubHelper
 	{
-		public static T seekSurfParent<T>(Transform self) where T : MonoBehaviour
+		public static T seekSurfParent<T>(Transform self) where T : Component
 		{
 			var parent = self.parent;
-			var ccParent = parent.GetComponent<T>();
-			while (parent && (!ccParent))
+			var ccParent = parent?.GetComponent<T>();
+			while (parent && (ccParent == null))
 			{
 				parent = parent.parent;
-				ccParent = parent.GetComponent<T>();
+				ccParent = parent?.GetComponent<T>();
 			}
 			return ccParent as T;
 		}
@@ -138,7 +139,7 @@ namespace UI.DataBinding
 
 			var selfComp = self as Component;
 			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>();
-			if (ccDataBindHub)
+			if (ccDataBindHub!=null)
 			{
 				var dataBindHub = ccDataBindHub.dataBindHub;
 				self.dataHub.removeBindHub(dataBindHub);
@@ -211,7 +212,7 @@ namespace UI.DataBinding
 			}
 			var ccContainerCtrl = selfComp.GetOrAddComponent<CCContainerCtrl>();
 			ccContainerCtrl.relate();
-			self.containerBind.bindExpr(self.bindSubExp);
+			self.containerBind.bindExpr(self.BindSubExp);
 		}
 
 		public static void onDerelateContainerBind(ICCContainerBinding self)

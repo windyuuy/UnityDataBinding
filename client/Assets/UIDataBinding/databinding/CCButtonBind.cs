@@ -3,20 +3,22 @@ using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
+
+	using TButtonBindCallback=System.Action<DataBinding.UIBind.CCButtonBind, double>;
 
 	[AddComponentMenu("DataDrive/CCButtonBind")]
 	public class CCButtonBind : CCDataBindBase
 	{
-		[InspectorName("可交互")]
+		[Rename("可交互")]
 		public string kInteractive = "";
 
-		[InspectorName("变灰")]
+		[Rename("变灰")]
 		public string kToGray = "";
 
-		[InspectorName("点击响应")]
+		[Rename("点击响应")]
 		public CCSimpleBindClickFuncInfo[] clickTriggers = new CCSimpleBindClickFuncInfo[0];
 
 		/**
@@ -76,6 +78,7 @@ namespace UI.DataBinding
 			return true;
 		}
 
+		[HideInInspector]
 		public bool isGray = false;
 		protected virtual void setToGray(bool b)
 		{
@@ -95,10 +98,11 @@ namespace UI.DataBinding
 			}
 		}
 
+		[HideInInspector]
 		public Button target = null;
 
 		protected Action<Button> _clickEventHandler;
-		protected List<Action<CCButtonBind, DataBind, number>> _clickHandleFuncs = new List<Action<CCButtonBind, DataBind, number>>();
+		protected List<TButtonBindCallback> _clickHandleFuncs = new List<TButtonBindCallback>();
 
 		public bool checkClick()
 		{
@@ -123,7 +127,7 @@ namespace UI.DataBinding
 						var clickHandleFunc = funcs[index];
 						if (clickHandleFunc != null)
 						{
-							clickHandleFunc(this, this.dataBind, index);
+							clickHandleFunc(this, index);
 						}
 						else
 						{
@@ -145,20 +149,27 @@ namespace UI.DataBinding
 				{
 					continue;
 				}
-				Action<Action<CCButtonBind, DataBind, number>> onSetValue = (Action<CCButtonBind, DataBind, number> value) =>
+				Action<TButtonBindCallback> onSetValue = (TButtonBindCallback value) =>
 				{
 					if (value != null)
 					{
-						if (Utils.isValid(this)) this._clickHandleFuncs[index] = value;
+						if (Utils.isValid(this))
+						{
+                            while (this._clickHandleFuncs.Count <= index)
+                            {
+								this._clickHandleFuncs.Add(null);
+                            }
+							this._clickHandleFuncs[index] = value;
+						}
 					}
 					else
 					{
 						console.warn("点击响应需要返回函数类型, 当前返回值: ", value, ", type:", value.GetType());
 					}
 				};
-				this.watchValueChange<System.Action<UI.DataBinding.CCButtonBind, UI.DataBinding.DataBind, double>>(clickTrigger.callExpr, (newValue, oldValue) =>
+				this.watchValueChange<TButtonBindCallback>(clickTrigger.callExpr, (newValue, oldValue) =>
 				{
-					onSetValue((System.Action<UI.DataBinding.CCButtonBind, UI.DataBinding.DataBind, double>)newValue);
+					onSetValue((TButtonBindCallback)newValue);
 				});
 			}
 			return true;

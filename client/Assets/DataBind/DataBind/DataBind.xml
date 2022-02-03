@@ -28,6 +28,9 @@
         <member name="M:vm.Utils.implementHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
+        <member name="M:vm.Utils.implementStdHost``1(``0)">
+            向普通对象注入Host相关方法
+        </member>
         <member name="M:vm.Utils.IsObservable(System.Object)">
             <summary>
             是否可观察对象
@@ -216,7 +219,7 @@
             用于标记需要作为观察者
             </summary>
         </member>
-        <member name="T:DataBinding.HostAttribute">
+        <member name="T:DataBinding.StdHostAttribute">
             <summary>
             手动添加，标记这个类需要作为观察者
             </summary>
@@ -235,6 +238,11 @@
             <summary>
             标记可观察对象
             - 所有属性对应的类型也会被标记为可观察
+            </summary>
+        </member>
+        <member name="T:DataBinding.AutoFieldPropertyAttribute">
+            <summary>
+            使field自动转为property
             </summary>
         </member>
     </members>

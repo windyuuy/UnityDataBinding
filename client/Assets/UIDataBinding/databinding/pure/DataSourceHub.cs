@@ -1,9 +1,12 @@
 
 using System;
+using System.Linq;
+using System.Linq.Ext;
 using System.Diagnostics;
 using System.Collections.Generic;
+using DataBinding;
 
-namespace UI.DataBinding
+namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
@@ -40,17 +43,17 @@ namespace UI.DataBinding
 	/**
 	 * 适配 DataHost, 提供更易用的接口规范
 	 */
-	public class DataHub : IDataBindHubTree
+	public class DataSourceHub : IDataBindHubTree
 	{
 
 		// public static readonly NoneOldValue = Symbol("NoneOldValue");
 
-		public vm.IHost dataHost = null;
+		public IStdHost dataHost = null;
 		public Object rawObj;
 
 		protected EventHandlerMV2<string, EventHandlerMV2<object, object>> _onWatchNewExprCall;
 		protected EventHandlerMV2<string, EventHandlerMV2<object, object>> _onUnWatchExprCall;
-		public DataHub()
+		public DataSourceHub()
 		{
 			this._onWatchNewExprCall = (string expr, EventHandlerMV2<object, object> call) =>
 			{
@@ -64,11 +67,18 @@ namespace UI.DataBinding
 
 		public void observeData(object data)
 		{
-			var d = vm.Utils.implementHost(data);
-			this.setDataHost(d);
+			var d = vm.Utils.implementStdHost(data);
+			if(d==null||d is IStdHost)
+            {
+				this.setDataHost(d);
+            }
+            else
+            {
+				throw new InvalidCastException("cannot cast data to IStdHost");
+            }
 		}
 
-		public void setDataHost(vm.IHost dataHost)
+		public void setDataHost(IStdHost dataHost)
 		{
 			this.replaceDataHost(dataHost);
 		}
@@ -96,14 +106,12 @@ namespace UI.DataBinding
 				var watcher = this.watcherList[expr];
 				watcher.teardown();
 			}
-			foreach (var expr in this.watcherList.Keys)
-			{
-				this.watcherList.Remove(expr);
-			}
+			this.watcherList.Clear();
+
 			this.dataHost = null;
 		}
 
-		protected void replaceDataHost(vm.IHost dataHost)
+		protected void replaceDataHost(IStdHost dataHost)
 		{
 			if (this.dataHost == dataHost)
 			{
@@ -221,10 +229,13 @@ namespace UI.DataBinding
 			}
 			else
 			{
-				var watcher = this.watcherList[expr];
-				if (watcher != null)
+				if (this.watcherList.ContainsKey(expr))
 				{
-					call(watcher.value, null);
+					var watcher = this.watcherList[expr];
+					if (watcher != null)
+					{
+						call(watcher.value, null);
+					}
 				}
 			}
 		}
@@ -264,7 +275,7 @@ namespace UI.DataBinding
 						var expr = info.expr;
 						var v = info.newValue;
 						var oldValue = info.oldValue;
-						var infoMerged = pendingInfoMerged[expr];
+						var infoMerged = pendingInfoMerged.TryGet(expr);
 						if (infoMerged == null)
 						{
 							infoMerged = info.Clone();
@@ -309,13 +320,21 @@ namespace UI.DataBinding
 			}
 			else
 			{
-				var watcher = this.dataHost?._Swatch(expr, (host, value, oldValue) =>
-				{
-					if (this.watchingExprs[expr] > 0)
+				vm.Watcher watcher;
+				if(this.dataHost == null)
+                {
+					watcher = null;
+                }
+                else
+                {
+					watcher = this.dataHost.Watch(expr, (host, value, oldValue) =>
 					{
-						this.emitValueChangedEvent(expr, value, oldValue);
-					}
-				}, null, false);
+						if (this.watchingExprs[expr] > 0)
+						{
+							this.emitValueChangedEvent(expr, value, oldValue);
+						}
+					}, null, false);
+				}
 				if (watcher != null)
 				{
 					if (this.watchingExprs[expr] > 0)
@@ -336,7 +355,7 @@ namespace UI.DataBinding
 			this.watchingExprs[expr] = this.watchingExprs.ContainsKey(expr) ? this.watchingExprs[expr] : 0;
 			this.watchingExprs[expr]++;
 
-			if (this.watcherList[expr] == null)
+			if (this.watcherList.ContainsKey(expr) == false)
 			{
 				// if (expr == "&this") {
 				// 	this.emitValueChangedEvent(expr, this.dataHost, null)
