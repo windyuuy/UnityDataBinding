@@ -4,16 +4,13 @@ using UnityEngine.UI;
 using DataBinding;
 
 
-public class ProgressBind : MonoBehaviour
+public class ProgressBind : BindCompentBase
 {
 	private  Slider        _slider;
-	private ProgressHost     _sliderHost;
 	public void Start()
 	{
 		_slider      = transform.GetComponent<Slider>(); 
-		_sliderHost  = new ProgressHost(); 
-
-		if(_slider!=null)
+		if(_slider!=null&& mainProprity!=null && !isContainData)
 		{
 			//注册监听器
 			initWatcher();
@@ -25,7 +22,8 @@ public class ProgressBind : MonoBehaviour
 		//监听图片更新表达式
 		//参数1是表达式 实际上就是观测数据的属性
 	    //只有当值发生改变时才会触发事件
-		_sliderHost.Watch("progress.value",(host, value, oldValue) =>
+		if(dataHost==null) return;
+		dataHost.Watch(mainProprity,(host, value, oldValue) =>
 		{
 			//数值发生了改变
 			Debug.Log(" progress value changed：  "+oldValue+"--->"+value);
@@ -34,25 +32,12 @@ public class ProgressBind : MonoBehaviour
 		);
 	}
 
-	public void upadeProgressData(float value)
-	{
-		if(_sliderHost == null)return;
-		_sliderHost.progress.value = value;
-		vm.Tick.next();
-	}
-
 	//更新进度条
 	private void showProgress(float value)
 	{
-		if(_sliderHost!=null)
+		if(_slider!=null)
 		{
 			_slider.value = value;
 		}
-	}
-	
-	void Update()
-	{
-		//在Update中调用
-		vm.Tick.next();
 	}
 }

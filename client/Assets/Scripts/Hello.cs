@@ -36,7 +36,7 @@ public class Hello : MonoBehaviour
 			Debug.Log("value changed;");
 			Debug.Log(value);
 
-			GameObject.Find("GameObject/Canvas/Text").GetComponent<UnityEngine.UI.Text>().text = $"{value}";
+			//GameObject.Find("GameObject/Canvas/Text").GetComponent<UnityEngine.UI.Text>().text = $"{value}";
 		});
 		sampleHost.hello.NumDictionary[123] = "你变了";
 		// 通知表达式值变化

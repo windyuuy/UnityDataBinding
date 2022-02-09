@@ -1,87 +1,145 @@
 using System.IO;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using DataBinding.CollectionExt;
+
+
+public class myData
+{
+    public string myselfname;
+}
 
 public class test : MonoBehaviour
 {
+
+    //每一个UI都必须有一个数据观测对象
+    //现在这个test就相当于是主的UI
+    //它就需要一个datahost
     public GameObject img;
     public GameObject btn;
-    public Button     Testbtn;
     public Toggle     toggle;
     public Slider     slider;
     public ScrollRect  scroll;
 
+
+
+    //测试按钮
+
+    public Button     Testbtn1;
+    public Button     Testbtn2;
+    public Button     Testbtn3;
+    public Button     Testbtn4;
+    public Button     Testbtn5;
+    public Button     Testbtn6;
+    public Button     Testbtn7;
+
+
     public Text text;
 
-
-    public Text text1;
-
-    private Text text2;
-
     private bool isselect = false;
+
 
     System.Random  _rand = new System.Random();
 
     List<string> RandomImagePath  = new List<string>();
 
     List<UnityAction> callbacks  = new List<UnityAction>();
-    
+
+
+    List<string> RandomTestPath  = new List<string>();
+
+    //UI的观测数据结构,相当于是UI数据结构
+     CommentOB   uiData  = new CommentOB();
+
+     DataHostCompent _dataHost;
+
+
     void Start()
     {
+
+        _dataHost  = transform.GetComponent<DataHostCompent>();
+
+        uiData.intListData = new List<myData>();
+
+        //在数据观测组件中来注册一下UI的数据对象
+
+        _dataHost.registerData(uiData);
+
+        // uiData = geneTestData();
+        // 每一个UI都必须只能一个
         RandomImagePath.Add("bg_growup_pic_sticker_01");
         RandomImagePath.Add("bg_growup_pic_sticker_02");
         RandomImagePath.Add("bg_growup_pic_sticker_03");
         RandomImagePath.Add("bg_growup_pic_sticker_04");
         RandomImagePath.Add("bg_growup_pic_sticker_05");
-        // Testbtn.onClick.AddListener(()=>{
-        //     var zz = _rand.Next(0,5);
-        //     img.GetComponent<ImgeBind>().upadeImageData(RandomImagePath[zz]);     
-        // });
+
+        RandomTestPath.Add("11111");
+        RandomTestPath.Add("22222");
+        RandomTestPath.Add("33333");
+        RandomTestPath.Add("44444");
+        RandomTestPath.Add("55555");
+
+        Testbtn1.onClick.AddListener(()=>{
+                var zz = _rand.Next(0,5);
+                uiData.imgepath =   RandomImagePath[zz];
+                print("当前的纹理是 ： "+RandomImagePath[zz]);
+            });
 
 
         callbacks.Add(()=>{Debug.Log("我是函数1");});
         callbacks.Add(()=>{Debug.Log("我是函数2");});
         callbacks.Add(()=>{Debug.Log("我是函数3");});
         callbacks.Add(()=>{Debug.Log("我是函数4");});
-        // Testbtn.onClick.AddListener(()=>{
-        //     var zz = _rand.Next(0,4);
-        //     btn.GetComponent<ButtonBind>().upadeButtonData(callbacks[zz]);     
-        // });
+        Testbtn2.onClick.AddListener(()=>{
+            var zz = _rand.Next(0,4);
+            uiData.callBack =   callbacks[zz];   
+        });
 
 
-        // Testbtn.onClick.AddListener(()=>{
-        //     var zz = _rand.Next(0,5);
-        //     text.GetComponent<TextBind>().upadeTextData(RandomImagePath[zz]);  
+        Testbtn3.onClick.AddListener(()=>{
+            var zz = _rand.Next(0,5);
+            uiData.textname =   RandomTestPath[zz];
 
-        // });
-
-
-        // Testbtn.onClick.AddListener(()=>{
-        //     isselect = !isselect;
-        //     toggle.GetComponent<ToggleBind>().upadeToggleData(isselect);     
-        // });
+        });
 
 
-        // Testbtn.onClick.AddListener(()=>{
-        //     var zz = _rand.Next(0,10);
-        //     slider.GetComponent<ProgressBind>().upadeProgressData((float)zz/10);     
-        // });
+        Testbtn4.onClick.AddListener(()=>{
+            isselect = !isselect;
+            uiData.isSelect = isselect;     
+        });
 
 
-        Testbtn.onClick.AddListener(()=>{
+        Testbtn5.onClick.AddListener(()=>{
             var zz = _rand.Next(0,10);
+            uiData.progress = zz/10f ;     
+        });
+
+
+        Testbtn6.onClick.AddListener(()=>{
+            var zz = _rand.Next(4,10);
             var kk = _rand.Next(0,100);
-            List<int> lisy = new List<int>();
+            List<myData> lisy = new List<myData>();
             for(int i=0;i<zz;i++)
             {
-                lisy.Add(i+kk);
+                myData temp = new myData();
+                temp.myselfname = (i+kk).ToString();
+                lisy.Add(temp);
             }
-            print("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
-            scroll.GetComponent<ContainerBind>().upadeScrollViewData(lisy);     
+            uiData.intListData = lisy; 
         });
+
+
+
+        Testbtn7.onClick.AddListener(()=>{
+            var zz = _rand.Next(0,uiData.intListData.Count);
+            var kk = _rand.Next(0,6);
+
+            uiData.intListData[2].myselfname = (100+kk).ToString();
+            //print("kkkkkkkkkkkkkkkkkkkkkkkkkk  "+"   "+uiData.intListData[zz].myselfname);
+
+        });
+
 
         // int i = 0;
         // for (; i < 5; i++)
@@ -106,13 +164,5 @@ public class test : MonoBehaviour
         //     text.GetComponent<TextBind>().upadeTextData(RandomImagePath[zz]);     
         // });
 
-
-    }
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

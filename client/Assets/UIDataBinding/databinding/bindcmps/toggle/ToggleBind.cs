@@ -4,16 +4,13 @@ using UnityEngine.UI;
 using DataBinding;
 
 
-public class ToggleBind : MonoBehaviour
+public class ToggleBind : BindCompentBase
 {
 	private Toggle            _toggle;
-	private ToggleHost        _toggleHost;
 	public void Start()
 	{
 		_toggle      = transform.GetComponent<Toggle>(); 
-		_toggleHost  = new ToggleHost(); 
-
-		if(_toggle!=null)
+		if(_toggle!=null&& mainProprity!=null && !isContainData)
 		{
 			//注册监听器
 			initWatcher();
@@ -25,21 +22,14 @@ public class ToggleBind : MonoBehaviour
 		//监听图片更新表达式
 		//参数1是表达式 实际上就是观测数据的属性
 	    //只有当值发生改变时才会触发事件
-		_toggleHost.Watch("toggle.isSelect",(host, value, oldValue) =>
+		if(dataHost==null) return;
+		dataHost.Watch(mainProprity,(host, value, oldValue) =>
 		{
 			//数值发生了改变
 			Debug.Log(" toggle value changed：  "+oldValue+"--->"+value);
 			showToggle((bool)value);
 		}
 		);
-	}
-
-	public void upadeToggleData(bool isSelect)
-	{
-		print("llllllllllllll"+isSelect);
-		if(_toggleHost == null)return;
-		_toggleHost.toggle.isSelect = isSelect;
-		vm.Tick.next();
 	}
 
 	//更新文本
@@ -49,11 +39,5 @@ public class ToggleBind : MonoBehaviour
 		{
 			_toggle.isOn = isSelect;
 		}
-	}
-
-	void Update()
-	{
-		//在Update中调用
-		vm.Tick.next();
 	}
 }

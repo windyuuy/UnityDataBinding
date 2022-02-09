@@ -11,50 +11,51 @@ using DataBinding;
 //这个数据绑定本质上就是一个单独的观察者模式，一旦数据发生了改变，就通知组件执行相应的事件函数来更新UI
 //核心就是一个抽像，把页面需要随数据变化的元素写进数据绑定
 //需要每一个组件单独定制这样的数据绑定，需要日积月累的添加。
+//实际上就是把数据绑定的部分暴露给UI属性配置栏
+//如果是容器数据，需要有父节代码来绑定实际的属性
 
-public class ImgeBind : MonoBehaviour
+public class ImgeBind : BindCompentBase
 {
 	private Image           _img;
-	private ImgeHost        _imgeHost;
+	private RawImage         _rimg;
 	public void Start()
 	{
 		_img       = transform.GetComponent<Image>(); 
-		_imgeHost  = new ImgeHost(); 
-
-		if(_img!=null)
+        _rimg      = transform.GetComponent<RawImage>(); 
+		if(_img != null || _rimg != null && mainProprity!=null && !isContainData)
 		{
-			//注册监听器
 			initWatcher();
 		}
 	}
 
 	private void initWatcher()
 	{
+		//这个数据绑定本质上就是需要把手
 		//监听图片更新表达式
 		//参数1是表达式 实际上就是观测数据的属性
 	    //只有当值发生改变时才会触发事件
-		_imgeHost.Watch("imge.imgepath",(host, value, oldValue) =>
+		if(dataHost==null) return;
+		dataHost.Watch(mainProprity,(host, value, oldValue) =>
 		{
 			//数值发生了改变
-			Debug.Log("value changed：  "+oldValue+"--->"+value);
-			loadSprite(value as string);
+			Debug.Log("image value changed：  "+oldValue+"--->"+value);
+			if(_img!=null)
+			{
+				loadSprite(value as string);
+			}
+			else
+			{
+				loadTexture(value as string);
+			}
 		}
 		);
 	}
 
-	public void upadeImageData(string path)
-	{
-		if(path == null && path == "")return;
-		_imgeHost.imge.imgepath = path;
-		vm.Tick.next();
-	}
-
-	//加载纹理
+	//加载精灵
 	private void loadSprite(string path)
 	{
 		if(path == null || path=="") return;
 		//导入纹理
-
 		var sp = Resources.Load<Sprite>(path);	
 		if(sp!=null && _img!=null)
 		{
@@ -62,11 +63,15 @@ public class ImgeBind : MonoBehaviour
 		}
 	}
 
-
-	void Update()
+	//加载纹理
+	private void loadTexture(string path)
 	{
-		//在Update中调用
-		vm.Tick.next();
+		if(path == null || path=="") return;
+		var tes = Resources.Load<Texture>(path);	
+		if(tes!=null && _rimg!=null)
+		{
+			_rimg.texture = tes;
+		}
 	}
 	
 }

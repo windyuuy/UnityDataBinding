@@ -3,23 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using DataBinding;
 
-public class TextBind : MonoBehaviour
+public class TextBind : BindCompentBase
 {
 	private Text            _text;
-	private TextHost        _textHost;
 	public void Start()
 	{
-		initText();
-	}
-
-
-	public void initText()
-	{
-		_text      = transform.GetComponent<Text>(); 
-
-		if(_text!=null && _textHost == null)
+		_text = GetComponent<Text>();
+		if(_text!=null&& mainProprity!=null && !isContainData)
 		{
-			//注册监听器
 			initWatcher();
 		}
 	}
@@ -29,8 +20,8 @@ public class TextBind : MonoBehaviour
 		//监听图片更新表达式
 		//参数1是表达式 实际上就是观测数据的属性
 	    //只有当值发生改变时才会触发事件
-		_textHost  = new TextHost(); 
-		_textHost.Watch("text.textString",(host, value, oldValue) =>
+		if(dataHost==null) return;
+		dataHost.Watch(mainProprity,(host, value, oldValue) =>
 		{
 			//数值发生了改变
 			Debug.Log(" text value changed：  "+oldValue+"--->"+value);
@@ -39,31 +30,37 @@ public class TextBind : MonoBehaviour
 		);
 	}
 
-	public void upadeTextData(string str)
-	{
-		if(str == null)return;
-
-		initText();
-	
-		//print("lllllllllllllllll  "+str);
-		// print(_textHost);
-		// print(_textHost.text);
-		// print(_textHost.text.textString);
-		_textHost.text.textString = str;
-		// vm.Tick.next();
-		
-	}
-
 	//更新文本
 	private void showText(string str)
 	{
 		if(str == null || str=="" || _text == null) return;
 		_text.text = str;
 	}
-	
-	void Update()
+
+
+	//容器文本初始化 绑定的组件需要进行拼接
+	public void intContainerWatcher(int index)
 	{
-		//在Update中调用
-		vm.Tick.next();
+		_text = GetComponent<Text>();
+		print("初始化index "+index);
+		print(_text);
+		if(_text!=null&& mainProprity!=null && isContainData)
+		{
+			print("初始化index "+index);
+			if(dataHost==null) return;
+			string fathetexp = GetFatherMainProprity(transform);
+
+			string  exp      = fathetexp+'['+index+']'+'.'+mainProprity;
+
+			print("the vlue is :"+exp);
+
+			//注册watcher
+			dataHost.Watch(exp,(host, value, oldValue) =>
+			{
+				//数值发生了改变
+				Debug.Log(" text value changed：  "+oldValue+"--->"+value);
+				showText(value as string);
+			});
+		}
 	}
 }
