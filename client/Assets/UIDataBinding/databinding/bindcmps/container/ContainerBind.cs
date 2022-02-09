@@ -80,10 +80,4 @@ public class ContainerBind : BindCompentBase
 			texts[i].intContainerWatcher(index);
 		}
     }
-
-	void Update()
-	{
-		//在Update中调用
-		vm.Tick.next();
-	}
 }
