@@ -25,13 +25,11 @@
         <member name="M:vm.Dep.notifyWatchers">
             通知所有侦听者
         </member>
-        <member name="M:vm.HostExt._Swatch(vm.IHostAccessor,vm.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},vm.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
-            侦听一个数据发生的变化
-            @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
-            @param cb 重新执行后，发生变化则会出发回调函数
+        <member name="M:vm.Utils.implementHost``1(``0)">
+            向普通对象注入Host相关方法
         </member>
-        <member name="M:vm.HostExt._Sdestroy(vm.IHostAccessor)">
-            释放host，包括所有watch
+        <member name="M:vm.Utils.implementStdHost``1(``0)">
+            向普通对象注入Host相关方法
         </member>
         <member name="M:vm.Utils.IsObservable(System.Object)">
             <summary>
@@ -48,6 +46,14 @@
         <member name="M:vm.Utils.IsTrue(System.Object)">
             讲使用.分隔的路径访问转换为函数。
             @param path 
+        </member>
+        <member name="M:vm.HostExt._Swatch(vm.IHostAccessor,vm.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},vm.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+            侦听一个数据发生的变化
+            @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
+            @param cb 重新执行后，发生变化则会出发回调函数
+        </member>
+        <member name="M:vm.HostExt._Sdestroy(vm.IHostAccessor)">
+            释放host，包括所有watch
         </member>
         <member name="M:vm.Observer.walk(System.Object)">
             遍历所有属性，拦截get set
@@ -195,6 +201,11 @@
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
+        <member name="M:DataBinding.HostExt2._Watch0(DataBinding.IStdHost,vm.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},vm.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+            侦听一个数据发生的变化
+            @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
+            @param cb 重新执行后，发生变化则会出发回调函数
+        </member>
         <member name="M:DataBinding.HostExt2.Watch(DataBinding.IStdHost,System.String,System.Action{System.Object,System.Object,System.Object},vm.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
@@ -213,7 +224,7 @@
             用于标记需要作为观察者
             </summary>
         </member>
-        <member name="T:DataBinding.HostAttribute">
+        <member name="T:DataBinding.StdHostAttribute">
             <summary>
             手动添加，标记这个类需要作为观察者
             </summary>
@@ -232,6 +243,11 @@
             <summary>
             标记可观察对象
             - 所有属性对应的类型也会被标记为可观察
+            </summary>
+        </member>
+        <member name="T:DataBinding.AutoFieldPropertyAttribute">
+            <summary>
+            使field自动转为property
             </summary>
         </member>
     </members>
