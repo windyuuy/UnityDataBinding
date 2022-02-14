@@ -35,7 +35,7 @@ public class ImgeBind : BindCompentBase
 		//参数1是表达式 实际上就是观测数据的属性
 	    //只有当值发生改变时才会触发事件
 		if(dataHost==null) return;
-		dataHost.Watch(mainProprity,(host, value, oldValue) =>
+		var watcher = dataHost.Watch(mainProprity,(host, value, oldValue) =>
 		{
 			//数值发生了改变
 			Debug.Log("image value changed：  "+oldValue+"--->"+value);
@@ -49,6 +49,13 @@ public class ImgeBind : BindCompentBase
 			}
 		}
 		);
+		if(watcher!=null)
+		{
+
+			var currentData  = watcher.value as string;
+			updateImage(currentData);
+			watcherlist.Add(watcher);
+		}
 	}
 
 	//加载精灵
@@ -73,5 +80,51 @@ public class ImgeBind : BindCompentBase
 			_rimg.texture = tes;
 		}
 	}
-	
+
+
+	//容器进度条初始化 绑定的组件需要进行拼接
+	public void intContainerWatcher(int index)
+	{
+		_img       = transform.GetComponent<Image>(); 
+        _rimg      = transform.GetComponent<RawImage>(); 
+		if(_img != null || _rimg != null && mainProprity!=null && !isContainData)
+		{
+			if(dataHost==null) return;
+			string fathetexp = GetFatherMainProprity(transform);
+
+			string  exp      = fathetexp+'['+index+']'+'.'+mainProprity;
+
+			currentExpress = exp;
+
+			print("the vlue is :"+exp);
+
+			//注册watcher
+		    var watcher = dataHost.Watch(exp,(host, value, oldValue) =>
+			{
+				//数值发生了改变
+				Debug.Log(" progress value changed：  "+oldValue+"--->"+value);
+				updateImage(value as string);
+			});
+
+			if(watcher!=null)
+			{
+
+				var currentData  = watcher.value as string;
+				updateImage(currentData);
+				watcherlist.Add(watcher);
+			}
+		}
+	}
+
+	public void updateImage(string path)
+	{
+		if(_img!=null)
+		{
+			loadSprite(path);
+		}
+		else
+		{
+			loadTexture(path);
+		}
+	}	
 }
