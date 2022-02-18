@@ -59,8 +59,9 @@ public class SampleHost:IStdHost
 	[AutoFieldProperty]
     public double PP = 3234;
     
+    // 加注解 [StdHost], 该对象也可以成为观察者
     // 如果给类加了注解 [AutoFieldProperty], 那么所有字段成员会自动实现注解 [AutoFieldProperty]
-	[AutoFieldProperty]
+	[StdHost][AutoFieldProperty]
 	public class B
     {
 		public int n = 0;
