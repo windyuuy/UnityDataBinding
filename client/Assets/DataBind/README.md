@@ -53,12 +53,12 @@ public class SampleHost:IStdHost
     // 注意：必须使用属性成员, 如果要支持字段成员, 那么需要给 类 或者 指定的字段成员 添加注解 [AutoFieldProperty]
     public SampleOB hello { get; set; }=new SampleOB();
     
+    public double QQ { get; set; } = 234;
+
     // 单独给一个字段加 [AutoFieldProperty] 注解, 支持当前字段可观察
 	[AutoFieldProperty]
     public double PP = 3234;
     
-    public double QQ { get; set; } = 234;
-
     // 如果给类加了注解 [AutoFieldProperty], 那么所有字段成员会自动实现注解 [AutoFieldProperty]
 	[AutoFieldProperty]
 	public class B
