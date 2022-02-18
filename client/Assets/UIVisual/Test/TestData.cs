@@ -20,7 +20,7 @@ public class TestData: IStdHost
 
     public TestData2 data2 =new TestData2();
 
-    public static TestData Inst=new TestData();
+    public static readonly TestData Inst=new TestData();
 }
 
 [StdHost]

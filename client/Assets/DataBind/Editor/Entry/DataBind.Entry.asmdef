@@ -1,0 +1,18 @@
+{
+    "name": "Entry",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a002709b7dd49d64d88c1faa791c757e"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
