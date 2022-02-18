@@ -46,13 +46,18 @@ public class SampleOB
 // 需要引用DataBinding命名空间
 using DataBinding;
 
-// 需要实现 IStdHost 观察者接口，实现 IStdHost 后，该观察者也会同时成为可观察对象。
+// 需要实现 IStdHost 观察者接口，实现 IStdHost 后 (或者添加注解 [StdHost] 也可以)，该观察者也会同时成为可观察对象。
 public class SampleHost:IStdHost
 {
     // 可嵌套引用可观察对象类型
-    // 注意：必须使用属性字段
+    // 注意：必须使用属性成员, 如果要支持字段成员, 那么需要给 类 或者 指定的字段成员 添加注解 [AutoFieldProperty]
+    // - 如果给类加了注解 [AutoFieldProperty], 那么所有字段成员会自动实现注解 [AutoFieldProperty]
     public SampleOB hello { get; set; }=new SampleOB();
-
+    
+    // 加 [AutoFieldProperty] 注解, 支持可观察
+	[AutoFieldProperty]
+    public double PP = 3234;
+    
     public double QQ { get; set; } = 234;
 
 }
