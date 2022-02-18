@@ -35,9 +35,9 @@ public class WatchExpr : Unit
             var inputHost=flow.GetValue<IStdHost>(host);
             if(inputHost != null)
             {
-                var inputExpr = flow.GetValue(expr);
+                var inputExpr = flow.GetValue<TExpr>(expr);
                 var flowRefer = flow.stack.ToReference();
-                watcher = inputHost.Watch(inputExpr, (host, newValue, oldValue) =>
+                watcher = HostExt2.Watch(inputHost, inputExpr, (host, newValue, oldValue) =>
                 {
                     Trigger(flowRefer, outputTrigger, newValue);
                 });

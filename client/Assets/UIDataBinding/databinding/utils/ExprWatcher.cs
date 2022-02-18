@@ -38,7 +38,7 @@ namespace DataBinding.UIBind
 		 * @param expOrFn 方法名
 		 * @param cb 回调函数
 		 */
-		protected virtual vm.Watcher watch(vm.CombineType<string, Action> expOrFn, Action<object, object> cb, bool sync = false)
+		protected virtual vm.Watcher watch(vm.CombineType<object, string, Action> expOrFn, Action<object, object> cb, bool sync = false)
 		{
 			if (this.host == null)
 			{

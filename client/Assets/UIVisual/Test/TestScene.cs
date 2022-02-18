@@ -21,5 +21,6 @@ public class TestScene : MonoBehaviour
         //TestData.Inst.testkey = "hellox";
         //TestData.Inst.data2=new TestData2();
         TestData.Inst.data2.testkey2 = 655; ;
+        var kk=new TestData3();
     }
 }
