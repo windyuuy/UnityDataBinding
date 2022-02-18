@@ -54,11 +54,18 @@ public class SampleHost:IStdHost
     public SampleOB hello { get; set; }=new SampleOB();
     
     // 单独给一个字段加 [AutoFieldProperty] 注解, 支持当前字段可观察
-    // - 如果给类加了注解 [AutoFieldProperty], 那么所有字段成员会自动实现注解 [AutoFieldProperty]
 	[AutoFieldProperty]
     public double PP = 3234;
     
     public double QQ { get; set; } = 234;
+
+    // 如果给类加了注解 [AutoFieldProperty], 那么所有字段成员会自动实现注解 [AutoFieldProperty]
+	[AutoFieldProperty]
+	public class B
+    {
+		public int n = 0;
+		public string s="hello";
+    }
 
 }
 
