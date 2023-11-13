@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using Game.Diagnostics.IO;
 
 namespace DataBinding.UIBind
 {

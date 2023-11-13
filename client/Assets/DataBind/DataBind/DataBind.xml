@@ -250,5 +250,10 @@
             使field自动转为property
             </summary>
         </member>
+        <member name="T:DataBinding.KeepFieldPropertyAttribute">
+            <summary>
+            使field自动转为property
+            </summary>
+        </member>
     </members>
 </doc>
