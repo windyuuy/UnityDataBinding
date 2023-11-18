@@ -12,21 +12,21 @@ namespace DataBinding.UIBind
 	{
 		public DataBindHub bindHub;
 		public Object rawObj;
-		public virtual void addBindHub(IDataBindHub bindHub)
+		public virtual void AddBindHub(IDataBindHub bindHub1)
 		{
-			this.addBindHub((DataBindHub)bindHub);
+			this.AddBindHub((DataBindHub)bindHub1);
 		}
-		public virtual void addBindHub(DataBindHub bindHub)
+		public virtual void AddBindHub(DataBindHub bindHub1)
 		{
-			this.bindHub = bindHub;
+			this.bindHub = bindHub1;
 		}
-		public virtual void removeBindHub(IDataBindHub bindHub)
+		public virtual void RemoveBindHub(IDataBindHub bindHub1)
 		{
-			this.removeBindHub((DataBindHub)bindHub);
+			this.RemoveBindHub((DataBindHub)bindHub1);
 		}
-		public virtual void removeBindHub(DataBindHub bindHub)
+		public virtual void RemoveBindHub(DataBindHub bindHub1)
 		{
-			if (bindHub == null || this.bindHub == bindHub)
+			if (bindHub1 == null || this.bindHub == bindHub1)
 			{
 				this.bindHub = null;
 			}
@@ -35,100 +35,100 @@ namespace DataBinding.UIBind
 		public string expr;
 		protected ISEventCleanInfo2<object, object> exprWatcher;
 
-		public void bindExpr(string expr)
+		public void BindExpr(string expr0)
 		{
-			if (this.expr != expr)
+			if (this.expr != expr0)
 			{
-				this.unbindExpr();
+				this.UnbindExpr();
 			}
-			if (expr != null)
+			if (expr0 != null)
 			{
-				this.expr = expr;
+				this.expr = expr0;
 				if (this.bindHub != null)
 				{
-					var bindHub = this.bindHub;
+					var bindHub1 = this.bindHub;
 					EventHandlerMV2<object, object> onValueChanged = (object v1, object v2) =>
 					 {
 						 this.onDataChangedEvent.emit(v1, v2);
 
-						 var bindList = this.bindList;
-						 foreach (var oid in bindList.Keys)
+						 var bindList1 = this.bindList;
+						 foreach (var oid in bindList1.Keys)
 						 {
-							 var item = bindList[oid];
-							 if (item.realDataHub != null)
+							 var item = bindList1[oid];
+							 if (item.RealDataHub != null)
 							 {
 								 var ls = v1 as IStdHost[];
 								 // 确认是否需要换成 observeData
-								 item.realDataHub.setDataHost(ls[(int)item.index]);
+								 item.RealDataHub.SetDataHost(ls[(int)item.index]);
 							 }
 						 }
 					 };
-					this.exprWatcher = bindHub.watchExprValue(expr, onValueChanged);
+					this.exprWatcher = bindHub1.WatchExprValue(expr0, onValueChanged);
 					if (this.exprWatcher != null)
 					{
-						bindHub.doWatchNewExpr(expr, onValueChanged);
-						bindHub.syncExprValue(expr, onValueChanged);
+						bindHub1.DoWatchNewExpr(expr0, onValueChanged);
+						bindHub1.SyncExprValue(expr0, onValueChanged);
 					}
 
 				}
 			}
 		}
 
-		public void unbindExpr()
+		public void UnbindExpr()
 		{
 			if (this.exprWatcher != null)
 			{
 				if (this.bindHub != null)
 				{
-					var bindHub = this.bindHub;
-					bindHub.unWatchExprValue(this.exprWatcher.key, this.exprWatcher.callback);
-					bindHub.doUnWatchExprOnce(this.expr);
+					var bindHub1 = this.bindHub;
+					bindHub1.UnWatchExprValue(this.exprWatcher.key, this.exprWatcher.callback);
+					bindHub1.DoUnWatchExprOnce(this.expr);
 				}
 				this.exprWatcher = null;
 			}
 		}
 
-		protected Dictionary<number, ContainerItem> bindList = new Dictionary<number, ContainerItem>();
-		public void bindItem(ContainerItem item)
+		protected readonly Dictionary<number, ContainerItem> bindList = new Dictionary<number, ContainerItem>();
+		public void BindItem(ContainerItem item)
 		{
-			this.bindList[item.oid] = item;
+			this.bindList[item.Oid] = item;
 		}
 
-		public void unbindItem(ContainerItem item)
+		public void UnbindItem(ContainerItem item)
 		{
-			if (this.bindList.ContainsKey(item.oid))
+			if (this.bindList.ContainsKey(item.Oid))
 			{
-				if (item.realDataHub != null)
+				if (item.RealDataHub != null)
 				{
-					item.realDataHub.unsetDataHost();
+					item.RealDataHub.UnsetDataHost();
 				}
-				this.bindList.Remove(item.oid);
+				this.bindList.Remove(item.Oid);
 			}
 		}
 
-		protected SimpleEventMV2<object,object> onDataChangedEvent = new SimpleEventMV2<object,object>();
+		protected readonly SimpleEventMV2<object,object> onDataChangedEvent = new SimpleEventMV2<object,object>();
 
 
 		protected List<EventHandlerMV2<object,object>> watcherList = new List<EventHandlerMV2<object,object>>();
 
-		public EventHandlerMV2<object,object> watchList(EventHandlerMV2<object,object> call)
+		public EventHandlerMV2<object,object> WatchList(EventHandlerMV2<object,object> call)
 		{
-			var watcher = this.onDataChangedEvent.on(call);
+			var watcher = this.onDataChangedEvent.On(call);
 			this.watcherList.Add(watcher);
 			return watcher;
 		}
 
-		public void unWatchList(EventHandlerMV2<object,object> watcher)
+		public void UnWatchList(EventHandlerMV2<object,object> watcher)
 		{
-			this.onDataChangedEvent.off(watcher);
+			this.onDataChangedEvent.Off(watcher);
 			this.watcherList.Remove(watcher);
 		}
 
-		public void unWatchLists()
+		public void UnWatchLists()
 		{
 			this.watcherList.ForEach(watcher =>
 			{
-				this.onDataChangedEvent.off(watcher);
+				this.onDataChangedEvent.Off(watcher);
 			});
 			// this.watcherList.clear();
 			this.watcherList = null;

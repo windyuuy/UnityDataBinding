@@ -19,9 +19,9 @@ namespace DataBinding.UIBind
 		[HideInInspector]
 		public object target;
 
-		public virtual ISEventCleanInfo2<object, object> watchValueChange<T>(string key, Action<T, T> call)
+		public virtual ISEventCleanInfo2<object, object> WatchValueChange<T>(string key0, Action<T, T> call)
 		{
-			return base.watchValueChange<T>(key, (value, old) =>
+			return base.WatchValueChange<T>(key0, (value, old) =>
 			{
 				if (this.ignoreUndefinedValue)
 				{
@@ -40,19 +40,19 @@ namespace DataBinding.UIBind
 		/**
 		 * 更新显示状态
 		 */
-		protected override void onBindItems()
+		protected override void OnBindItems()
 		{
 			if (!string.IsNullOrEmpty(this.key))
 			{
-				this.checkLabel();
+				this.CheckLabel();
 
 				// 设立优先级
-				var ret = this.checkProgressBar() || this.checkSprite();
+				var ret = this.CheckProgressBar() || this.CheckSprite();
 			}
 		}
 
 		// TODO: 完善文本赋值
-		public virtual bool checkLabel()
+		public virtual bool CheckLabel()
 		{
 			var label = this.GetComponent<Text>();
 			if (label == null)
@@ -60,14 +60,14 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = label;
-			this.watchValueChange<string>(this.key, (newValue, oldValue) =>
+			this.WatchValueChange<string>(this.key, (newValue, oldValue) =>
 			{
 				if (label) label.text = $"{ newValue}";
 			});
 			return true;
 		}
 
-		public virtual bool checkProgressBar()
+		public virtual bool CheckProgressBar()
 		{
 
 			var progressComponent = this.GetComponent<Slider>();
@@ -76,7 +76,7 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = progressComponent;
-			this.watchValueChange<number?>(this.key, (newValue, oldValue) =>
+			this.WatchValueChange<number?>(this.key, (newValue, oldValue) =>
 			{
 				if (progressComponent) progressComponent.value = (float)newValue;
 			});
@@ -85,7 +85,7 @@ namespace DataBinding.UIBind
 
 		[HideInInspector]
 		public string spriteTextureUrl;
-		public virtual bool checkSprite()
+		public virtual bool CheckSprite()
 		{
 			var sprite = this.GetComponent<Image>();
 			if (sprite == null)
@@ -93,18 +93,18 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = sprite;
-			this.watchValueChange<string>(this.key, (newValue, oldValue) =>
+			this.WatchValueChange<string>(this.key, (newValue, oldValue) =>
 			{
 				if (sprite != null && this.spriteTextureUrl != newValue)
 				{
 					this.spriteTextureUrl = newValue;
-					this.loadImage(newValue, sprite);
+					this.LoadImage(newValue, sprite);
 				}
 			});
 			return true;
 		}
 
-		protected virtual void loadImage(string url, Image sprite)
+		protected virtual void LoadImage(string url, Image sprite)
 		{
 			if (url == "")
 			{

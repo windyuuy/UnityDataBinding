@@ -11,24 +11,24 @@ public class CCXPath
 
 public static class CCXPathExt
 {
-	public static Transform cn(this Component comp, string xpath)
+	public static Transform CN(this Component comp, string xpath)
 	{
 		return comp.transform.Find(xpath);
 	}
-	public static Transform cn(this Transform trans, string xpath)
+	public static Transform CN(this Transform trans, string xpath)
 	{
 		return trans.Find(xpath);
 	}
 
-	public static Transform[] cns(this Component comp, string xpath)
+	public static Transform[] CNS(this Component comp, string xpath)
 	{
 		return comp.transform.GetChildren().Where(t => t.name == xpath).ToArray();
 	}
-	public static Transform[] cns(this Transform trans, string xpath)
+	public static Transform[] CNS(this Transform trans, string xpath)
 	{
 		return trans.GetChildren().Where(t => t.name == xpath).ToArray();
 	}
-	public static void cnrs(this Transform trans, string[] xpath, int index, List<Transform> rets)
+	public static void CNRS(this Transform trans, string[] xpath, int index, List<Transform> rets)
 	{
 		var curPath = xpath[index];
 		var formatReg = new Regex(@"^(.*?)(?:\[(\d*)((?:\:)?)(\d*)\])?$");
@@ -79,7 +79,7 @@ public static class CCXPathExt
 						break;
                     }
 					matchedIndex++;
-					cnrs(child, xpath, index + 1, rets);
+					CNRS(child, xpath, index + 1, rets);
 				}
 			}
         }
@@ -106,24 +106,24 @@ public static class CCXPathExt
 			}
 		}
     }
-	public static Transform[] cnrs(this Component comp, string xpath)
+	public static Transform[] CNRS(this Component comp, string xpath)
     {
-		return cnrs(comp.transform,xpath);
+		return CNRS(comp.transform,xpath);
     }
-	public static Transform[] cnrs(this Transform trans, string xpath)
+	public static Transform[] CNRS(this Transform trans, string xpath)
     {
 		var rets=new List<Transform>();
 		var paths = xpath.Split(new char[] { '/' });
-		cnrs(trans, paths, 0, rets);
+		CNRS(trans, paths, 0, rets);
 		return rets.ToArray();
 	}
-	public static Transform cnr(this Component comp, string xpath)
+	public static Transform CNR(this Component comp, string xpath)
     {
-		return cnr(comp.transform, xpath);
+		return CNR(comp.transform, xpath);
     }
-	public static Transform cnr(this Transform trans, string xpath)
+	public static Transform CNR(this Transform trans, string xpath)
 	{
-		var rets=cnrs(trans,xpath);
+		var rets=CNRS(trans,xpath);
 		if(rets.Length > 0)
         {
 			return rets[0];
@@ -134,13 +134,13 @@ public static class CCXPathExt
         }
 	}
 
-	public static Transform cnrf(this Component comp, string xpath)
+	public static Transform CNRF(this Component comp, string xpath)
 	{
-		return cnrf(comp.transform, xpath);
+		return CNRF(comp.transform, xpath);
 	}
-	public static Transform cnrf(this Transform trans, string xpath)
+	public static Transform CNRF(this Transform trans, string xpath)
 	{
-		var rets = cnrs(trans, xpath);
+		var rets = CNRS(trans, xpath);
 		if (rets.Length == 1)
 		{
 			return rets[0];
@@ -154,32 +154,32 @@ public static class CCXPathExt
 			throw new System.Exception($"too many matched results: {rets.Length}");
         }
 	}
-	public static Transform cnrff<T>(this Component comp, string xpath)
+	public static Transform CNRFF<T>(this Component comp, string xpath)
 	{
-		var ret=cnrff<T>(comp.transform, xpath);
+		var ret=CNRFF<T>(comp.transform, xpath);
 		return ret;
 	}
-	public static T cnrff<T>(this Transform trans, string xpath) where T : Component
+	public static T CNRFF<T>(this Transform trans, string xpath) where T : Component
 	{
-		var ret = cnrf(trans, xpath);
+		var ret = CNRF(trans, xpath);
 		var comp=ret?.GetComponent<T>();
 		return comp;
 	}
-	public static T cnc<T>(this Transform trans) where T : Component
+	public static T CNC<T>(this Transform trans) where T : Component
     {
 		return trans.GetComponent<T>();
     }
 
-	public static Transform seekNodeByName(this Component comp, string name)
+	public static Transform SeekNodeByName(this Component comp, string name)
 	{
-		var trans = seekNodeByName(comp.transform, name);
+		var trans = SeekNodeByName(comp.transform, name);
 		if (trans != null)
 		{
 			return trans;
 		}
 		return null;
 	}
-	public static Transform seekNodeByName(this Transform comp, string name)
+	public static Transform SeekNodeByName(this Transform comp, string name)
 	{
 		for (var i = 0; i < comp.childCount; i++)
 		{
@@ -188,7 +188,7 @@ public static class CCXPathExt
 			{
 				return child;
 			}
-			var subResult=seekNodeByName(child, name);
+			var subResult=SeekNodeByName(child, name);
 			if(subResult != null)
             {
 				return subResult;

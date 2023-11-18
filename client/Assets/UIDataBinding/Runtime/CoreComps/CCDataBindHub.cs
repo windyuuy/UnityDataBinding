@@ -8,54 +8,54 @@ namespace DataBinding.UIBind
 {
 	public class CCDataBindHub : CCMyComponent, ICCDataBindHub
 	{
-		public virtual DataBindHub dataBindHub { get; set; } = new DataBindHub();
+		public virtual DataBindHub DataBindHub { get; set; } = new DataBindHub();
 
-		protected override bool needAttach()
+		protected override bool NeedAttach()
 		{
-			return this.isAttachCalled && this.enabled && !!this.transform.parent.IsActiveInHierarchy();
+			return this.isAttachCalled && this.enabled && this.transform.parent.IsActiveInHierarchy();
 		}
 
-		public virtual void integrate()
+		public virtual void Integrate()
 		{
-			DataBindHubHelper.onAddDataBindHub(this);
+			DataBindHubHelper.OnAddDataBindHub(this);
 		}
 
-		public virtual void deintegrate()
+		public virtual void Deintegrate()
 		{
-			this.dataBindHub.clear();
+			this.DataBindHub.Clear();
 		}
 
 		/**
 		 * 集成
 		 * - 遍历所有浅层子hub, 设置父节点为自身
 		 */
-		public virtual void relate()
+		public virtual void Relate()
 		{
-			DataBindHubHelper.onRelateDataBindHub(this);
+			DataBindHubHelper.OnRelateDataBindHub(this);
 		}
 
-		public virtual void derelate()
+		public virtual void Derelate()
 		{
-			DataBindHubHelper.onDerelateDataBindHub(this);
+			DataBindHubHelper.OnDerelateDataBindHub(this);
 		}
 
-		protected override void onPreload()
+		protected override void OnPreload()
 		{
-			this.integrate();
+			this.Integrate();
 		}
-		protected override void onPreDestroy()
+		protected override void OnPreDestroy()
 		{
-			this.deintegrate();
-		}
-
-		protected override void onAttach()
-		{
-			this.relate();
+			this.Deintegrate();
 		}
 
-		protected override void onDeattach()
+		protected override void OnAttach()
 		{
-			this.derelate();
+			this.Relate();
+		}
+
+		protected override void OnDeattach()
+		{
+			this.Derelate();
 		}
 
 	}

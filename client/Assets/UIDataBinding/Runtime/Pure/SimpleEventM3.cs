@@ -12,47 +12,47 @@ namespace DataBinding.UIBind
 	 */
 	public class SimpleEventMV3<T1, T2, T3>
 	{
-		protected event EventHandlerMV3<T1, T2, T3> _callbacks;
-		public EventHandlerMV3<T1, T2, T3> on(EventHandlerMV3<T1, T2, T3> callback)
+		protected event EventHandlerMV3<T1, T2, T3> Callbacks;
+		public EventHandlerMV3<T1, T2, T3> On(EventHandlerMV3<T1, T2, T3> callback)
 		{
-			this._callbacks += callback;
+			this.Callbacks += callback;
 			return callback;
 		}
 
-		public EventHandlerMV3<T1, T2, T3> once(EventHandlerMV3<T1, T2, T3> callback)
+		public EventHandlerMV3<T1, T2, T3> Once(EventHandlerMV3<T1, T2, T3> callback)
 		{
 			EventHandlerMV3<T1, T2, T3> call = null;
 			call = (msg1, msg2, msg3) =>
 			{
-				this.off(call);
+				this.Off(call);
 				callback(msg1, msg2, msg3);
 			};
-			this._callbacks += call;
+			this.Callbacks += call;
 			return call;
 		}
 
-		public void off(EventHandlerMV3<T1, T2, T3> callback)
+		public void Off(EventHandlerMV3<T1, T2, T3> callback)
 		{
-			this._callbacks -= callback;
+			this.Callbacks -= callback;
 		}
 
-		public void emit(T1 msg1, T2 msg2, T3 msg3)
+		public void Emit(T1 msg1, T2 msg2, T3 msg3)
 		{
-			if (this._callbacks != null)
+			if (this.Callbacks != null)
 			{
-				this._callbacks(msg1, msg2, msg3);
+				this.Callbacks(msg1, msg2, msg3);
 			}
 		}
 
-		public void clear()
+		public void Clear()
 		{
-			this._callbacks = null;
+			this.Callbacks = null;
 		}
 	}
 
 	public interface ISEventInputMV3<T1, T2, T3>
 	{
-		void emit(string key, T1 value1, T2 value2, T3 value3);
+		void Emit(string key, T1 value1, T2 value2, T3 value3);
 	}
 
 	public class ISEventCleanInfo3<T1, T2, T3>
@@ -63,9 +63,9 @@ namespace DataBinding.UIBind
 
 	public interface ISEventOutputMV3<T1, T2, T3>
 	{
-		ISEventCleanInfo3<T1, T2, T3> on(string key, EventHandlerMV3<T1, T2, T3> callback);
-		ISEventCleanInfo3<T1, T2, T3> once(string key, EventHandlerMV3<T1, T2, T3> callback);
-		void off(string key, EventHandlerMV3<T1, T2, T3> callback);
+		ISEventCleanInfo3<T1, T2, T3> On(string key, EventHandlerMV3<T1, T2, T3> callback);
+		ISEventCleanInfo3<T1, T2, T3> Once(string key, EventHandlerMV3<T1, T2, T3> callback);
+		void Off(string key, EventHandlerMV3<T1, T2, T3> callback);
 	}
 
 }

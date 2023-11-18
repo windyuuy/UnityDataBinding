@@ -18,12 +18,12 @@ namespace DataBinding.UIBind
 		/**
 		 * 更新显示状态
 		 */
-		protected override void onBindItems()
+		protected override void OnBindItems()
 		{
-			this.checkIsChecked();
+			this.CheckIsChecked();
 		}
 
-		public virtual bool checkIsChecked()
+		public virtual bool CheckIsChecked()
 		{
 			if (string.IsNullOrEmpty(this.kIsChecked))
 			{
@@ -34,14 +34,14 @@ namespace DataBinding.UIBind
 			{
 				return false;
 			}
-			this.watchValueChange<bool>(this.kIsChecked, (newValue, oldValue) =>
+			this.WatchValueChange<bool>(this.kIsChecked, (newValue, oldValue) =>
 			{
-				if (Utils.isValid(node, true)) this.setIsChecked((bool)newValue);
+				if (Utils.IsValid(node, true)) this.SetIsChecked((bool)newValue);
 			});
 			return true;
 		}
 
-		public virtual void setIsChecked(bool newValue)
+		public virtual void SetIsChecked(bool newValue)
 		{
 			var toggle = this.GetComponent<Toggle>();
 			if (toggle != null)

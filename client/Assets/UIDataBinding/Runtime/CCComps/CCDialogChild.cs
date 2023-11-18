@@ -1,86 +1,89 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace DataBinding.UIBind
 {
 	public class CCDialogChild : CCSubDataHub, ICCDialogChild
 	{
+		[FormerlySerializedAs("_autoExtendDataSource")]
 		[Rename("承接父容器数据源")]
 		[SerializeField]
-		protected bool _autoExtendDataSource = false;
+		protected bool autoExtendDataSource = false;
 
 		// 承接父容器数据源
-		public virtual bool autoExtendDataSource
+		public virtual bool AutoExtendDataSource
 		{
 			get
 			{
-				return this._autoExtendDataSource;
+				return this.autoExtendDataSource;
 			}
 			set
 			{
-				this._autoExtendDataSource = value;
+				this.autoExtendDataSource = value;
 			}
 		}
 
+		[FormerlySerializedAs("_subKey")]
 		[Rename("绑定子项数据源")]
 		[SerializeField]
-		private string _subKey = "";
+		private string subKey = "";
 
-		public string subKey
+		public string SubKey
 		{
 			get
 			{
-				return this._subKey;
+				return this.subKey;
 			}
 			set
 			{
-				this._subKey = value;
+				this.subKey = value;
 			}
 		}
 
-		protected override ISubDataHub _subDataHub { get; set; } = new SubDataHub();
-		protected virtual SubDataHub rSubDataHub
+		protected override ISubDataHub subDataHub { get; set; } = new SubDataHub();
+		protected virtual SubDataHub RSubDataHub
 		{
-			get => (SubDataHub)_subDataHub;
-			set => _subDataHub = value;
+			get => (SubDataHub)subDataHub;
+			set => subDataHub = value;
 		}
 
-		public void observeData(object data)
+		public void ObserveData(object data)
 		{
-			this.rSubDataHub.observeData(data);
+			this.RSubDataHub.observeData(data);
 		}
 
-		public void unsetDataHost()
+		public void UnsetDataHost()
 		{
-			this.rSubDataHub.unsetDataHost();
+			this.RSubDataHub.unsetDataHost();
 		}
 
-		public override void integrate()
+		public override void Integrate()
 		{
-			DataBindHubHelper.onAddDialogChild(this);
+			DataBindHubHelper.OnAddDialogChild(this);
 		}
 
 		/**
 		 * 集成
 		 * - 遍历所有浅层子hub, 设置父节点为自身
 		 */
-		public override void relate()
+		public override void Relate()
 		{
-			DataBindHubHelper.onRelateDialogChild(this);
+			DataBindHubHelper.OnRelateDialogChild(this);
 		}
 
-		public override void derelate()
+		public override void Derelate()
 		{
-			DataBindHubHelper.onDerelateDialogChild(this);
+			DataBindHubHelper.OnDerelateDialogChild(this);
 		}
 
-		public virtual ISEventCleanInfo2<object, object> bindFromParentHub(DataBindHub parentHub)
+		public virtual ISEventCleanInfo2<object, object> BindFromParentHub(DataBindHub parentHub)
 		{
-			var subKey = string.IsNullOrEmpty(this.subKey) ? "&this" : this.subKey;
-			return this.rSubDataHub.bindFromParentHub(parentHub, subKey);
+			var subKey1 = string.IsNullOrEmpty(this.SubKey) ? "&this" : this.SubKey;
+			return this.RSubDataHub.bindFromParentHub(parentHub, subKey1);
 		}
-		public virtual void unbindFromParentHub()
+		public virtual void UnbindFromParentHub()
 		{
-			this.rSubDataHub.unbindFromParentHub();
+			this.RSubDataHub.unbindFromParentHub();
 		}
 
 		// private CCDialogComp _dialog;

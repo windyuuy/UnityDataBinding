@@ -20,19 +20,19 @@ namespace DataBinding.UIBind
 		public string kToGray = "";
 
 		[Rename("点击响应")]
-		public CCSimpleBindClickFuncInfo[] clickTriggers = new CCSimpleBindClickFuncInfo[0];
+		public CCSimpleBindClickFuncInfo[] clickTriggers = Array.Empty<CCSimpleBindClickFuncInfo>();
 
 		/**
 		 * 更新显示状态
 		 */
-		protected override void onBindItems()
+		protected override void OnBindItems()
 		{
-			this.checkInteractive();
-			this.checkToGray();
-			this.checkClick();
+			this.CheckInteractive();
+			this.CheckToGray();
+			this.CheckClick();
 		}
 
-		public virtual bool checkInteractive()
+		public virtual bool CheckInteractive()
 		{
 			if (string.IsNullOrEmpty(this.kInteractive))
 			{
@@ -43,14 +43,14 @@ namespace DataBinding.UIBind
 			{
 				return false;
 			}
-			this.watchValueChange<bool>(this.kInteractive, (newValue, oldValue) =>
+			this.WatchValueChange<bool>(this.kInteractive, (newValue, oldValue) =>
 			{
-				if (Utils.isValid(node, true)) this.setInteractive((bool)newValue);
+				if (Utils.IsValid(node, true)) this.SetInteractive((bool)newValue);
 			});
 			return true;
 		}
 
-		protected virtual void setInteractive(bool b)
+		protected virtual void SetInteractive(bool b)
 		{
 			var button = this.GetComponent<Button>();
 			if (button)
@@ -59,7 +59,7 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected virtual bool checkToGray()
+		protected virtual bool CheckToGray()
 		{
 			if (string.IsNullOrEmpty(this.kToGray))
 			{
@@ -70,9 +70,9 @@ namespace DataBinding.UIBind
 			{
 				return false;
 			}
-			this.watchValueChange<bool>(this.kToGray, (newValue, oldValue) =>
+			this.WatchValueChange<bool>(this.kToGray, (newValue, oldValue) =>
 			{
-				if (Utils.isValid(node, true)) this.setToGray((bool)newValue);
+				if (Utils.IsValid(node, true)) this.SetToGray((bool)newValue);
 
 
 			});
@@ -81,7 +81,7 @@ namespace DataBinding.UIBind
 
 		[HideInInspector]
 		public bool isGray = false;
-		protected virtual void setToGray(bool b)
+		protected virtual void SetToGray(bool b)
 		{
 			this.isGray = b;
 			var button = this.GetComponent<Button>();
@@ -102,10 +102,10 @@ namespace DataBinding.UIBind
 		[HideInInspector]
 		public Button target = null;
 
-		protected Action<Button> _clickEventHandler;
-		protected List<TButtonBindCallback> _clickHandleFuncs = new List<TButtonBindCallback>();
+		protected Action<Button> clickEventHandler;
+		protected readonly List<TButtonBindCallback> clickHandleFuncs = new List<TButtonBindCallback>();
 
-		public bool checkClick()
+		public bool CheckClick()
 		{
 			if (this.clickTriggers.Length == 0)
 			{
@@ -117,12 +117,12 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = this.GetComponent<Button>();
-			if (this._clickEventHandler == null)
+			if (this.clickEventHandler == null)
 			{
-				var handler = this._clickEventHandler = (Button target) =>
+				var handler = this.clickEventHandler = (Button target) =>
 				{
 					this.target = target;
-					var funcs = this._clickHandleFuncs.ToArray();
+					var funcs = this.clickHandleFuncs.ToArray();
 					for (var index = 0; index < funcs.Length; index++)
 					{
 						var clickHandleFunc = funcs[index];
@@ -141,7 +141,7 @@ namespace DataBinding.UIBind
 					handler(this.target);
 				});
 			}
-			this._clickHandleFuncs.Clear();
+			this.clickHandleFuncs.Clear();
 			for (var i = 0; i < this.clickTriggers.Length; i++)
 			{
 				var index = i;
@@ -150,27 +150,30 @@ namespace DataBinding.UIBind
 				{
 					continue;
 				}
-				Action<TButtonBindCallback> onSetValue = (TButtonBindCallback value) =>
+
+				void OnSetValue(TButtonBindCallback value)
 				{
 					if (value != null)
 					{
-						if (Utils.isValid(this))
+						if (Utils.IsValid(this))
 						{
-                            while (this._clickHandleFuncs.Count <= index)
-                            {
-								this._clickHandleFuncs.Add(null);
-                            }
-							this._clickHandleFuncs[index] = value;
+							while (this.clickHandleFuncs.Count <= index)
+							{
+								this.clickHandleFuncs.Add(null);
+							}
+
+							this.clickHandleFuncs[index] = value;
 						}
 					}
 					else
 					{
 						console.warn("点击响应需要返回函数类型, 当前返回值: ", value, ", type:", value.GetType());
 					}
-				};
-				this.watchValueChange<TButtonBindCallback>(clickTrigger.callExpr, (newValue, oldValue) =>
+				}
+
+				this.WatchValueChange<TButtonBindCallback>(clickTrigger.callExpr, (newValue, oldValue) =>
 				{
-					onSetValue((TButtonBindCallback)newValue);
+					OnSetValue((TButtonBindCallback)newValue);
 				});
 			}
 			return true;

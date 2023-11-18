@@ -17,47 +17,47 @@ namespace DataBinding.UIBind
 		 */
 		public bool bindChildren = true;
 
-		public virtual ContainerBind containerBind { get; set; } = new ContainerBind();
+		public virtual ContainerBind ContainerBind { get; set; } = new ContainerBind();
 
 		/**
 		 * 集成
 		 * - 遍历所有浅层子hub, 设置父节点为自身
 		 */
-		public virtual void integrate()
+		public virtual void Integrate()
 		{
-			this.containerBind.rawObj = this;
-			DataBindHubHelper.onAddContainerBind(this);
+			this.ContainerBind.rawObj = this;
+			DataBindHubHelper.OnAddContainerBind(this);
 		}
 
 		protected bool isRelate = false;
-		public virtual void relate()
+		public virtual void Relate()
 		{
 			this.isRelate = true;
-			DataBindHubHelper.onRelateContainerBind(this);
+			DataBindHubHelper.OnRelateContainerBind(this);
 		}
 
-		public virtual void derelate()
+		public virtual void Derelate()
 		{
-			DataBindHubHelper.onDerelateContainerBind(this);
+			DataBindHubHelper.OnDerelateContainerBind(this);
 		}
 
-		protected override void onPreload()
+		protected override void OnPreload()
 		{
-			this.integrate();
+			this.Integrate();
 		}
-		protected override void onPreDestroy()
+		protected override void OnPreDestroy()
 		{
-			this.derelate();
-		}
-
-		protected override void onAttach()
-		{
-			this.relate();
+			this.Derelate();
 		}
 
-		protected override void onDeattach()
+		protected override void OnAttach()
 		{
-			this.derelate();
+			this.Relate();
+		}
+
+		protected override void OnDeattach()
+		{
+			this.Derelate();
 		}
 
 	}

@@ -7,13 +7,13 @@ namespace DataBinding.UIBind
 	public interface ISubDataHub
 	{
 
-		number oid { get; set; }
+		number Oid { get; set; }
 
-		void setRealDataHub(DataSourceHub realDataHub);
-		Object rawObj { get; set; }
-		DataSourceHub realDataHub { get; set; }
+		void SetRealDataHub(DataSourceHub realDataHub);
+		Object RawObj { get; set; }
+		DataSourceHub RealDataHub { get; set; }
 
-		void bindDataHost(object data);
+		void BindDataHost(object data);
 
 	}
 }

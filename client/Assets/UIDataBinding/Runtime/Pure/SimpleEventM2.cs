@@ -12,47 +12,47 @@ namespace DataBinding.UIBind
 	 */
 	public class SimpleEventMV2<T1, T2>
 	{
-		protected event EventHandlerMV2<T1, T2> _callbacks;
-		public EventHandlerMV2<T1, T2> on(EventHandlerMV2<T1, T2> callback)
+		protected event EventHandlerMV2<T1, T2> Callbacks;
+		public EventHandlerMV2<T1, T2> On(EventHandlerMV2<T1, T2> callback)
 		{
-			this._callbacks += callback;
+			this.Callbacks += callback;
 			return callback;
 		}
 
-		public EventHandlerMV2<T1, T2> once(EventHandlerMV2<T1, T2> callback)
+		public EventHandlerMV2<T1, T2> Once(EventHandlerMV2<T1, T2> callback)
 		{
 			EventHandlerMV2<T1, T2> call = null;
 			call = (msg1, msg2) =>
 			{
-				this.off(call);
+				this.Off(call);
 				callback(msg1, msg2);
 			};
-			this._callbacks += call;
+			this.Callbacks += call;
 			return call;
 		}
 
-		public void off(EventHandlerMV2<T1, T2> callback)
+		public void Off(EventHandlerMV2<T1, T2> callback)
 		{
-			this._callbacks -= callback;
+			this.Callbacks -= callback;
 		}
 
 		public void emit(T1 msg1, T2 msg2)
 		{
-			if (this._callbacks != null)
+			if (this.Callbacks != null)
 			{
-				this._callbacks(msg1, msg2);
+				this.Callbacks(msg1, msg2);
 			}
 		}
 
-		public void clear()
+		public void Clear()
 		{
-			this._callbacks = null;
+			this.Callbacks = null;
 		}
 	}
 
 	public interface ISEventInputMV2<T1, T2>
 	{
-		void emit(string key, T1 value1, T2 value2);
+		void Emit(string key, T1 value1, T2 value2);
 	}
 
 	public class ISEventCleanInfo2<T1, T2>
@@ -63,34 +63,31 @@ namespace DataBinding.UIBind
 
 	public interface ISEventOutputMV2<T1, T2>
 	{
-		ISEventCleanInfo2<T1, T2> on(string key, EventHandlerMV2<T1, T2> callback);
-		ISEventCleanInfo2<T1, T2> once(string key, EventHandlerMV2<T1, T2> callback);
-		void off(string key, EventHandlerMV2<T1, T2> callback);
+		ISEventCleanInfo2<T1, T2> On(string key, EventHandlerMV2<T1, T2> callback);
+		ISEventCleanInfo2<T1, T2> Once(string key, EventHandlerMV2<T1, T2> callback);
+		void Off(string key, EventHandlerMV2<T1, T2> callback);
 	}
 
 	public class SEventMV2<T1, T2> : ISEventInputMV2<T1, T2>, ISEventOutputMV2<T1, T2>
 	{
-		protected Dictionary<string, SimpleEventMV2<T1, T2>> _events = new Dictionary<string, SimpleEventMV2<T1, T2>>();
-		protected SimpleEventMV3<string, T1, T2> _anyEvent = new SimpleEventMV3<string, T1, T2>();
+		protected readonly Dictionary<string, SimpleEventMV2<T1, T2>> events = new Dictionary<string, SimpleEventMV2<T1, T2>>();
+		protected readonly SimpleEventMV3<string, T1, T2> anyEvent = new SimpleEventMV3<string, T1, T2>();
 
-		public string[] keys
+		public string[] Keys
 		{
 			get
 			{
-				return this._events.Keys.ToArray();
+				return this.events.Keys.ToArray();
 			}
 		}
 
-		public ISEventCleanInfo2<T1, T2> on(string key, EventHandlerMV2<T1, T2> callback)
+		public ISEventCleanInfo2<T1, T2> On(string key, EventHandlerMV2<T1, T2> callback)
 		{
-			if (this._events.ContainsKey(key) == false)
-			{
-				this._events[key] = new SimpleEventMV2<T1, T2>();
-			}
-			var event1 = this._events[key];
+			this.events.TryAdd(key, new SimpleEventMV2<T1, T2>());
+			var event1 = this.events[key];
 			if (event1 != null)
 			{
-				event1.on(callback);
+				event1.On(callback);
 			}
 			return new ISEventCleanInfo2<T1, T2>()
 			{
@@ -99,15 +96,15 @@ namespace DataBinding.UIBind
 			};
 		}
 
-		public ISEventCleanInfo2<T1, T2> once(string key, EventHandlerMV2<T1, T2> callback)
+		public ISEventCleanInfo2<T1, T2> Once(string key, EventHandlerMV2<T1, T2> callback)
 		{
 			EventHandlerMV2<T1, T2> call = null;
 			call = (p1, p2) =>
 			{
-				this.off(key, call);
+				this.Off(key, call);
 				callback(p1, p2);
 			};
-			this.on(key, call);
+			this.On(key, call);
 			return new ISEventCleanInfo2<T1, T2>()
 			{
 				key = key,
@@ -115,29 +112,28 @@ namespace DataBinding.UIBind
 			};
 		}
 
-		public void off(string key, EventHandlerMV2<T1, T2> callback)
+		public void Off(string key, EventHandlerMV2<T1, T2> callback)
 		{
 			if (callback == null)
 			{
-				this._events.Remove(key);
+				this.events.Remove(key);
 			}
 			else
 			{
-				var event1 = this._events[key];
+				var event1 = this.events[key];
 				if (event1 != null)
 				{
-					event1.off(callback);
+					event1.Off(callback);
 				}
 			}
 		}
 
-		public void emit(string key, T1 v1, T2 v2)
+		public void Emit(string key, T1 v1, T2 v2)
 		{
-			this._anyEvent.emit(key, v1, v2);
+			this.anyEvent.Emit(key, v1, v2);
 
-			if (this._events.ContainsKey(key))
+			if (this.events.TryGetValue(key, out var event1))
 			{
-				var event1 = this._events[key];
 				if (event1 != null)
 				{
 					event1.emit(v1, v2);
@@ -145,19 +141,19 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		public EventHandlerMV3<string, T1, T2> onAnyEvent(EventHandlerMV3<string, T1, T2> callback)
+		public EventHandlerMV3<string, T1, T2> OnAnyEvent(EventHandlerMV3<string, T1, T2> callback)
 		{
-			return this._anyEvent.on(callback);
+			return this.anyEvent.On(callback);
 		}
 
-		public EventHandlerMV3<string, T1, T2> onceAnyEvent(EventHandlerMV3<string, T1, T2> callback)
+		public EventHandlerMV3<string, T1, T2> OnceAnyEvent(EventHandlerMV3<string, T1, T2> callback)
 		{
-			return this._anyEvent.once(callback);
+			return this.anyEvent.Once(callback);
 		}
 
-		public void offAnyEvent(EventHandlerMV3<string, T1, T2> callback)
+		public void OffAnyEvent(EventHandlerMV3<string, T1, T2> callback)
 		{
-			this._anyEvent.off(callback);
+			this.anyEvent.Off(callback);
 		}
 
 	}

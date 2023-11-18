@@ -22,7 +22,7 @@ namespace DataBinding.UIBind
 		[Rename("使用容器选项覆盖")]
 		public bool overrideWithContainerOptions = true;
 
-		public virtual void integrate()
+		public virtual void Integrate()
 		{
 			var ccContainerBind = this.GetComponent<CCContainerBinding>();
 			if (ccContainerBind)
@@ -36,7 +36,7 @@ namespace DataBinding.UIBind
 					this.ForEachChildren(child =>
 					{
 						var ccDataHost = child.GetOrAddComponent<CCDataHost>();
-						ccDataHost.integrate();
+						ccDataHost.Integrate();
 					});
 				}
 			}
@@ -44,7 +44,7 @@ namespace DataBinding.UIBind
 
 		protected EventHandlerMV2<object, object> watcher;
 		protected List<object> oldList = new List<object>();
-		public virtual void relate()
+		public virtual void Relate()
 		{
 			var ccContainerBind = this.GetComponent<CCContainerBinding>();
 			if (ccContainerBind != null)
@@ -53,7 +53,7 @@ namespace DataBinding.UIBind
 				{
 					this.bindChildren = ccContainerBind.bindChildren;
 				}
-				this.watcher = ccContainerBind.containerBind.watchList((object newValue, object oldValue) =>
+				this.watcher = ccContainerBind.ContainerBind.WatchList((object newValue, object oldValue) =>
 				{
 					var dataSources = ((System.Collections.IList)newValue);
 					var parent = this.transform;
@@ -87,7 +87,7 @@ namespace DataBinding.UIBind
 								{
 									// child = instantiate(tempNode)
 									// child.parent = parent
-									child = this.createItemNode(tempNode, parent);
+									child = this.CreateItemNode(tempNode, parent);
 								}
 							}
 							// 使用最近的节点作为模板
@@ -98,14 +98,14 @@ namespace DataBinding.UIBind
 							if (this.bindChildren)
 							{
 								var ccContainerItem = child.GetOrAddComponent<CCContainerItem>();
-								ccContainerItem.integrate();
+								ccContainerItem.Integrate();
 							}
-							DataBindHubUtils.foreachSurf<CCContainerItem>(child, (ccItem) =>
+							DataBindHubUtils.ForeachSurf<CCContainerItem>(child, (ccItem) =>
 							{
-								ccItem.containerItem.index = i++;
-								var itemHost = dataSources[(int)ccItem.containerItem.index];
+								ccItem.ContainerItem.index = i++;
+								var itemHost = dataSources[(int)ccItem.ContainerItem.index];
 								var itemHost1 = vm.Utils.implementStdHost(itemHost);
-								ccItem.bindDataHost(itemHost1);
+								ccItem.BindDataHost(itemHost1);
 							});
 						}
 						// 没刷到的节点全隐藏
@@ -122,14 +122,14 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		public virtual void derelate()
+		public virtual void Derelate()
 		{
 			var ccContainerBind = this.GetComponent<CCContainerBinding>();
 			if (ccContainerBind)
 			{
 				if (this.watcher != null)
 				{
-					ccContainerBind.containerBind.unWatchList(this.watcher);
+					ccContainerBind.ContainerBind.UnWatchList(this.watcher);
 				}
 			}
 		}
@@ -137,7 +137,7 @@ namespace DataBinding.UIBind
 		/**
 		 * 创建子节点项
 		 */
-		protected virtual Transform createItemNode(Transform tempNode, Transform parent)
+		protected virtual Transform CreateItemNode(Transform tempNode, Transform parent)
 		{
 			var child = Instantiate(tempNode.gameObject, parent);
 			child.name = tempNode.name;
@@ -145,9 +145,9 @@ namespace DataBinding.UIBind
 			return child.transform;
 		}
 
-		protected override void onPreDestroy()
+		protected override void OnPreDestroy()
 		{
-			this.derelate();
+			this.Derelate();
 		}
 
 	}

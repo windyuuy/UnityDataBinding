@@ -31,11 +31,11 @@ namespace DataBinding.UIBind
 		{
 			if (isRuntimeMode)
 			{
-				this._isCreating = this.markCreating();
+				this.isCreating = this.MarkCreating();
 			}
 		}
 
-		public virtual CCNodeLife ccNodeLife
+		public virtual CCNodeLife CCNodeLife
 		{
 			get
 			{
@@ -43,44 +43,44 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected static List<CCMyComponent> _creatingList = new List<CCMyComponent>();
-		protected bool _isCreating = false;
-		protected virtual bool markCreating()
+		protected static readonly List<CCMyComponent> CreatingList = new List<CCMyComponent>();
+		protected bool isCreating = false;
+		protected virtual bool MarkCreating()
 		{
-			CCMyComponent._creatingList.Add(this);
+			CCMyComponent.CreatingList.Add(this);
 			return true;
 		}
 
-		protected virtual void onPreDestroy()
+		protected virtual void OnPreDestroy()
 		{
 
 		}
 
 		protected virtual void OnDestroy()
 		{
-			this._isCreating = false;
-			this.onPreDestroy();
+			this.isCreating = false;
+			this.OnPreDestroy();
 		}
 
 		protected virtual void Awake()
 		{
-			if (this._isCreating)
+			if (this.isCreating)
 			{
-				this._isCreating = false;
-				this.handlePreload();
+				this.isCreating = false;
+				this.HandlePreload();
 			}
 		}
 		public virtual void HandleLoaded()
 		{
-			if (this._isCreating)
+			if (this.isCreating)
 			{
-				this._isCreating = false;
-				this.handlePreload();
+				this.isCreating = false;
+				this.HandlePreload();
 			}
 		}
 
 		protected static bool isPreloading = false;
-		protected virtual void handlePreload()
+		protected virtual void HandlePreload()
 		{
 			var loading = false;
 			if (!isPreloading)
@@ -88,47 +88,47 @@ namespace DataBinding.UIBind
 				isPreloading = true;
 				loading = true;
 			}
-			this.onPreload();
+			this.OnPreload();
 			if (loading)
 			{
 				isPreloading = false;
 				loading = false;
-				this.afterPreload();
+				this.AfterPreload();
 			}
 		}
-		protected virtual void onPreload()
+		protected virtual void OnPreload()
 		{
 
 		}
-		protected virtual void afterPreload()
+		protected virtual void AfterPreload()
 		{
 			CCNodeLife.HandleHierachyChanging();
 		}
 
-		protected virtual void onAttach()
+		protected virtual void OnAttach()
 		{
 
 		}
 
-		protected virtual void onDeattach()
+		protected virtual void OnDeattach()
 		{
 
 		}
 
-		public virtual void updateAttach()
+		public virtual void UpdateAttach()
 		{
 			if (EnableLazyAttach)
 			{
-				var needAttach = this.needAttach();
+				var needAttach = this.NeedAttach();
 				if (needAttach && (!this.isAttached))
 				{
 					this.isAttached = true;
-					this.onAttach();
+					this.OnAttach();
 				}
 				else if ((!needAttach) && this.isAttached)
 				{
 					this.isAttached = false;
-					this.onDeattach();
+					this.OnDeattach();
 				}
 			}
 			else
@@ -136,47 +136,47 @@ namespace DataBinding.UIBind
 				if (this.isAttachCalled && (!this.isAttached))
 				{
 					this.isAttached = true;
-					this.onAttach();
+					this.OnAttach();
 				}
 				else if ((!this.isAttachCalled) && this.isAttached)
 				{
 					this.isAttached = false;
-					this.onDeattach();
+					this.OnDeattach();
 				}
 			}
 		}
 
-		public virtual bool enabledInHierarchy
+		public virtual bool EnabledInHierarchy
 		{
 			get
 			{
 				return this.enabled && this.gameObject.activeInHierarchy;
 			}
 		}
-		protected virtual bool needAttach()
+		protected virtual bool NeedAttach()
 		{
-			return this.isAttachCalled && this.enabledInHierarchy;
+			return this.isAttachCalled && this.EnabledInHierarchy;
 			// && this.node.parent?.activeInHierarchy
 		}
 		protected bool isAttachCalled = false;
 		protected bool isAttached = false;
 		protected virtual void OnEnable()
 		{
-			this.updateAttach();
+			this.UpdateAttach();
 		}
-		public virtual void onRequireAttach()
+		public virtual void OnRequireAttach()
 		{
 			this.isAttachCalled = true;
-			this.updateAttach();
+			this.UpdateAttach();
 		}
 		protected virtual void OnDisable()
 		{
-			this.updateAttach();
+			this.UpdateAttach();
 		}
-		public virtual void onRequireDeattach()
+		public virtual void OnRequireDeattach()
 		{
 			this.isAttachCalled = false;
-			this.updateAttach();
+			this.UpdateAttach();
 		}
 
 		[HideInInspector]

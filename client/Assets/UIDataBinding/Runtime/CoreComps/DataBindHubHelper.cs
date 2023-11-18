@@ -8,41 +8,41 @@ namespace DataBinding.UIBind
 {
 	public interface ICCIntegrate
 	{
-		void integrate();
-		void relate();
-		void derelate();
+		void Integrate();
+		void Relate();
+		void Derelate();
 	}
 
 	public interface ICCDataBindHub : ICCIntegrate
 	{
-		DataBindHub dataBindHub { get; set; }
+		DataBindHub DataBindHub { get; set; }
 	}
 
 	public interface ICCDataHost : ICCIntegrate
 	{
-		IStdHost dataHost { get; }
-		DataSourceHub dataHub { get; set; }
+		IStdHost DataHost { get; }
+		DataSourceHub DataHub { get; set; }
 	}
 
 	public interface ICCSubDataHub : ICCIntegrate
 	{
-		IStdHost dataHost { get; }
+		IStdHost DataHost { get; }
 		// ccDataHost: ICCDataHost
-		ISubDataHub subDataHub { get; }
+		ISubDataHub SubDataHub { get; }
 	}
 
 	public interface ICCDialogChild : ICCSubDataHub
 	{
-		bool autoExtendDataSource { get; set; }
-		ISEventCleanInfo2<object, object> bindFromParentHub(DataBindHub parentHub);
-		void unbindFromParentHub();
+		bool AutoExtendDataSource { get; set; }
+		ISEventCleanInfo2<object, object> BindFromParentHub(DataBindHub parentHub);
+		void UnbindFromParentHub();
 	}
 
 	public interface ICCDataBindBase : ICCIntegrate
 	{
-		DataBind dataBind { get; set; }
-		void doBindItems();
-		void doUnBindItems();
+		DataBind DataBind { get; set; }
+		void DoBindItems();
+		void DoUnBindItems();
 	}
 
 	public interface ICCContainerCtrl : ICCIntegrate
@@ -52,13 +52,13 @@ namespace DataBinding.UIBind
 
 	public interface ICCContainerBinding : ICCIntegrate
 	{
-		ContainerBind containerBind { get; set; }
+		ContainerBind ContainerBind { get; set; }
 		string BindSubExp { get; set; }
 	}
 
 	public class DataBindHubHelper
 	{
-		public static T seekSurfParent<T>(Transform self) where T : Component
+		public static T SeekSurfParent<T>(Transform self) where T : Component
 		{
 			var parent = self.parent;
 			var ccParent = parent?.GetComponent<T>();
@@ -70,194 +70,194 @@ namespace DataBinding.UIBind
 			return ccParent as T;
 		}
 
-		public static void onAddDataBindHub(ICCDataBindHub self)
+		public static void OnAddDataBindHub(ICCDataBindHub self)
 		{
 			var comp = self as Component;
-			self.dataBindHub.rawObj = self;
+			self.DataBindHub.rawObj = self;
 			var lifeComp = comp.GetOrAddComponent<CCNodeLife>();
 			// lifeComp.integrate()
 		}
 
-		public static void onRelateDataBindHub(ICCDataBindHub self)
+		public static void OnRelateDataBindHub(ICCDataBindHub self)
 		{
 			var comp = self as Component;
 			// CCDataBindBase的数据源, 只能是 CCDataBindBase 或者 CCDataHost
 			var ccDataHub = comp.GetComponent("CCDataHost") as ICCDataHost;
 			if (ccDataHub != null)
 			{
-				ccDataHub.dataHub.addBindHub(self.dataBindHub);
+				ccDataHub.DataHub.AddBindHub(self.DataBindHub);
 			}
 			else
 			{
-				var ccParent = seekSurfParent<CCDataBindHub>(comp.transform);
-				ccParent?.dataBindHub.addBindHub(self.dataBindHub);
+				var ccParent = SeekSurfParent<CCDataBindHub>(comp.transform);
+				ccParent?.DataBindHub.addBindHub(self.DataBindHub);
 			}
 
 		}
 
-		public static void onDerelateDataBindHub(ICCDataBindHub self)
+		public static void OnDerelateDataBindHub(ICCDataBindHub self)
 		{
-			var parentHub = self.dataBindHub.parent;
+			var parentHub = self.DataBindHub.Parent;
 			if (parentHub != null)
 			{
-				parentHub.removeBindHub(self.dataBindHub);
+				parentHub.RemoveBindHub(self.DataBindHub);
 			}
 		}
 
-		public static void onAddDataHub(ICCDataHost self)
+		public static void OnAddDataHub(ICCDataHost self)
 		{
 			var selfComp = self as Component;
 			// CCDataHub会自动检测和附加CCDataBindHub
 			var comp = selfComp.GetOrAddComponent<CCDataBindHub>();
-			comp.integrate();
+			comp.Integrate();
 		}
 
-		public static void onRemoveDataHub(ICCDataHost self)
+		public static void OnRemoveDataHub(ICCDataHost self)
 		{
-			self.dataHub.unsetDataHost();
+			self.DataHub.UnsetDataHost();
 		}
 
-		public static void onRelateDataHub(ICCDataHost self)
+		public static void OnRelateDataHub(ICCDataHost self)
 		{
 			var selfComp = self as Component;
 			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>();
 			if (ccDataBindHub != null)
 			{
-				var dataBindHub = ccDataBindHub.dataBindHub;
-				self.dataHub.addBindHub(dataBindHub);
+				var dataBindHub = ccDataBindHub.DataBindHub;
+				self.DataHub.AddBindHub(dataBindHub);
 			}
 			// if (self.dataHost) {
 			// 	self.dataHub.setDataHost(self.dataHost)
 			// }
-			self.dataHub.running = true;
+			self.DataHub.Running = true;
 		}
 
-		public static void onDerelateDataHub(ICCDataHost self)
+		public static void OnDerelateDataHub(ICCDataHost self)
 		{
 			// self.dataHub.unsetDataHost()
-			self.dataHub.running = false;
+			self.DataHub.Running = false;
 
 			var selfComp = self as Component;
 			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>();
 			if (ccDataBindHub!=null)
 			{
-				var dataBindHub = ccDataBindHub.dataBindHub;
-				self.dataHub.removeBindHub(dataBindHub);
+				var dataBindHub = ccDataBindHub.DataBindHub;
+				self.DataHub.RemoveBindHub(dataBindHub);
 			}
 		}
 
-		public static void onAddSubDataHub(ICCSubDataHub self)
+		public static void OnAddSubDataHub(ICCSubDataHub self)
 		{
 			var selfComp = self as Component;
 			var lifeComp = selfComp.GetOrAddComponent<CCNodeLife>();
 			// lifeComp.integrate()
 			var ccDataHost = selfComp.GetOrAddComponent<CCDataHost>();
-			ccDataHost.integrate();
-			self.subDataHub.setRealDataHub(ccDataHost.dataHub);
-			self.subDataHub.rawObj = self;
+			ccDataHost.Integrate();
+			self.SubDataHub.SetRealDataHub(ccDataHost.DataHub);
+			self.SubDataHub.RawObj = self;
 		}
 
-		public static void onAddDataBind(ICCDataBindBase self)
+		public static void OnAddDataBind(ICCDataBindBase self)
 		{
 			var selfComp = self as Component;
-			self.dataBind.rawObj = self;
+			self.DataBind.rawObj = self;
 			var lifeComp = selfComp.GetOrAddComponent<CCNodeLife>();
 			// lifeComp.integrate()
 		}
 
-		public static void onRelateDataBind(ICCDataBindBase self)
+		public static void OnRelateDataBind(ICCDataBindBase self)
 		{
 			// CCDataBind会自动检测CCDataBindHub,并附着监听
 			var selfComp = self as Component;
-			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>() ?? seekSurfParent<CCDataBindHub>(selfComp.transform);
+			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>() ?? SeekSurfParent<CCDataBindHub>(selfComp.transform);
 			if (ccDataBindHub)
 			{
-				self.dataBind.addBindHub(ccDataBindHub.dataBindHub);
+				self.DataBind.AddBindHub(ccDataBindHub.DataBindHub);
 			}
-			self.doBindItems();
+			self.DoBindItems();
 		}
 
-		public static void onDerelateDataBind(ICCDataBindBase self)
+		public static void OnDerelateDataBind(ICCDataBindBase self)
 		{
-			self.doUnBindItems();
-			var parent = self.dataBind.bindHub;
+			self.DoUnBindItems();
+			var parent = self.DataBind.bindHub;
 			if (parent != null)
 			{
-				self.dataBind.removeBindHub(parent);
+				self.DataBind.RemoveBindHub(parent);
 			}
 		}
 
-		public static void onAddContainerBind(ICCContainerBinding self)
+		public static void OnAddContainerBind(ICCContainerBinding self)
 		{
 			var selfComp = self as Component;
 			var lifeComp = selfComp.GetOrAddComponent<CCNodeLife>();
 			// lifeComp.integrate()
 			// container会自动检测和附加CCDataBindHub
 			var comp = selfComp.GetOrAddComponent<CCDataBindHub>();
-			comp.integrate();
+			comp.Integrate();
 
 
 			var ccContainerCtrl = selfComp.GetOrAddComponent<CCContainerCtrl>();
-			ccContainerCtrl.integrate();
+			ccContainerCtrl.Integrate();
 		}
 
-		public static void onRelateContainerBind(ICCContainerBinding self)
+		public static void OnRelateContainerBind(ICCContainerBinding self)
 		{
 			// container会自动检测和附加CCDataBindHub
 			var selfComp = self as Component;
 			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>();
 			if (ccDataBindHub)
 			{
-				self.containerBind.addBindHub(ccDataBindHub.dataBindHub);
+				self.ContainerBind.AddBindHub(ccDataBindHub.DataBindHub);
 			}
 			var ccContainerCtrl = selfComp.GetOrAddComponent<CCContainerCtrl>();
-			ccContainerCtrl.relate();
-			self.containerBind.bindExpr(self.BindSubExp);
+			ccContainerCtrl.Relate();
+			self.ContainerBind.BindExpr(self.BindSubExp);
 		}
 
-		public static void onDerelateContainerBind(ICCContainerBinding self)
+		public static void OnDerelateContainerBind(ICCContainerBinding self)
 		{
 			// container会自动检测和附加CCDataBindHub
 			var selfComp = self as Component;
 			var ccDataBindHub = selfComp.GetComponent<CCDataBindHub>();
 			if (ccDataBindHub)
 			{
-				self.containerBind.removeBindHub(ccDataBindHub.dataBindHub);
+				self.ContainerBind.RemoveBindHub(ccDataBindHub.DataBindHub);
 			}
 			var ccContainerCtrl = selfComp.GetComponent<CCContainerCtrl>();
-			if (ccContainerCtrl && Utils.isValid(ccContainerCtrl, true))
+			if (ccContainerCtrl && Utils.IsValid(ccContainerCtrl, true))
 			{
-				ccContainerCtrl.derelate();
+				ccContainerCtrl.Derelate();
 			}
 
-			self.containerBind.unbindExpr();
+			self.ContainerBind.UnbindExpr();
 		}
 
-		public static void onAddDialogChild(ICCDialogChild self)
+		public static void OnAddDialogChild(ICCDialogChild self)
 		{
-			onAddSubDataHub(self);
+			OnAddSubDataHub(self);
 		}
-		public static void onRelateDialogChild(ICCDialogChild self)
+		public static void OnRelateDialogChild(ICCDialogChild self)
 		{
-			if (self.autoExtendDataSource)
+			if (self.AutoExtendDataSource)
 			{
 				// CCDataBindBase的数据源, 只能是 CCDataBindBase 或者 CCDataHost
 				var selfComp = self as Component;
-				var ccParent = seekSurfParent<CCDataBindHub>(selfComp.transform);
-				var dataHub = ccParent?.dataBindHub;
+				var ccParent = SeekSurfParent<CCDataBindHub>(selfComp.transform);
+				var dataHub = ccParent?.DataBindHub;
 				if (dataHub != null)
 				{
-					self.bindFromParentHub(dataHub);
+					self.BindFromParentHub(dataHub);
 				}
 				else
 				{
-					self.unbindFromParentHub();
+					self.UnbindFromParentHub();
 				}
 			}
 		}
-		public static void onDerelateDialogChild(ICCDialogChild self)
+		public static void OnDerelateDialogChild(ICCDialogChild self)
 		{
-			self.unbindFromParentHub();
+			self.UnbindFromParentHub();
 		}
 
 	}

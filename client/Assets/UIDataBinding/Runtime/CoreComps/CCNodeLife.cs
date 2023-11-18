@@ -33,7 +33,7 @@ namespace DataBinding.UIBind
 
 			if (!this.IsPrefab)
 			{
-				newlyLoaded.Add(this);
+				NewlyLoaded.Add(this);
 			}
 			HandleHierachyChanging();
 		}
@@ -44,7 +44,7 @@ namespace DataBinding.UIBind
 
 			while (anyThingDirty)
 			{
-				var creatingList = CCMyComponent._creatingList;
+				var creatingList = CCMyComponent.CreatingList;
 				anyThingDirty = creatingList.Count > 0;
 				while (creatingList.Count > 0)
 				{
@@ -56,39 +56,39 @@ namespace DataBinding.UIBind
 					}
 				}
 
-				anyThingDirty = anyThingDirty | newlyLoaded.Count > 0;
-				while (newlyLoaded.Count > 0)
+				anyThingDirty = anyThingDirty | NewlyLoaded.Count > 0;
+				while (NewlyLoaded.Count > 0)
 				{
-					var compLifecycle = newlyLoaded[0];
-					newlyLoaded.RemoveAt(0);
+					var compLifecycle = NewlyLoaded[0];
+					NewlyLoaded.RemoveAt(0);
 					if (!compLifecycle.IsPrefab)
 					{
-						compLifecycle.handleParentChanged();
+						compLifecycle.HandleParentChanged();
 					}
 				}
 			}
 		}
-		protected virtual void handleParentChanged()
+		protected virtual void HandleParentChanged()
 		{
 			var oldParent = lastParent;
-			var newParent = this.transform.parent;
-			lastParent = newParent;
+			var newParent1 = this.transform.parent;
+			lastParent = newParent1;
 
-			if (oldParent != newParent)
+			if (oldParent != newParent1)
 			{
-				this._onParentChanged(newParent, oldParent);
+				this.OnParentChanged(newParent1, oldParent);
 			}
 			else
 			{
 				var ts = this.transform;
-				var surfParent = DataBindHubHelper.seekSurfParent<CCNodeLife>(ts);
+				var surfParent = DataBindHubHelper.SeekSurfParent<CCNodeLife>(ts);
 				if (surfParent != null)
 				{
-					this.onAttach();
+					this.OnAttach();
 				}
 				else
 				{
-					this.onDeattach();
+					this.OnDeattach();
 				}
 			}
 		}
@@ -97,14 +97,14 @@ namespace DataBinding.UIBind
 		// 	this.handleHierachyChanging();
 		// }
 
-		protected override void onPreload()
+		protected override void OnPreload()
 		{
-			this.integrate();
+			this.Integrate();
 		}
 
-        public static List<CCNodeLife> newlyLoaded = new List<CCNodeLife>();
+        public static readonly List<CCNodeLife> NewlyLoaded = new List<CCNodeLife>();
 		protected bool isLoaded = false;
-		protected virtual void integrate()
+		protected virtual void Integrate()
 		{
 			if (this.isLoaded)
 			{
@@ -113,45 +113,45 @@ namespace DataBinding.UIBind
 			this.isLoaded = true;
 
 			// this["_onParentChanged"](this.node.parent, null)
-			CCNodeLife.newlyLoaded.Add(this);
+			CCNodeLife.NewlyLoaded.Add(this);
 		}
 
 		/// <summary>
 		/// 仅观测
 		/// </summary>
-		protected Transform _newParent;
-		protected virtual void _onParentChanged(Transform newParent, Transform oldParent)
+		protected Transform newParent;
+		protected virtual void OnParentChanged(Transform newParent0, Transform oldParent)
 		{
-			this._newParent = newParent;
+			this.newParent = newParent0;
 			// console.warn("parent-change:", this.name, newParent?.name, oldParent?.name)
-			if (newParent == null)
+			if (newParent0 == null)
 			{
-				this.onDeattach();
+				this.OnDeattach();
 			}
 			else
 			{
-				this.onAttach();
+				this.OnAttach();
 			}
 		}
 
-		protected override void onAttach()
+		protected override void OnAttach()
 		{
 			this.GetComponents<CCMyComponent>().ForEach(comp =>
 			{
 				if (comp != this)
 				{
-					comp.onRequireAttach();
+					comp.OnRequireAttach();
 				}
 			});
 		}
 
-		protected override void onDeattach()
+		protected override void OnDeattach()
 		{
 			this.GetComponents<CCMyComponent>().ForEach(comp =>
 			{
 				if (comp != this)
 				{
-					comp.onRequireDeattach();
+					comp.OnRequireDeattach();
 				}
 			});
 		}
@@ -159,7 +159,7 @@ namespace DataBinding.UIBind
 		/**
 		 * 节点activeInHierachy变化时, 通知不可见的子节点跟随变更
 		 */
-		protected virtual void updateInactiveChildrenAttach()
+		protected virtual void UpdateInactiveChildrenAttach()
 		{
 			if (!EnableLazyAttach)
 			{
@@ -173,7 +173,7 @@ namespace DataBinding.UIBind
 					{
 						if (comp != this)
 						{
-							comp.updateAttach();
+							comp.UpdateAttach();
 						}
 					});
 				}
@@ -181,11 +181,11 @@ namespace DataBinding.UIBind
 		}
 		protected override void OnEnable()
 		{
-			this.updateInactiveChildrenAttach();
+			this.UpdateInactiveChildrenAttach();
 		}
 		protected override void OnDisable()
 		{
-			this.updateInactiveChildrenAttach();
+			this.UpdateInactiveChildrenAttach();
 		}
 
 	}

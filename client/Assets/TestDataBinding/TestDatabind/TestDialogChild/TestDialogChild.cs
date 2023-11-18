@@ -15,14 +15,14 @@ namespace DataBinding.UIBind
 	public class TestDialogChild : TestBase
 	{
 
-		TRawData rawData => (TRawData)_rawData;
+		TRawData RawData => (TRawData)_rawData;
 
-		C1Item rawData2 = new C1Item()
+		readonly C1Item _rawData2 = new C1Item()
 		{
 			AV2 = "BBB",
 		};
 
-		TRawData rawData3 = new TRawData()
+		readonly TRawData rawData3 = new TRawData()
 		{
 			C1 = new C1Item()
 			{
@@ -30,7 +30,7 @@ namespace DataBinding.UIBind
 			},
 		};
 
-		protected override void initTestData()
+		protected override void InitTestData()
 		{
 			this._rawData = new TRawData()
 			{
@@ -41,47 +41,47 @@ namespace DataBinding.UIBind
 			};
 		}
 
-		public override void test()
+		public override void Test()
 		{
-			this.testCustomData();
-			this.testAutoBind();
-			this.testAutoBindSubKey();
+			this.TestCustomData();
+			this.TestAutoBind();
+			this.TestAutoBindSubKey();
 		}
 
-		public virtual void testCustomData()
+		public virtual void TestCustomData()
 		{
-			var CustomDataNode = this.cn("CustomData")!;
-			var label = CustomDataNode.cn("Label")?.GetComponent<Text>()!;
+			var CustomDataNode = this.CN("CustomData")!;
+			var label = CustomDataNode.CN("Label")?.GetComponent<Text>()!;
 			var ccDialogChild = CustomDataNode.GetComponent<CCDialogChild>()!;
-			assert(label.text == "label");
-			this.tick();
-			assert(label.text == "label");
-			ccDialogChild.observeData(this.rawData2);
-			this.tick();
-			assert(label.text == this.rawData2.AV2);
+			Assert(label.text == "label");
+			this.Tick();
+			Assert(label.text == "label");
+			ccDialogChild.ObserveData(this._rawData2);
+			this.Tick();
+			Assert(label.text == this._rawData2.AV2);
 		}
 
-		public virtual void testAutoBindSubKey()
+		public virtual void TestAutoBindSubKey()
 		{
-			var AutoBindSubKeyNode = this.cn("AutoBindSubKey")!;
-			var label = AutoBindSubKeyNode.cn("Label")?.GetComponent<Text>()!;
-			this.tick();
-			assert(label.text == this.rawData.C1.AV2);
-			this.observeData(this.rawData3);
-			this.tick();
-			assert(label.text == this.rawData3.C1.AV2);
+			var AutoBindSubKeyNode = this.CN("AutoBindSubKey")!;
+			var label = AutoBindSubKeyNode.CN("Label")?.GetComponent<Text>()!;
+			this.Tick();
+			Assert(label.text == this.RawData.C1.AV2);
+			this.ObserveData(this.rawData3);
+			this.Tick();
+			Assert(label.text == this.rawData3.C1.AV2);
 		}
 
-		public virtual void testAutoBind()
+		public virtual void TestAutoBind()
 		{
-			var AutoBindNode = this.cn("AutoBind")!;
-			var label = AutoBindNode.cn("Label")?.GetComponent<Text>()!;
+			var AutoBindNode = this.CN("AutoBind")!;
+			var label = AutoBindNode.CN("Label")?.GetComponent<Text>()!;
 			var ccDialogChild = AutoBindNode.GetComponent<CCDialogChild>()!;
-			this.tick();
-			assert(label.text == this.rawData.C1.AV2);
-			ccDialogChild.observeData(this.rawData3);
-			this.tick();
-			assert(label.text == this.rawData3.C1.AV2);
+			this.Tick();
+			Assert(label.text == this.RawData.C1.AV2);
+			ccDialogChild.ObserveData(this.rawData3);
+			this.Tick();
+			Assert(label.text == this.rawData3.C1.AV2);
 		}
 
 	}

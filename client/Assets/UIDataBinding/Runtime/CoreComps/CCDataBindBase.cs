@@ -10,33 +10,33 @@ namespace DataBinding.UIBind
 		// 	super(...args)
 		// }
 
-		public virtual DataBind dataBind { get; set; } = new DataBind();
+		public virtual DataBind DataBind { get; set; } = new DataBind();
 
-		public virtual ISEventCleanInfo2<object, object> watchValueChange<T>(string key, EventHandlerMV2<object, object> call)
+		public virtual ISEventCleanInfo2<object, object> WatchValueChange<T>(string key, EventHandlerMV2<object, object> call)
 		{
-			return this.dataBind.watchExprValue(key, call);
+			return this.DataBind.WatchExprValue(key, call);
 		}
-		public virtual void clearWatchers()
+		public virtual void ClearWatchers()
 		{
-			this.dataBind.clearWatchers();
-		}
-
-		public virtual void doBindItems()
-		{
-			this.onBindItems();
-		}
-		protected virtual void onBindItems()
-		{
-
+			this.DataBind.ClearWatchers();
 		}
 
-		public virtual void doUnBindItems()
+		public virtual void DoBindItems()
 		{
-			this.onUnBindItems();
+			this.OnBindItems();
 		}
-		protected virtual void onUnBindItems()
+		protected virtual void OnBindItems()
 		{
-			this.clearWatchers();
+
+		}
+
+		public virtual void DoUnBindItems()
+		{
+			this.OnUnBindItems();
+		}
+		protected virtual void OnUnBindItems()
+		{
+			this.ClearWatchers();
 		}
 
 		// /**
@@ -66,44 +66,44 @@ namespace DataBinding.UIBind
 		// 	return dialogComponent;
 		// }
 
-		public virtual void integrate()
+		public virtual void Integrate()
 		{
-			DataBindHubHelper.onAddDataBind(this);
+			DataBindHubHelper.OnAddDataBind(this);
 		}
 
-		public virtual void deintegrate()
+		public virtual void Deintegrate()
 		{
-			this.dataBind.clear();
+			this.DataBind.Clear();
 		}
 
-		public virtual void relate()
+		public virtual void Relate()
 		{
-			DataBindHubHelper.onRelateDataBind(this);
+			DataBindHubHelper.OnRelateDataBind(this);
 		}
 
-		public virtual void derelate()
+		public virtual void Derelate()
 		{
-			DataBindHubHelper.onDerelateDataBind(this);
+			DataBindHubHelper.OnDerelateDataBind(this);
 		}
 
-		protected override void onPreload()
+		protected override void OnPreload()
 		{
-			this.integrate();
+			this.Integrate();
 		}
 
-		protected override void onPreDestroy()
+		protected override void OnPreDestroy()
 		{
-			this.deintegrate();
+			this.Deintegrate();
 		}
 
-		protected override void onAttach()
+		protected override void OnAttach()
 		{
-			this.relate();
+			this.Relate();
 		}
 
-		protected override void onDeattach()
+		protected override void OnDeattach()
 		{
-			this.derelate();
+			this.Derelate();
 		}
 
 	}

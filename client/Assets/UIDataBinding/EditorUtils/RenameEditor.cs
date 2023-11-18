@@ -17,19 +17,19 @@ public class RenameEditor : Editor
     public override void OnInspectorGUI()
     {
         EditorGUI.BeginChangeCheck();
-        drawProperties();
+        DrawProperties();
         if (EditorGUI.EndChangeCheck()) serializedObject.ApplyModifiedProperties();
     }
 
     // ��������
-    protected virtual void drawProperty(string property, string label)
+    protected virtual void DrawProperty(string property, string label)
     {
         SerializedProperty pro = serializedObject.FindProperty(property);
         if (pro != null) EditorGUILayout.PropertyField(pro, new GUIContent(label), true);
     }
 
     // ������������
-    protected virtual void drawProperties()
+    protected virtual void DrawProperties()
     {
         // ��ȡ���ͺͿ����л�����
         Type type = target.GetType();
@@ -63,7 +63,7 @@ public class RenameEditor : Editor
 
             // ���Ʒ�������������
             RenameInEditorAttribute[] atts = (RenameInEditorAttribute[])field.GetCustomAttributes(typeof(RenameInEditorAttribute), true);
-            drawProperty(field.Name, atts.Length == 0 ? field.Name : atts[0].name);
+            DrawProperty(field.Name, atts.Length == 0 ? field.Name : atts[0].name);
         }
 
     }

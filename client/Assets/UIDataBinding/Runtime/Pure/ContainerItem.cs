@@ -8,51 +8,51 @@ namespace DataBinding.UIBind
 
 	public class ContainerItem : ISubDataHub
 	{
-		static number oidAcc = 0;
-		public number oid { get; set; } = ContainerItem.oidAcc++;
+		static number _oidAcc = 0;
+		public number Oid { get; set; } = ContainerItem._oidAcc++;
 		public number index = 0;
 
-		public DataSourceHub realDataHub { get; set; }
-		public Object rawObj { get; set; }
+		public DataSourceHub RealDataHub { get; set; }
+		public Object RawObj { get; set; }
 
-		public void setRealDataHub(DataSourceHub realDataHub)
+		public void SetRealDataHub(DataSourceHub realDataHub)
 		{
-			this.realDataHub = realDataHub;
+			this.RealDataHub = realDataHub;
 
 
-			if (this.realDataHub != null)
+			if (this.RealDataHub != null)
 			{
-				this.bindDataHost(this.dataHost);
+				this.BindDataHost(this.dataHost);
 			}
 		}
 
 		public object dataHost;
-		public void observeData(object data)
+		public void ObserveData(object data)
 		{
 			this.dataHost = data;
-			if (this.realDataHub != null)
+			if (this.RealDataHub != null)
 			{
-				this.realDataHub.observeData(data);
+				this.RealDataHub.ObserveData(data);
 			}
 		}
 
-		public void unsetDataHost()
+		public void UnsetDataHost()
 		{
-			if (this.realDataHub != null)
+			if (this.RealDataHub != null)
 			{
-				this.realDataHub.unsetDataHost();
+				this.RealDataHub.UnsetDataHost();
 			}
 		}
 
-		public void bindDataHost(object data)
+		public void BindDataHost(object data)
 		{
 			if (data == null)
 			{
-				this.unsetDataHost();
+				this.UnsetDataHost();
 			}
 			else
 			{
-				this.observeData(data);
+				this.ObserveData(data);
 			}
 		}
 

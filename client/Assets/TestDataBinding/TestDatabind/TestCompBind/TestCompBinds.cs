@@ -25,9 +25,9 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 	public class TestCompBinds : TestBase
 	{
 
-		TRawData rawData => (TRawData)_rawData;
+		TRawData RawData => (TRawData)_rawData;
 
-		protected override void initTestData()
+		protected override void InitTestData()
 		{
 			this._rawData = new TRawData()
 			{
@@ -45,122 +45,122 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			};
 		}
 
-		public override void test()
+		public override void Test()
 		{
 			var label0 = "label";
 			// var label1 = "hello";
 
 
-			var BtnBind = this.cn("Button")!.GetComponent<CCButtonBind>();
+			var BtnBind = this.CN("Button")!.GetComponent<CCButtonBind>();
 			var Btn = BtnBind.target!;
-			this.rawData.doClick = (CCButtonBind binder, double index) =>
+			this.RawData.doClick = (CCButtonBind binder, double index) =>
 			{
 				console.log("click2", binder.name);
 			}; ;
-			this.rawData.enabled = true;
-			this.tick();
-			assert(Btn.interactable == this.rawData.enabled);
-			this.rawData.gray = true;
-			this.tick();
-			assert(BtnBind.isGray == this.rawData.gray);
+			this.RawData.enabled = true;
+			this.Tick();
+			Assert(Btn.interactable == this.RawData.enabled);
+			this.RawData.gray = true;
+			this.Tick();
+			Assert(BtnBind.isGray == this.RawData.gray);
 
 
-			var LabelBind = this.cn("Label")!.GetComponent<CCSimpleBind>();
+			var LabelBind = this.CN("Label")!.GetComponent<CCSimpleBind>();
 			var Label0 = LabelBind.target as Text;
-			assert(Label0.text == this.rawData.label);
-			this.rawData.label = "jkkjkfje";
-			this.tick();
-			assert(Label0.text == this.rawData.label);
-			this.rawData.label = label0;
-			this.tick();
-			assert(Label0.text == this.rawData.label);
+			Assert(Label0.text == this.RawData.label);
+			this.RawData.label = "jkkjkfje";
+			this.Tick();
+			Assert(Label0.text == this.RawData.label);
+			this.RawData.label = label0;
+			this.Tick();
+			Assert(Label0.text == this.RawData.label);
 
 
-			var SpriteBind = this.cn("Sprite")!.GetComponent<CCSimpleBind>();
+			var SpriteBind = this.CN("Sprite")!.GetComponent<CCSimpleBind>();
 			var Sprite0 = SpriteBind.target as Image;
-			assert(SpriteBind.spriteTextureUrl == this.rawData.spriteUrl);
-			this.rawData.spriteUrl = "doge_cartoon";
-			this.tick();
-			assert(SpriteBind.spriteTextureUrl == this.rawData.spriteUrl);
-			this.rawData.spriteUrl = "";
-			this.tick();
-			assert(Sprite0.sprite == null);
-			this.rawData.spriteUrl = "doge_cartoon";
-			this.tick();
-			assert(SpriteBind.spriteTextureUrl == this.rawData.spriteUrl);
+			Assert(SpriteBind.spriteTextureUrl == this.RawData.spriteUrl);
+			this.RawData.spriteUrl = "doge_cartoon";
+			this.Tick();
+			Assert(SpriteBind.spriteTextureUrl == this.RawData.spriteUrl);
+			this.RawData.spriteUrl = "";
+			this.Tick();
+			Assert(Sprite0.sprite == null);
+			this.RawData.spriteUrl = "doge_cartoon";
+			this.Tick();
+			Assert(SpriteBind.spriteTextureUrl == this.RawData.spriteUrl);
 
 
-			this.tick();
-			var VisibleBind = this.cn("Visible")!.GetComponent<CCActiveBind>();
+			this.Tick();
+			var VisibleBind = this.CN("Visible")!.GetComponent<CCActiveBind>();
 			var Visible0 = VisibleBind.gameObject;
-			assert(Visible0.activeSelf == this.rawData.visible);
-			this.rawData.visible = true;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
-			this.rawData.visible = false;
-			this.tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			this.RawData.visible = true;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			this.RawData.visible = false;
+			this.Tick();
 			// @ts-ignore;
-			assert(Visible0.activeSelf == this.rawData.visible);
-			this.rawData.visible = true;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
-			this.rawData.visible = false;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			this.RawData.visible = true;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			this.RawData.visible = false;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
 
 
-			var ProgressBind = this.cn("ProgressBar")!.GetComponent<CCSimpleBind>();
+			var ProgressBind = this.CN("ProgressBar")!.GetComponent<CCSimpleBind>();
 			var Progress0 = ProgressBind.target as Slider;
-			assert(Progress0.value == this.rawData.progress);
-			this.rawData.progress = 1;
-			this.tick();
-			assert(Progress0.value == this.rawData.progress);
+			Assert(Progress0.value == this.RawData.progress);
+			this.RawData.progress = 1;
+			this.Tick();
+			Assert(Progress0.value == this.RawData.progress);
 
 
-			var ToggleBind = this.cn("Toggle")!.GetComponent<CCToggleBind>();
+			var ToggleBind = this.CN("Toggle")!.GetComponent<CCToggleBind>();
 			var Toggle0 = ToggleBind.target as Toggle;
-			assert(Toggle0.isOn == this.rawData.isToggleCheck);
-			this.rawData.isToggleCheck = !this.rawData.isToggleCheck;
-			this.tick();
-			assert(Toggle0.isOn == this.rawData.isToggleCheck);
+			Assert(Toggle0.isOn == this.RawData.isToggleCheck);
+			this.RawData.isToggleCheck = !this.RawData.isToggleCheck;
+			this.Tick();
+			Assert(Toggle0.isOn == this.RawData.isToggleCheck);
 		}
 
-		public override void testLazy()
+		public override void TestLazy()
 		{
 			var label0 = "label";
 			var label1 = "hello";
-			this.rawData.label = label1;
+			this.RawData.label = label1;
 
-			this.tick();
-			var VisibleBind = this.cn("Visible")!.GetComponent<CCActiveBind>();
+			this.Tick();
+			var VisibleBind = this.CN("Visible")!.GetComponent<CCActiveBind>();
 			var VisibleLable = VisibleBind.GetComponent<Text>();
-			var VisibleSubBind = this.cn("Visible")!.cn("Label")!.GetComponent<CCSimpleBind>();
+			var VisibleSubBind = this.CN("Visible")!.CN("Label")!.GetComponent<CCSimpleBind>();
 			var VisibleSubLabel = VisibleSubBind.GetComponent<Text>();
 			var Visible0 = VisibleBind.gameObject;
-			assert(Visible0.activeSelf == this.rawData.visible);
-			assert(VisibleLable.text == label0);
-			assert(VisibleSubLabel.text == label0);
-			this.rawData.visible = true;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
-			assert(VisibleLable.text == this.rawData.label);
-			assert(VisibleSubLabel.text == this.rawData.label);
-			this.rawData.visible = false;
-			this.rawData.label = label0;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
-			assert(VisibleLable.text == label1);
-			assert(VisibleSubLabel.text == label1);
-			this.rawData.visible = true;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
-			assert(VisibleLable.text == this.rawData.label);
-			assert(VisibleSubLabel.text == this.rawData.label);
-			this.rawData.label = label0;
-			this.tick();
-			assert(Visible0.activeSelf == this.rawData.visible);
-			assert(VisibleLable.text == this.rawData.label);
-			assert(VisibleSubLabel.text == this.rawData.label);
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			Assert(VisibleLable.text == label0);
+			Assert(VisibleSubLabel.text == label0);
+			this.RawData.visible = true;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			Assert(VisibleLable.text == this.RawData.label);
+			Assert(VisibleSubLabel.text == this.RawData.label);
+			this.RawData.visible = false;
+			this.RawData.label = label0;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			Assert(VisibleLable.text == label1);
+			Assert(VisibleSubLabel.text == label1);
+			this.RawData.visible = true;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			Assert(VisibleLable.text == this.RawData.label);
+			Assert(VisibleSubLabel.text == this.RawData.label);
+			this.RawData.label = label0;
+			this.Tick();
+			Assert(Visible0.activeSelf == this.RawData.visible);
+			Assert(VisibleLable.text == this.RawData.label);
+			Assert(VisibleSubLabel.text == this.RawData.label);
 
 		}
 

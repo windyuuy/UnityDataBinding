@@ -5,24 +5,24 @@ namespace DataBinding.UIBind
 {
 	public class CCSubDataHub : CCMyComponent, ICCSubDataHub
 	{
-		protected virtual ISubDataHub _subDataHub { get; set; }
+		protected virtual ISubDataHub subDataHub { get; set; }
 
 		// ccDataHost!: CCDataHost
 
-		public virtual IStdHost dataHost
+		public virtual IStdHost DataHost
 		{
 			get
 			{
 				// return this.ccDataHost.dataHost
-				return this._subDataHub.realDataHub?.dataHost;
+				return this.subDataHub.RealDataHub?.dataHost;
 			}
 		}
 
-		public virtual ISubDataHub subDataHub
+		public virtual ISubDataHub SubDataHub
 		{
 			get
 			{
-				return this._subDataHub;
+				return this.subDataHub;
 			}
 		}
 
@@ -30,46 +30,46 @@ namespace DataBinding.UIBind
 		// this.ccDataHost.dataHub.setDataHost(dataHost)
 		// }
 
-		protected override void onPreload()
+		protected override void OnPreload()
 		{
-			this.integrate();
+			this.Integrate();
 		}
-		protected override void onPreDestroy()
+		protected override void OnPreDestroy()
 		{
-			this.deintegrate();
-		}
-
-		protected override void onAttach()
-		{
-			this.relate();
+			this.Deintegrate();
 		}
 
-		protected override void onDeattach()
+		protected override void OnAttach()
 		{
-			this.derelate();
+			this.Relate();
 		}
 
-		public virtual void integrate()
+		protected override void OnDeattach()
 		{
-			DataBindHubHelper.onAddSubDataHub(this);
+			this.Derelate();
 		}
 
-		public virtual void deintegrate()
+		public virtual void Integrate()
 		{
-			this.derelate();
+			DataBindHubHelper.OnAddSubDataHub(this);
 		}
 
-		public virtual void relate()
+		public virtual void Deintegrate()
 		{
+			this.Derelate();
 		}
 
-		public virtual void derelate()
+		public virtual void Relate()
 		{
 		}
 
-		public virtual void bindDataHost(object data)
+		public virtual void Derelate()
 		{
-			this._subDataHub.bindDataHost(data);
+		}
+
+		public virtual void BindDataHost(object data)
+		{
+			this.subDataHub.BindDataHost(data);
 		}
 
 	}

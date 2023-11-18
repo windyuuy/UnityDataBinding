@@ -9,36 +9,36 @@ namespace DataBinding.UIBind
 
 	public class SubDataHub : ISubDataHub
 	{
-		static number oidAcc = 0;
-		public number oid { get; set; } = SubDataHub.oidAcc++;
+		static number _oidAcc = 0;
+		public number Oid { get; set; } = SubDataHub._oidAcc++;
 		public number index = 0;
 
-		public DataSourceHub realDataHub { get; set; }
-		public Object rawObj { get; set; }
+		public DataSourceHub RealDataHub { get; set; }
+		public Object RawObj { get; set; }
 
-		public void setRealDataHub(DataSourceHub realDataHub)
+		public void SetRealDataHub(DataSourceHub realDataHub)
 		{
-			this.realDataHub = realDataHub;
+			this.RealDataHub = realDataHub;
 		}
 
 		public void observeData(object data)
 		{
-			Debug.Assert(this.realDataHub != null);
-			if (this.realDataHub != null)
+			Debug.Assert(this.RealDataHub != null);
+			if (this.RealDataHub != null)
 			{
-				this.realDataHub.observeData(data);
+				this.RealDataHub.ObserveData(data);
 			}
 		}
 
 		public void unsetDataHost()
 		{
-			if (this.realDataHub != null)
+			if (this.RealDataHub != null)
 			{
-				this.realDataHub.unsetDataHost();
+				this.RealDataHub.UnsetDataHost();
 			}
 		}
 
-		public void bindDataHost(object data)
+		public void BindDataHost(object data)
 		{
 			if (data == null)
 			{
@@ -57,7 +57,7 @@ namespace DataBinding.UIBind
 			this.unbindFromParentHub();
 
 
-			var watcher = parentHub.easeWatchExprValue(subKey, (value, oldValue) =>
+			var watcher = parentHub.EaseWatchExprValue(subKey, (value, oldValue) =>
 			{
 				if (value != null)
 				{
@@ -80,7 +80,7 @@ namespace DataBinding.UIBind
 				var key = this.parentHostWatcher.key;
 				var callback = this.parentHostWatcher.callback;
 
-				parentHub.easeUnWatchExprValue(key, callback);
+				parentHub.EaseUnWatchExprValue(key, callback);
 				this.parentHostWatcher = null;
 				this.parentHub = null;
 			}

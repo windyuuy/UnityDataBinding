@@ -9,86 +9,86 @@ namespace DataBinding.UIBind
 	public class CCDataHost : CCMyComponent, ICCDataHost
 	{
 
-		public virtual IStdHost dataHost
+		public virtual IStdHost DataHost
 		{
 			get
 			{
-				return this.dataHub.dataHost;
+				return this.DataHub.dataHost;
 			}
 		}
 
-		public virtual DataSourceHub dataHub { get; set; } = new DataSourceHub();
+		public virtual DataSourceHub DataHub { get; set; } = new DataSourceHub();
 
-		public override void onRequireAttach()
+		public override void OnRequireAttach()
 		{
-			this.onAttach();
+			this.OnAttach();
 		}
-		public override void onRequireDeattach()
+		public override void OnRequireDeattach()
 		{
-			this.onDeattach();
+			this.OnDeattach();
 		}
 		protected override void OnEnable()
 		{
-			this.dataHub.running = true;
+			this.DataHub.Running = true;
 		}
 		protected override void OnDisable()
 		{
-			this.dataHub.running = false;
+			this.DataHub.Running = false;
 		}
 
-		public virtual void observeData(object data)
+		public virtual void ObserveData(object data)
 		{
-			this.dataHub.observeData(data);
+			this.DataHub.ObserveData(data);
 		}
 
-		protected virtual void setDataHost(IStdHost dataHost)
+		protected virtual void SetDataHost(IStdHost dataHost)
 		{
-			this.dataHub.setDataHost(dataHost);
+			this.DataHub.SetDataHost(dataHost);
 		}
 
-		protected virtual void unsetDataHost()
+		protected virtual void UnsetDataHost()
 		{
-			this.dataHub.unsetDataHost();
+			this.DataHub.UnsetDataHost();
 		}
 
-		protected override void onPreload()
+		protected override void OnPreload()
 		{
-			this.integrate();
+			this.Integrate();
 		}
-		protected override void onPreDestroy()
+		protected override void OnPreDestroy()
 		{
-			this.derelate();
-			DataBindHubHelper.onRemoveDataHub(this);
-		}
-
-		protected override void onAttach()
-		{
-			this.relate();
+			this.Derelate();
+			DataBindHubHelper.OnRemoveDataHub(this);
 		}
 
-		protected override void onDeattach()
+		protected override void OnAttach()
 		{
-			this.derelate();
+			this.Relate();
+		}
+
+		protected override void OnDeattach()
+		{
+			this.Derelate();
 		}
 
 		/**
 		 * 集成
 		 * - 遍历所有浅层子hub, 设置父节点为自身
 		 */
-		public virtual void integrate()
+		public virtual void Integrate()
 		{
-			this.dataHub.rawObj = this;
-			DataBindHubHelper.onAddDataHub(this);
+			this.DataHub.rawObj = this;
+			DataBindHubHelper.OnAddDataHub(this);
 		}
 
-		public virtual void relate()
+		public virtual void Relate()
 		{
-			DataBindHubHelper.onRelateDataHub(this);
+			DataBindHubHelper.OnRelateDataHub(this);
 		}
 
-		public virtual void derelate()
+		public virtual void Derelate()
 		{
-			DataBindHubHelper.onDerelateDataHub(this);
+			DataBindHubHelper.OnDerelateDataHub(this);
 		}
 
 	}

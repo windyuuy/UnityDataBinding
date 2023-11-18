@@ -18,9 +18,9 @@ public class RenameAttribute : PropertyAttribute
 {
 
     /// <summary> 枚举名称 </summary>
-    public string name = "";
+    public readonly string name = "";
     /// <summary> 文本颜色 </summary>
-    public string htmlColor = "#7E7E7E";
+    public readonly string htmlColor = "#7E7E7E";
 
     /// <summary> 重命名属性 </summary>
     /// <param name="name">新名称</param>
@@ -53,12 +53,12 @@ public class RenameDrawer : PropertyDrawer
 
         // 重绘GUI
         Color defaultColor = EditorStyles.label.normal.textColor;
-        EditorStyles.label.normal.textColor = htmlToColor(rename.htmlColor);
+        EditorStyles.label.normal.textColor = HtmlToColor(rename.htmlColor);
         bool isElement = Regex.IsMatch(property.displayName, "Element \\d+");
         if (isElement) label.text = property.displayName;
         if (property.propertyType == SerializedPropertyType.Enum)
         {
-            drawEnum(position, property, label);
+            DrawEnum(position, property, label);
         }
         else
         {
@@ -68,7 +68,7 @@ public class RenameDrawer : PropertyDrawer
     }
 
     // 绘制枚举类型
-    private void drawEnum(Rect position, SerializedProperty property, GUIContent label)
+    private void DrawEnum(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginChangeCheck();
 
@@ -95,7 +95,7 @@ public class RenameDrawer : PropertyDrawer
     /// <summary> Html颜色转换为Color </summary>
     /// <param name="hex"></param>
     /// <returns></returns>
-    public static Color htmlToColor(string hex)
+    public static Color HtmlToColor(string hex)
     {
         // 编辑器默认颜色
         if (string.IsNullOrEmpty(hex)) return new Color(0.705f, 0.705f, 0.705f);
@@ -173,9 +173,9 @@ public class TitleAttribute : PropertyAttribute
 {
 
     /// <summary> 标题名称 </summary>
-    public string title = "";
+    public readonly string title = "";
     /// <summary> 文本颜色 </summary>
-    public string htmlColor = "#B3B3B3";
+    public readonly string htmlColor = "#B3B3B3";
 
     /// <summary> 在属性上方添加一个标题 </summary>
     /// <param name="title">标题名称</param>
@@ -201,14 +201,14 @@ public class TitleAttributeDrawer : DecoratorDrawer
 {
 
     // 文本样式
-    private GUIStyle style = new GUIStyle(EditorStyles.label);
+    private readonly GUIStyle style = new GUIStyle(EditorStyles.label);
 
     public override void OnGUI(Rect position)
     {
         // 获取Attribute
         TitleAttribute rename = (TitleAttribute)attribute;
         style.fixedHeight = 18;
-        style.normal.textColor = RenameDrawer.htmlToColor(rename.htmlColor);
+        style.normal.textColor = RenameDrawer.HtmlToColor(rename.htmlColor);
 
         // 重绘GUI
         position = EditorGUI.IndentedRect(position);

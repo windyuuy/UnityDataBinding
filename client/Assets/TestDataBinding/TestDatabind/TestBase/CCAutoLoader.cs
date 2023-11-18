@@ -1,15 +1,15 @@
 
+using System;
 using UnityEngine;
 
 public class CCAutoLoader :MonoBehaviour
 {
-	public GameObject[] refers = new GameObject[0];
+	public GameObject[] refers = Array.Empty<GameObject>();
 
 	protected virtual void Awake() {
 		foreach (var r in this.refers)
 		{
-			var x = Instantiate(r);
-			x.transform.SetParent(this.transform, false);
+			var x = Instantiate(r, this.transform, false);
 		}
 	}
 }

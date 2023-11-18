@@ -91,7 +91,7 @@ public static class Utils
 		return children;
 	}
 
-	public static bool isValid(Component comp, bool strictMode = false)
+	public static bool IsValid(Component comp, bool strictMode = false)
 	{
 		return comp != null;
 	}

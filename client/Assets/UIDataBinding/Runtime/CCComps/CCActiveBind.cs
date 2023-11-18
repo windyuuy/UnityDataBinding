@@ -11,32 +11,32 @@ namespace DataBinding.UIBind
 		[Rename("可见性")]
 		public string visible = "";
 
-		protected override bool needAttach()
+		protected override bool NeedAttach()
 		{
 			if (!string.IsNullOrEmpty(this.visible))
 			{
 				if(this.isAttachCalled && this.enabled)
                 {
 					var p = this.transform.parent;
-					return p != null ? p.IsActiveInHierarchy() : false;
+					return p != null && p.IsActiveInHierarchy();
 				}
 				return false;
 			}
 			else
 			{
-				return this.isAttachCalled && this.enabledInHierarchy;
+				return this.isAttachCalled && this.EnabledInHierarchy;
 			}
 		}
 
 		/**
 		 * 更新显示状态
 		 */
-		protected override void onBindItems()
+		protected override void OnBindItems()
 		{
-			this.checkVisible();
+			this.CheckVisible();
 		}
 
-		public virtual bool checkVisible()
+		public virtual bool CheckVisible()
 		{
 			if (string.IsNullOrEmpty(this.visible))
 			{
@@ -47,9 +47,9 @@ namespace DataBinding.UIBind
 			{
 				return false;
 			}
-			this.watchValueChange<bool>(this.visible, (object newValue, object oldValue) =>
+			this.WatchValueChange<bool>(this.visible, (object newValue, object oldValue) =>
 			{
-				if (Utils.isValid(node, true))
+				if (Utils.IsValid(node, true))
 				{
 					node.gameObject.SetActive(Utils.IsTrue(newValue));
 				}

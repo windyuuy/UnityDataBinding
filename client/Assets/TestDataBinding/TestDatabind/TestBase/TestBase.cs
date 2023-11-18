@@ -5,7 +5,7 @@ namespace DataBinding.UIBind
 	public class TestBase : MonoBehaviour
 	{
 
-		protected virtual bool assert(bool cond, string msg = "invalid cond")
+		protected virtual bool Assert(bool cond, string msg = "invalid cond")
 		{
 			if (cond == false)
 			{
@@ -15,7 +15,7 @@ namespace DataBinding.UIBind
 		}
 
 		//#region data host
-		protected void integrateDataBind()
+		protected void IntegrateDataBind()
 		{
 			if (this._dataHost == null)
 			{
@@ -28,7 +28,7 @@ namespace DataBinding.UIBind
 			}
 		}
 		private CCDataHost _dataHost;
-		public CCDataHost dataHost
+		public CCDataHost DataHost
 		{
 			get
 			{
@@ -41,33 +41,33 @@ namespace DataBinding.UIBind
 		 * 观测数据
 		 * @param data
 		 */
-		public void observeData(object data, bool updateChildren = true)
+		public void ObserveData(object data, bool updateChildren = true)
 		{
 			this.autoAddDataHost = true;
-			if (this.dataHost)
+			if (this.DataHost)
 			{
-				this.dataHost.observeData(data);
+				this.DataHost.ObserveData(data);
 			}
 		}
 		//#endregion
 
 		protected object _rawData;
-		public object data
+		public object Data
 		{
 			get
 			{
 				return this._rawData;
 			}
 		}
-		protected virtual void initTestData()
+		protected virtual void InitTestData()
 		{
 
 		}
 		public virtual void Awake()
 		{
-			this.initTestData();
-			this.integrateDataBind();
-			this.observeData(this.data);
+			this.InitTestData();
+			this.IntegrateDataBind();
+			this.ObserveData(this.Data);
 		}
 
 		public virtual void Start()
@@ -76,7 +76,7 @@ namespace DataBinding.UIBind
 			try
 			{
 				Debug.Log("Begin Test <" + this.name + ">");
-				this.test();
+				this.Test();
 				Debug.Log("Success Test <" + this.name + ">");
 			}
 			catch (System.Exception e)
@@ -89,26 +89,26 @@ namespace DataBinding.UIBind
 
 			if (CCMyComponent.EnableLazyAttach)
 			{
-				this.testLazy();
+				this.TestLazy();
 			}
 			// }, 0.2)
 		}
 
-		public virtual void test()
+		public virtual void Test()
 		{
 		}
-		public virtual void testLazy()
+		public virtual void TestLazy()
 		{
 		}
 
-		public virtual void tick()
+		public virtual void Tick()
 		{
 			vm.Tick.next();
 		}
 
 		protected virtual void Update()
 		{
-			this.tick();
+			this.Tick();
 		}
 
 	}

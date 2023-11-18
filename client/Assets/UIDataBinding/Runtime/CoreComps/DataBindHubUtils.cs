@@ -5,7 +5,7 @@ namespace DataBinding.UIBind
 {
 	public class DataBindHubUtils
 	{
-		public static void foreachSurfChildren<T>(Transform target, Action<T> call) where T : MonoBehaviour
+		public static void ForeachSurfChildren<T>(Transform target, Action<T> call) where T : MonoBehaviour
 		{
 			target.ForEachChildren((child) =>
 			{
@@ -19,12 +19,12 @@ namespace DataBinding.UIBind
 				}
 				else
 				{
-					foreachSurfChildren<T>(child, call);
+					ForeachSurfChildren<T>(child, call);
 				}
 			});
 		}
 
-		public static void foreachSurf<T>(Transform target, Action<T> call) where T : MonoBehaviour
+		public static void ForeachSurf<T>(Transform target, Action<T> call) where T : MonoBehaviour
 		{
 			var comps = target.GetComponents<T>();
 			if (comps.Length > 0)
@@ -38,7 +38,7 @@ namespace DataBinding.UIBind
 			{
 				target.ForEachChildren(child =>
 				{
-					foreachSurf(child, call);
+					ForeachSurf(child, call);
 				});
 			}
 

@@ -18,7 +18,7 @@ namespace TestRandom
 		void Awake()
 		{
 			var ccDataHost = this.GetOrAddComponent<CCDataHost>();
-			ccDataHost.observeData(this.testData);
+			ccDataHost.ObserveData(this.testData);
 
 			this.testData.hello = "hello2";
 			this.testData.imageSrc = "doge_cartoon";

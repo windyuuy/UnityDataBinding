@@ -13,24 +13,24 @@ namespace DataBinding.UIBind
 		/**
 		 * 检测的数据
 		 */
-		protected IStdHost _host;
+		protected IStdHost host;
 		/**
 		 * 检测数据对象
 		 * @param data
 		 */
-		protected virtual IStdHost host
+		protected virtual IStdHost Host
 		{
 			get
 			{
-				return this._host;
+				return this.host;
 			}
 		}
 
-		protected List<vm.Watcher> watchList = new List<vm.Watcher>();
+		protected readonly List<vm.Watcher> watchList = new List<vm.Watcher>();
 
-		public virtual void observeData(T2 data)
+		public virtual void ObserveData(T2 data)
 		{
-			this._host = vm.Utils.implementStdHost(data);
+			this.host = vm.Utils.implementStdHost(data);
 		}
 
 		/**
@@ -38,14 +38,14 @@ namespace DataBinding.UIBind
 		 * @param expOrFn 方法名
 		 * @param cb 回调函数
 		 */
-		protected virtual vm.Watcher watch(vm.CombineType<object, string, Action> expOrFn, Action<object, object> cb, bool sync = false)
+		protected virtual vm.Watcher Watch(vm.CombineType<object, string, Action> expOrFn, Action<object, object> cb, bool sync = false)
 		{
-			if (this.host == null)
+			if (this.Host == null)
 			{
 				return null;
 			}
 
-			var watcher = this.host.Watch(expOrFn, (host, newVal, oldVal) =>
+			var watcher = this.Host.Watch(expOrFn, (host, newVal, oldVal) =>
 			{
 				cb(newVal, oldVal);
 			}, null, sync);
@@ -56,14 +56,14 @@ namespace DataBinding.UIBind
 			return watcher;
 		}
 
-		public virtual vm.Watcher watchExpr<T>(string expr, Action<T, T> call)
+		public virtual vm.Watcher WatchExpr<T>(string expr, Action<T, T> call)
 		{
 			if (string.IsNullOrEmpty(expr))
 			{
 				return null;
 			}
 
-			var watcher = this.watch(expr, (newValue, oldValue) =>
+			var watcher = this.Watch(expr, (newValue, oldValue) =>
 			{
 				call((T)newValue, (T)oldValue);
 			});
@@ -75,14 +75,14 @@ namespace DataBinding.UIBind
 			return watcher;
 		}
 
-		public virtual vm.Watcher watchExprChangeOnly<T>(string expr, Action<T, T> call)
+		public virtual vm.Watcher WatchExprChangeOnly<T>(string expr, Action<T, T> call)
 		{
 			if (string.IsNullOrEmpty(expr))
 			{
 				return null;
 			}
 
-			var watcher = this.watch(expr, (newValue, oldValue) =>
+			var watcher = this.Watch(expr, (newValue, oldValue) =>
 			{
 				call((T)newValue, (T)oldValue);
 			});
@@ -90,13 +90,13 @@ namespace DataBinding.UIBind
 			return watcher;
 		}
 
-		public virtual void unwatch(vm.Watcher watcher)
+		public virtual void Unwatch(vm.Watcher watcher)
 		{
 			this.watchList.Remove(watcher);
 			watcher.teardown();
 		}
 
-		public virtual void flush()
+		public virtual void Flush()
 		{
 			// 及时在清理之前应用更新
 			this.watchList.ToArray().ForEach(item =>
@@ -108,7 +108,7 @@ namespace DataBinding.UIBind
 			});
 		}
 
-		public virtual void clear()
+		public virtual void Clear()
 		{
 			this.watchList.ToArray().ForEach(item =>
 			{
@@ -120,10 +120,10 @@ namespace DataBinding.UIBind
 			this.watchList.Clear();
 		}
 
-		public virtual void flushAndClear()
+		public virtual void FlushAndClear()
 		{
-			this.flush();
-			this.clear();
+			this.Flush();
+			this.Clear();
 		}
 
 	}
