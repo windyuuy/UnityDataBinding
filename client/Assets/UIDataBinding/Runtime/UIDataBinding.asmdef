@@ -2,7 +2,8 @@
     "name": "UIDataBinding",
     "rootNamespace": "",
     "references": [
-        "GUID:987fc81b61b78b843959a40e81de74d7"
+        "GUID:987fc81b61b78b843959a40e81de74d7",
+        "GUID:6bcd1da1c33cefc4dbfe7a99c469fe87"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

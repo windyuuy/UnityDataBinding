@@ -1,18 +1,19 @@
-using UnityEditor;
 using UnityEngine;
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using System.Reflection;
+using UnityEditor;
 /// <summary>
-/// ÖØÃüÃû ±à¼­Æ÷
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½à¼­ï¿½ï¿½
 /// <para>ZhangYu 2018-06-21</para>
 /// </summary>
 //[CanEditMultipleObjects][CustomEditor(typeof(ClassName))]
 public class RenameEditor : Editor
 {
 
-    // »æÖÆGUI
+    // ï¿½ï¿½ï¿½ï¿½GUI
     public override void OnInspectorGUI()
     {
         EditorGUI.BeginChangeCheck();
@@ -20,23 +21,23 @@ public class RenameEditor : Editor
         if (EditorGUI.EndChangeCheck()) serializedObject.ApplyModifiedProperties();
     }
 
-    // »æÖÆÊôÐÔ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     protected virtual void drawProperty(string property, string label)
     {
         SerializedProperty pro = serializedObject.FindProperty(property);
         if (pro != null) EditorGUILayout.PropertyField(pro, new GUIContent(label), true);
     }
 
-    // »æÖÆËùÓÐÊôÐÔ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     protected virtual void drawProperties()
     {
-        // »ñÈ¡ÀàÐÍºÍ¿ÉÐòÁÐ»¯ÊôÐÔ
+        // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ÍºÍ¿ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½
         Type type = target.GetType();
         List<FieldInfo> fields = new List<FieldInfo>();
         FieldInfo[] array = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
         fields.AddRange(array);
 
-        // »ñÈ¡¸¸ÀàµÄ¿ÉÐòÁÐ»¯ÊôÐÔ
+        // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½
         while (IsTypeCompatible(type.BaseType) && type != type.BaseType)
         {
             type = type.BaseType;
@@ -44,30 +45,30 @@ public class RenameEditor : Editor
             fields.InsertRange(0, array);
         }
 
-        // »æÖÆËùÓÐÊôÐÔ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         for (int i = 0; i < fields.Count; i++)
         {
             FieldInfo field = fields[i];
 
-            // ·Ç¹«ÓÐµ«ÊÇÌí¼ÓÁË[SerializeField]ÌØÐÔµÄÊôÐÔ
+            // ï¿½Ç¹ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[SerializeField]ï¿½ï¿½ï¿½Ôµï¿½ï¿½ï¿½ï¿½ï¿½
             if (!field.IsPublic)
             {
                 object[] serials = field.GetCustomAttributes(typeof(SerializeField), true);
                 if (serials.Length == 0) continue;
             }
 
-            // ¹«ÓÐµ«ÊÇÌí¼ÓÁË[HideInInspector]ÌØÐÔµÄÊôÐÔ
+            // ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[HideInInspector]ï¿½ï¿½ï¿½Ôµï¿½ï¿½ï¿½ï¿½ï¿½
             object[] hides = field.GetCustomAttributes(typeof(HideInInspector), true);
             if (hides.Length != 0) continue;
 
-            // »æÖÆ·ûºÏÌõ¼þµÄÊôÐÔ
+            // ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             RenameInEditorAttribute[] atts = (RenameInEditorAttribute[])field.GetCustomAttributes(typeof(RenameInEditorAttribute), true);
             drawProperty(field.Name, atts.Length == 0 ? field.Name : atts[0].name);
         }
 
     }
 
-    // ½Å±¾ÀàÐÍÊÇ·ñ·ûºÏÐòÁÐ»¯Ìõ¼þ
+    // ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½
     protected virtual bool IsTypeCompatible(Type type)
     {
         if (type == null || !(type.IsSubclassOf(typeof(MonoBehaviour)) || type.IsSubclassOf(typeof(ScriptableObject))))
@@ -76,3 +77,4 @@ public class RenameEditor : Editor
     }
 
 }
+#endif

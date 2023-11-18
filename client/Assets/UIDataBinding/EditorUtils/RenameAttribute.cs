@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 #endif
 
 /// <summary>
-/// ÖØÃüÃûÊôĞÔ
+/// é‡å‘½åå±æ€§
 /// <para>ZhangYu 2018-06-21</para>
 /// </summary>
 
@@ -17,21 +17,21 @@ using System.Text.RegularExpressions;
 public class RenameAttribute : PropertyAttribute
 {
 
-    /// <summary> Ã¶¾ÙÃû³Æ </summary>
+    /// <summary> æšä¸¾åç§° </summary>
     public string name = "";
-    /// <summary> ÎÄ±¾ÑÕÉ« </summary>
+    /// <summary> æ–‡æœ¬é¢œè‰² </summary>
     public string htmlColor = "#7E7E7E";
 
-    /// <summary> ÖØÃüÃûÊôĞÔ </summary>
-    /// <param name="name">ĞÂÃû³Æ</param>
+    /// <summary> é‡å‘½åå±æ€§ </summary>
+    /// <param name="name">æ–°åç§°</param>
     public RenameAttribute(string name)
     {
         this.name = name;
     }
 
-    /// <summary> ÖØÃüÃûÊôĞÔ </summary>
-    /// <param name="name">ĞÂÃû³Æ</param>
-    /// <param name="htmlColor">ÎÄ±¾ÑÕÉ« ÀıÈç£º"#FFFFFF" »ò "black"</param>
+    /// <summary> é‡å‘½åå±æ€§ </summary>
+    /// <param name="name">æ–°åç§°</param>
+    /// <param name="htmlColor">æ–‡æœ¬é¢œè‰² ä¾‹å¦‚ï¼š"#FFFFFF" æˆ– "black"</param>
     public RenameAttribute(string name, string htmlColor)
     {
         this.name = name;
@@ -47,11 +47,11 @@ public class RenameDrawer : PropertyDrawer
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        // Ìæ»»ÊôĞÔÃû³Æ
+        // æ›¿æ¢å±æ€§åç§°
         RenameAttribute rename = (RenameAttribute)attribute;
         label.text = rename.name;
 
-        // ÖØ»æGUI
+        // é‡ç»˜GUI
         Color defaultColor = EditorStyles.label.normal.textColor;
         EditorStyles.label.normal.textColor = htmlToColor(rename.htmlColor);
         bool isElement = Regex.IsMatch(property.displayName, "Element \\d+");
@@ -67,19 +67,19 @@ public class RenameDrawer : PropertyDrawer
         EditorStyles.label.normal.textColor = defaultColor;
     }
 
-    // »æÖÆÃ¶¾ÙÀàĞÍ
+    // ç»˜åˆ¶æšä¸¾ç±»å‹
     private void drawEnum(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginChangeCheck();
 
-        // »ñÈ¡Ã¶¾ÙÏà¹ØÊôĞÔ
+        // è·å–æšä¸¾ç›¸å…³å±æ€§
         Type type = fieldInfo.FieldType;
         string[] names = property.enumNames;
         string[] values = new string[names.Length];
         Array.Copy(names, values, names.Length);
         while (type.IsArray) type = type.GetElementType();
 
-        // »ñÈ¡Ã¶¾ÙËù¶ÔÓ¦µÄRenameAttribute
+        // è·å–æšä¸¾æ‰€å¯¹åº”çš„RenameAttribute
         for (int i = 0; i < names.Length; i++)
         {
             FieldInfo info = type.GetField(names[i]);
@@ -87,21 +87,21 @@ public class RenameDrawer : PropertyDrawer
             if (atts.Length != 0) values[i] = atts[0].name;
         }
 
-        // ÖØ»æGUI
+        // é‡ç»˜GUI
         int index = EditorGUI.Popup(position, label.text, property.enumValueIndex, values);
         if (EditorGUI.EndChangeCheck() && index != -1) property.enumValueIndex = index;
     }
 
-    /// <summary> HtmlÑÕÉ«×ª»»ÎªColor </summary>
+    /// <summary> Htmlé¢œè‰²è½¬æ¢ä¸ºColor </summary>
     /// <param name="hex"></param>
     /// <returns></returns>
     public static Color htmlToColor(string hex)
     {
-        // ±à¼­Æ÷Ä¬ÈÏÑÕÉ«
+        // ç¼–è¾‘å™¨é»˜è®¤é¢œè‰²
         if (string.IsNullOrEmpty(hex)) return new Color(0.705f, 0.705f, 0.705f);
 
 #if UNITY_EDITOR
-        // ×ª»»ÑÕÉ«
+        // è½¬æ¢é¢œè‰²
         hex = hex.ToLower();
         if (hex.IndexOf("#") == 0 && hex.Length == 7)
         {
@@ -163,7 +163,7 @@ public class RenameDrawer : PropertyDrawer
 #endif
 
 /// <summary>
-/// Ìí¼Ó±êÌâÊôĞÔ
+/// æ·»åŠ æ ‡é¢˜å±æ€§
 /// <para>ZhangYu 2018-06-21</para>
 /// </summary>
 #if UNITY_EDITOR
@@ -172,21 +172,21 @@ public class RenameDrawer : PropertyDrawer
 public class TitleAttribute : PropertyAttribute
 {
 
-    /// <summary> ±êÌâÃû³Æ </summary>
+    /// <summary> æ ‡é¢˜åç§° </summary>
     public string title = "";
-    /// <summary> ÎÄ±¾ÑÕÉ« </summary>
+    /// <summary> æ–‡æœ¬é¢œè‰² </summary>
     public string htmlColor = "#B3B3B3";
 
-    /// <summary> ÔÚÊôĞÔÉÏ·½Ìí¼ÓÒ»¸ö±êÌâ </summary>
-    /// <param name="title">±êÌâÃû³Æ</param>
+    /// <summary> åœ¨å±æ€§ä¸Šæ–¹æ·»åŠ ä¸€ä¸ªæ ‡é¢˜ </summary>
+    /// <param name="title">æ ‡é¢˜åç§°</param>
     public TitleAttribute(string title)
     {
         this.title = title;
     }
 
-    /// <summary> ÔÚÊôĞÔÉÏ·½Ìí¼ÓÒ»¸ö±êÌâ </summary>
-    /// <param name="title">±êÌâÃû³Æ</param>
-    /// <param name="htmlColor">ÎÄ±¾ÑÕÉ« ÀıÈç£º"#FFFFFF" »ò "black"</param>
+    /// <summary> åœ¨å±æ€§ä¸Šæ–¹æ·»åŠ ä¸€ä¸ªæ ‡é¢˜ </summary>
+    /// <param name="title">æ ‡é¢˜åç§°</param>
+    /// <param name="htmlColor">æ–‡æœ¬é¢œè‰² ä¾‹å¦‚ï¼š"#FFFFFF" æˆ– "black"</param>
     public TitleAttribute(string title, string htmlColor)
     {
         this.title = title;
@@ -200,17 +200,17 @@ public class TitleAttribute : PropertyAttribute
 public class TitleAttributeDrawer : DecoratorDrawer
 {
 
-    // ÎÄ±¾ÑùÊ½
+    // æ–‡æœ¬æ ·å¼
     private GUIStyle style = new GUIStyle(EditorStyles.label);
 
     public override void OnGUI(Rect position)
     {
-        // »ñÈ¡Attribute
+        // è·å–Attribute
         TitleAttribute rename = (TitleAttribute)attribute;
         style.fixedHeight = 18;
         style.normal.textColor = RenameDrawer.htmlToColor(rename.htmlColor);
 
-        // ÖØ»æGUI
+        // é‡ç»˜GUI
         position = EditorGUI.IndentedRect(position);
         GUI.Label(position, rename.title, style);
     }
@@ -224,7 +224,7 @@ public class TitleAttributeDrawer : DecoratorDrawer
 #endif
 
 /// <summary>
-/// ÖØÃüÃû½Å±¾±à¼­Æ÷ÖĞµÄÊôĞÔÃû³Æ
+/// é‡å‘½åè„šæœ¬ç¼–è¾‘å™¨ä¸­çš„å±æ€§åç§°
 /// <para>ZhangYu 2018-06-21</para>
 /// </summary>
 #if UNITY_EDITOR
@@ -233,11 +233,11 @@ public class TitleAttributeDrawer : DecoratorDrawer
 public class RenameInEditorAttribute : PropertyAttribute
 {
 
-    /// <summary> ĞÂÃû³Æ </summary>
+    /// <summary> æ–°åç§° </summary>
     public string name = "";
 
-    /// <summary> ÖØÃüÃûÊôĞÔ </summary>
-    /// <param name="name">ĞÂÃû³Æ</param>
+    /// <summary> é‡å‘½åå±æ€§ </summary>
+    /// <param name="name">æ–°åç§°</param>
     public RenameInEditorAttribute(string name)
     {
         this.name = name;

@@ -39,32 +39,32 @@ namespace DataBinding.UIBind
 			this.clearWatchers();
 		}
 
-		/**
-		 * 获取当前组件所在节点的host
-		 */
-		public virtual CCDialogComp findDialogComp()
-		{
-			var node = this.transform;
-
-			try
-			{
-				while (node.GetComponent<CCDialogComp>() != null)
-				{
-					node = node.parent;
-				}
-			}
-			catch
-			{
-
-			}
-			if (!node)
-			{
-				return null;
-			}
-
-			var dialogComponent = node.GetComponent<CCDialogComp>();
-			return dialogComponent;
-		}
+		// /**
+		//  * 获取当前组件所在节点的host
+		//  */
+		// public virtual CCDialogComp findDialogComp()
+		// {
+		// 	var node = this.transform;
+		//
+		// 	try
+		// 	{
+		// 		while (node.GetComponent<CCDialogComp>() != null)
+		// 		{
+		// 			node = node.parent;
+		// 		}
+		// 	}
+		// 	catch
+		// 	{
+		//
+		// 	}
+		// 	if (!node)
+		// 	{
+		// 		return null;
+		// 	}
+		//
+		// 	var dialogComponent = node.GetComponent<CCDialogComp>();
+		// 	return dialogComponent;
+		// }
 
 		public virtual void integrate()
 		{

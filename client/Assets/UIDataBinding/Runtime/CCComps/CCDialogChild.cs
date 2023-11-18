@@ -83,24 +83,24 @@ namespace DataBinding.UIBind
 			this.rSubDataHub.unbindFromParentHub();
 		}
 
-		private CCDialogComp _dialog;
-		/**
-		 * 寻找寄宿的对话框
-		 * @param withoutCache 
-		 * @returns 
-		 */
-		public CCDialogComp findDialog(bool withoutCache = false)
-		{
-			if (!withoutCache)
-			{
-				if (this._dialog)
-				{
-					return this._dialog;
-				}
-			}
-			this._dialog = DialogHelper.findDialogComp(this.transform);
-			return this._dialog;
-		}
+		// private CCDialogComp _dialog;
+		// /**
+		//  * 寻找寄宿的对话框
+		//  * @param withoutCache 
+		//  * @returns 
+		//  */
+		// public CCDialogComp findDialog(bool withoutCache = false)
+		// {
+		// 	if (!withoutCache)
+		// 	{
+		// 		if (this._dialog)
+		// 		{
+		// 			return this._dialog;
+		// 		}
+		// 	}
+		// 	this._dialog = DialogHelper.findDialogComp(this.transform);
+		// 	return this._dialog;
+		// }
 	}
 }
 
