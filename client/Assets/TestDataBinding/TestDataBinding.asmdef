@@ -1,8 +1,8 @@
 {
-    "name": "UIDataBinding",
+    "name": "TestDataBinding",
     "rootNamespace": "",
     "references": [
-        "GUID:987fc81b61b78b843959a40e81de74d7"
+        "GUID:7265bbcbb8b8fdc44b3d7b441284e560"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

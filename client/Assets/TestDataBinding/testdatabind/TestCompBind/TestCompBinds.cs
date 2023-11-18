@@ -7,7 +7,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 	using TButtonBindCallback = System.Action<DataBinding.UIBind.CCButtonBind, double>;
 	using number = System.Double;
 
-	class TRawData:IStdHost
+	public class TRawData:IStdHost
 	{
 		public bool enabled { get; set; } = false;
 		public bool gray { get; set; } = false;
