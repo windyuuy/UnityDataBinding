@@ -8,7 +8,7 @@ namespace DataBinding.UIBind
 	{
 		protected virtual void OnTransformParentChanged()
 		{
-			console.log("parent-changed:", this.name, this.gameObject.activeSelf, this.name);
+			Console.Log("parent-changed:", this.name, this.gameObject.activeSelf, this.name);
 		}
 
 	}

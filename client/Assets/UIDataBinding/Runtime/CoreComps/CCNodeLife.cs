@@ -123,7 +123,7 @@ namespace DataBinding.UIBind
 		protected virtual void OnParentChanged(Transform newParent0, Transform oldParent)
 		{
 			this.newParent = newParent0;
-			// console.warn("parent-change:", this.name, newParent?.name, oldParent?.name)
+			// Console.Warn("parent-change:", this.name, newParent?.name, oldParent?.name)
 			if (newParent0 == null)
 			{
 				this.OnDeattach();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Ext;
 using Game.Diagnostics.IO;
 using UnityEngine;
+using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
 {
@@ -24,7 +25,7 @@ namespace DataBinding.UIBind
 
 		public virtual void Integrate()
 		{
-			var ccContainerBind = this.GetComponent<CCContainerBinding>();
+			var ccContainerBind = this.GetComponent<CCContainerBind>();
 			if (ccContainerBind)
 			{
 				if (this.overrideWithContainerOptions)
@@ -46,7 +47,7 @@ namespace DataBinding.UIBind
 		protected List<object> oldList = new List<object>();
 		public virtual void Relate()
 		{
-			var ccContainerBind = this.GetComponent<CCContainerBinding>();
+			var ccContainerBind = this.GetComponent<CCContainerBind>();
 			if (ccContainerBind != null)
 			{
 				if (this.overrideWithContainerOptions)
@@ -65,7 +66,7 @@ namespace DataBinding.UIBind
 					if (childrenCount0 == 0)
 					{
 						// 不存在
-						console.warn("没有子节点, 无法满足预期数量的数据项数.");
+						Console.Warn("没有子节点, 无法满足预期数量的数据项数.");
 					}
 					else
 					{
@@ -78,7 +79,7 @@ namespace DataBinding.UIBind
 								if (i == lastI)
 								{
 									// 不足
-									console.warn("可能无法满足预期数量的数据项数.");
+									Console.Warn("可能无法满足预期数量的数据项数.");
 								}
 							}
 							if (childIndex >= childrenCount0)
@@ -100,12 +101,13 @@ namespace DataBinding.UIBind
 								var ccContainerItem = child.GetOrAddComponent<CCContainerItem>();
 								ccContainerItem.Integrate();
 							}
+							// child为节点（不是数据源），需要遍历更新节点上表层数据源
 							DataBindHubUtils.ForeachSurf<CCContainerItem>(child, (ccItem) =>
 							{
-								ccItem.ContainerItem.index = i++;
-								var itemHost = dataSources[(int)ccItem.ContainerItem.index];
+								ccItem.ContainerItem.Index = i++;
+								var itemHost = dataSources[(int)ccItem.ContainerItem.Index];
 								var itemHost1 = vm.Utils.implementStdHost(itemHost);
-								ccItem.BindDataHost(itemHost1);
+								ccItem.BindDataHost(itemHost1,$"N|{ccItem.ContainerItem.Index}");
 							});
 						}
 						// 没刷到的节点全隐藏
@@ -124,7 +126,7 @@ namespace DataBinding.UIBind
 
 		public virtual void Derelate()
 		{
-			var ccContainerBind = this.GetComponent<CCContainerBinding>();
+			var ccContainerBind = this.GetComponent<CCContainerBind>();
 			if (ccContainerBind)
 			{
 				if (this.watcher != null)

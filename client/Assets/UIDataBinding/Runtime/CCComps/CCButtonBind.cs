@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 using Game.Diagnostics.IO;
+using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
 {
@@ -132,7 +133,7 @@ namespace DataBinding.UIBind
 						}
 						else
 						{
-							console.error($"call invalid func type of { this.clickTriggers[index]} -> { clickHandleFunc},", clickHandleFunc);
+							Console.Error($"call invalid func type of { this.clickTriggers[index]} -> { clickHandleFunc},", clickHandleFunc);
 						}
 					}
 				};
@@ -167,7 +168,7 @@ namespace DataBinding.UIBind
 					}
 					else
 					{
-						console.warn("点击响应需要返回函数类型, 当前返回值: ", value, ", type:", value.GetType());
+						Console.Warn("点击响应需要返回函数类型, 当前返回值: ", value, ", type:", value.GetType());
 					}
 				}
 

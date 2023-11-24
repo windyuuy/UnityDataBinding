@@ -55,6 +55,15 @@
         <member name="M:vm.HostExt._Sdestroy(vm.IHostAccessor)">
             释放host，包括所有watch
         </member>
+        <member name="M:vm.IdMap.Has(System.Double)">
+            <inheritdoc />
+        </member>
+        <member name="M:vm.IdMap.Add(System.Double)">
+            <inheritdoc />
+        </member>
+        <member name="M:vm.IdMap.Clear">
+            <inheritdoc />
+        </member>
         <member name="M:vm.Observer.walk(System.Object)">
             遍历所有属性，拦截get set
         </member>
@@ -110,58 +119,63 @@
         <member name="M:vm.Watcher.teardown">
             将自身从所有依赖收集订阅列表删除
         </member>
-        <member name="P:vm.TNodeType.bracketL">
+        <member name="P:vm.TNodeType.BracketL">
             <summary>
             [
             </summary>
         </member>
-        <member name="P:vm.TNodeType.bracketR">
+        <member name="P:vm.TNodeType.BracketR">
             <summary>
             ]
             </summary>
         </member>
-        <member name="P:vm.TNodeType.braceL">
+        <member name="P:vm.TNodeType.BraceL">
             <summary>
             {
             </summary>
         </member>
-        <member name="P:vm.TNodeType.braceR">
+        <member name="P:vm.TNodeType.BraceR">
             <summary>
             }
             </summary>
         </member>
-        <member name="P:vm.TNodeType.parenthesesL">
+        <member name="P:vm.TNodeType.ParenthesesL">
             <summary>
             (
             </summary>
         </member>
-        <member name="P:vm.TNodeType.parenthesesR">
+        <member name="P:vm.TNodeType.ParenthesesR">
             <summary>
             )
             </summary>
         </member>
-        <member name="F:vm.WordNode.frontAnnotation">
+        <member name="F:vm.WordNode.FrontAnnotation">
             相关注释
         </member>
-        <member name="F:vm.ASTNodeBase.frontAnnotation">
-            相关注释
+        <member name="F:vm.ASTNodeBase.OperatorX">
+            <summary>
+            @type: ENodeType
+            </summary>
         </member>
-        <member name="F:vm.UnitaryASTNode.right">
+        <member name="F:vm.UnitaryASTNode.Right">
             一元表达式的右值
         </member>
-        <member name="F:vm.BinaryASTNode.left">
+        <member name="F:vm.BinaryASTNode.Left">
             二元表达式的左值
         </member>
-        <member name="F:vm.BinaryASTNode.right">
+        <member name="F:vm.BinaryASTNode.Right">
             二元表达式的左值
         </member>
-        <member name="F:vm.CallASTNode.left">
+        <member name="F:vm.CallASTNode.Left">
             函数访问节点
         </member>
-        <member name="F:vm.CallASTNode.parameters">
+        <member name="F:vm.CallASTNode.Parameters">
             函数参数列表
         </member>
-        <member name="M:vm.Interpreter.srun(DataBinding.CollectionExt.IWithPrototype,vm.ASTNodeBase)">
+        <member name="M:vm.Interpreter.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:vm.Interpreter.SRun(DataBinding.CollectionExt.IWithPrototype,vm.ASTNodeBase)">
             该函数所执行的表达式将自动进行容错处理
             1. 当访问属性产生null值时，其将不参与计算 例如：a.b+13 当a或b为空时，结果将返回13
             2. 当访问的表达式完全为null时，表达式将最终返回结果0，例如：a.b+c 则返回0

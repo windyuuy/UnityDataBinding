@@ -13,7 +13,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 		public bool gray { get; set; } = false;
 		public TButtonBindCallback doClick { get; set; } = (CCButtonBind binder, double index) =>
 		{
-			console.log("click", binder.name);
+			Console.Log("click", binder.name);
 		};
 		public string label { get; set; } = "hello";
 		public string spriteUrl { get; set; } = "doge_cartoon";
@@ -35,7 +35,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 				gray = false,
 				doClick = (CCButtonBind binder, double index) =>
 				{
-					console.log("click0", binder.name);
+					Console.Log("click0", binder.name);
 				},
 				label = "hello",
 				spriteUrl = "doge_cartoon",
@@ -55,7 +55,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			var Btn = BtnBind.target!;
 			this.RawData.doClick = (CCButtonBind binder, double index) =>
 			{
-				console.log("click2", binder.name);
+				Console.Log("click2", binder.name);
 			}; ;
 			this.RawData.enabled = true;
 			this.Tick();

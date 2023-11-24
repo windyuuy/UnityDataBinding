@@ -1,0 +1,16 @@
+{
+    "name": "UIATool",
+    "rootNamespace": "",
+    "references": ["GUID:7265bbcbb8b8fdc44b3d7b441284e560"],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

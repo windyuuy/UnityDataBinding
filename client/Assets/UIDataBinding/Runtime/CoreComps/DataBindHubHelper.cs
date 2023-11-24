@@ -28,7 +28,7 @@ namespace DataBinding.UIBind
 	{
 		IStdHost DataHost { get; }
 		// ccDataHost: ICCDataHost
-		ISubDataHub SubDataHub { get; }
+		ISubDataHub DataHub { get; }
 	}
 
 	public interface ICCDialogChild : ICCSubDataHub
@@ -82,7 +82,7 @@ namespace DataBinding.UIBind
 		{
 			var comp = self as Component;
 			// CCDataBindBase的数据源, 只能是 CCDataBindBase 或者 CCDataHost
-			var ccDataHub = comp.GetComponent("CCDataHost") as ICCDataHost;
+			var ccDataHub = comp.GetComponent<CCDataHost>() as ICCDataHost;
 			if (ccDataHub != null)
 			{
 				ccDataHub.DataHub.AddBindHub(self.DataBindHub);
@@ -153,8 +153,8 @@ namespace DataBinding.UIBind
 			// lifeComp.integrate()
 			var ccDataHost = selfComp.GetOrAddComponent<CCDataHost>();
 			ccDataHost.Integrate();
-			self.SubDataHub.SetRealDataHub(ccDataHost.DataHub);
-			self.SubDataHub.RawObj = self;
+			self.DataHub.SetRealDataHub(ccDataHost.DataHub);
+			self.DataHub.RawObj = self;
 		}
 
 		public static void OnAddDataBind(ICCDataBindBase self)

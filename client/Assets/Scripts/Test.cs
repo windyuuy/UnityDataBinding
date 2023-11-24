@@ -46,7 +46,7 @@ public class Test : MonoBehaviour
 
     //public void OnBeforeSerialize()
     //{
-    //    console.log(this.transform.parent);
+    //    Console.Log(this.transform.parent);
     //}
 }
 

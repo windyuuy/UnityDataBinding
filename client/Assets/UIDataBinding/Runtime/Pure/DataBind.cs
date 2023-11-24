@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Collections.Generic;
 using Game.Diagnostics.IO;
+using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
 {
@@ -43,7 +43,7 @@ namespace DataBinding.UIBind
 			}
 			else
 			{
-				console.warn("invalid bindHub");
+				Console.Warn("invalid bindHub");
 			}
 		}
 

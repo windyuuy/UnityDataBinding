@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Ext;
 using System.Diagnostics;
 using System.Collections.Generic;
-using DataBinding;
 using Game.Diagnostics.IO;
+using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
 {
@@ -49,8 +49,8 @@ namespace DataBinding.UIBind
 
 		// public static readonly NoneOldValue = Symbol("NoneOldValue");
 
-		public IStdHost dataHost = null;
-		public Object rawObj;
+		public IStdHost DataHost = null;
+		public Object RawObj;
 
 		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> onWatchNewExprCall;
 		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> onUnWatchExprCall;
@@ -86,18 +86,18 @@ namespace DataBinding.UIBind
 
 		public void UnsetDataHost()
 		{
-			if (this.dataHost == null)
+			if (this.DataHost == null)
 			{
 				return;
 			}
 
-			var dataHost0 = this.dataHost;
+			var dataHost0 = this.DataHost;
 			this._unsetDataHost();
 
 
-			if (dataHost0 != this.dataHost)
+			if (dataHost0 != this.DataHost)
 			{
-				this.EmitValueChangedEvent("&this", this.dataHost, dataHost0);
+				this.EmitValueChangedEvent("&this", this.DataHost, dataHost0);
 			}
 		}
 		protected void _unsetDataHost()
@@ -109,21 +109,21 @@ namespace DataBinding.UIBind
 			}
 			this.watcherList.Clear();
 
-			this.dataHost = null;
+			this.DataHost = null;
 		}
 
 		protected void ReplaceDataHost(IStdHost dataHost)
 		{
-			if (this.dataHost == dataHost)
+			if (this.DataHost == dataHost)
 			{
 				return;
 			}
 
-			var dataHost0 = this.dataHost;
+			var dataHost0 = this.DataHost;
 			this._unsetDataHost();
 
 
-			this.dataHost = dataHost;
+			this.DataHost = dataHost;
 			if (dataHost0 != dataHost)
 			{
 				this.EmitValueChangedEvent("&this", dataHost, dataHost0);
@@ -146,31 +146,31 @@ namespace DataBinding.UIBind
 						}
 						catch (Exception e)
 						{
-							console.error(e);
+							Console.Error(e);
 						}
 					}
 				}
 			}
 		}
 
-		public DataBindHub bindHub = null;
+		public DataBindHub BindHub = null;
 		public void AddBindHub(IDataBindHub bindHub)
 		{
 			AddBindHub((DataBindHub)bindHub);
 		}
 		public void AddBindHub(DataBindHub bindHub0)
 		{
-			if (this.bindHub != bindHub0)
+			if (this.BindHub != bindHub0)
 			{
-				if (this.bindHub != null)
+				if (this.BindHub != null)
 				{
-					this.RemoveBindHub(this.bindHub);
+					this.RemoveBindHub(this.BindHub);
 				}
 
 				if (bindHub0 != null)
 				{
-					Debug.Assert(this.bindHub == null);
-					this.bindHub = bindHub0;
+					Debug.Assert(this.BindHub == null);
+					this.BindHub = bindHub0;
 					Debug.Assert(bindHub0.Parents.Count == 0);
 					bindHub0.Parents.Add(this);
 
@@ -198,7 +198,7 @@ namespace DataBinding.UIBind
 		}
 		public void RemoveBindHub(DataBindHub bindHub0)
 		{
-			if (bindHub0 != null && this.bindHub == bindHub0)
+			if (bindHub0 != null && this.BindHub == bindHub0)
 			{
 				var watchingExprs1 = bindHub0.watchingExprs;
 				foreach (var expr in watchingExprs1.Keys)
@@ -212,7 +212,7 @@ namespace DataBinding.UIBind
 				bindHub0.OffUnWatchExpr(this.onUnWatchExprCall);
 				this.OffValueChanged(bindHub0.onValueChanged);
 				bindHub0.Parents.Remove(this);
-				this.bindHub = null;
+				this.BindHub = null;
 			}
 		}
 
@@ -226,7 +226,7 @@ namespace DataBinding.UIBind
 		{
 			if (expr == "&this")
 			{
-				call(this.dataHost, null);
+				call(this.DataHost, null);
 			}
 			else
 			{
@@ -240,14 +240,14 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected readonly SimpleEventMV3<string, object, object> valueChangedEvent = new SimpleEventMV3<string, object, object>();
+		protected readonly SimpleEventMV3<string, object, object> ValueChangedEvent = new SimpleEventMV3<string, object, object>();
 		public EventHandlerMV3<string, object, object> OnValueChanged(EventHandlerMV3<string, object, object> call)
 		{
-			return this.valueChangedEvent.On(call);
+			return this.ValueChangedEvent.On(call);
 		}
 		public void OffValueChanged(EventHandlerMV3<string, object, object> call)
 		{
-			this.valueChangedEvent.Off(call);
+			this.ValueChangedEvent.Off(call);
 		}
 
 		protected readonly Dictionary<string, number> watchingExprs = new Dictionary<string, number>();
@@ -304,7 +304,7 @@ namespace DataBinding.UIBind
 		{
 			if (this.Running)
 			{
-				this.valueChangedEvent.Emit(expr, value, oldValue);
+				this.ValueChangedEvent.Emit(expr, value, oldValue);
 			}
 			else
 			{
@@ -316,18 +316,18 @@ namespace DataBinding.UIBind
 		{
 			if (expr == "&this")
 			{
-				this.EmitValueChangedEvent(expr, this.dataHost, null);
+				this.EmitValueChangedEvent(expr, this.DataHost, null);
 			}
 			else
 			{
 				vm.Watcher watcher;
-				if(this.dataHost == null)
+				if(this.DataHost == null)
                 {
 					watcher = null;
                 }
                 else
                 {
-					watcher = this.dataHost.Watch(expr, (host, value, oldValue) =>
+					watcher = this.DataHost.Watch(expr, (host, value, oldValue) =>
 					{
 						if (this.watchingExprs[expr] > 0)
 						{

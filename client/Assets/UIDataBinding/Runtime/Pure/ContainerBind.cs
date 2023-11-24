@@ -1,8 +1,6 @@
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using DataBinding;
 
 namespace DataBinding.UIBind
 {
@@ -59,7 +57,7 @@ namespace DataBinding.UIBind
 							 {
 								 var ls = v1 as IStdHost[];
 								 // 确认是否需要换成 observeData
-								 item.RealDataHub.SetDataHost(ls[(int)item.index]);
+								 item.RealDataHub.SetDataHost(ls[(int)item.Index]);
 							 }
 						 }
 					 };

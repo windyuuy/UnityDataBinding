@@ -3,6 +3,10 @@ using UnityEngine.Serialization;
 
 namespace DataBinding.UIBind
 {
+	/// <summary>
+	/// 支持调用 ObserveData 设置独立的数据源，与父数据源隔离
+	/// 也支持从父数据源直接延续，增强灵活性
+	/// </summary>
 	public class CCDialogChild : CCSubDataHub, ICCDialogChild
 	{
 		[FormerlySerializedAs("_autoExtendDataSource")]
@@ -47,6 +51,10 @@ namespace DataBinding.UIBind
 			set => subDataHub = value;
 		}
 
+		/// <summary>
+		/// 设置独立的数据源
+		/// </summary>
+		/// <param name="data"></param>
 		public void ObserveData(object data)
 		{
 			this.RSubDataHub.observeData(data);

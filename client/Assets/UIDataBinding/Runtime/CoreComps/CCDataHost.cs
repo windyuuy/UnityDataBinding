@@ -13,7 +13,7 @@ namespace DataBinding.UIBind
 		{
 			get
 			{
-				return this.DataHub.dataHost;
+				return this.DataHub.DataHost;
 			}
 		}
 
@@ -77,7 +77,7 @@ namespace DataBinding.UIBind
 		 */
 		public virtual void Integrate()
 		{
-			this.DataHub.rawObj = this;
+			this.DataHub.RawObj = this;
 			DataBindHubHelper.OnAddDataHub(this);
 		}
 

@@ -1,6 +1,5 @@
 
 using System;
-using System.Collections.Generic;
 
 namespace DataBinding.UIBind
 {
@@ -8,9 +7,9 @@ namespace DataBinding.UIBind
 
 	public class ContainerItem : ISubDataHub
 	{
-		static number _oidAcc = 0;
-		public number Oid { get; set; } = ContainerItem._oidAcc++;
-		public number index = 0;
+		public static number OidAcc = 0;
+		public number Oid { get; set; } = ContainerItem.OidAcc++;
+		public int Index = 0;
 
 		public DataSourceHub RealDataHub { get; set; }
 		public Object RawObj { get; set; }
@@ -22,14 +21,14 @@ namespace DataBinding.UIBind
 
 			if (this.RealDataHub != null)
 			{
-				this.BindDataHost(this.dataHost);
+				this.BindDataHost(this.DataHost);
 			}
 		}
 
-		public object dataHost;
+		public object DataHost;
 		public void ObserveData(object data)
 		{
-			this.dataHost = data;
+			this.DataHost = data;
 			if (this.RealDataHub != null)
 			{
 				this.RealDataHub.ObserveData(data);

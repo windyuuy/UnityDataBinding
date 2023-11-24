@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace DataBinding.UIBind
 {
+	/// <summary>
+	/// CCContainerBind 本身并不强制所有子节点采用 container 的数据源，而是在 integrate 阶段，通过增加 CCDataBindHub 组件实现对子节点注入数据源
+	/// </summary>
 	[AddComponentMenu("DataDrive/CCContainerBinding")]
-	public class CCContainerBinding : CCMyComponent, ICCContainerBinding
+	public class CCContainerBind : CCMyComponent, ICCContainerBinding
 	{
 		public virtual string BindSubExp { get => bindSubExp; set => bindSubExp = value; }
 		[Rename("容器数据")]
