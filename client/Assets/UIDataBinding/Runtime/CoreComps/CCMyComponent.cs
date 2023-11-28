@@ -183,8 +183,14 @@ namespace DataBinding.UIBind
 		public virtual bool IsPrefab { get; set; }
 		public virtual void OnBeforeSerialize()
 		{
+			if (this == null)
+			{
+				return;
+			}
+			
 #if UNITY_EDITOR
-			this.IsPrefab = UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this);
+			this.IsPrefab = UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this)
+				|| UnityEditor.PrefabUtility.IsPartOfVariantPrefab(this);
 #else
 			this.IsPrefab = false;
 #endif

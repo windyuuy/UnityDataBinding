@@ -7,6 +7,7 @@ namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
+	// TODO: 针对资源的绑定，改为在组件上弱引用资源， 由数据绑定提供索引/键值
 	[AddComponentMenu("DataDrive/CCSimpleBind")]
 	public class CCSimpleBind : CCDataBindBase
 	{

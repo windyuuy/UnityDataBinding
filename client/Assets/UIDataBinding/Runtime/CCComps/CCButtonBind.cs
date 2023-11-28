@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Game.Diagnostics.IO;
 using Console = Game.Diagnostics.IO.Console;
 
@@ -9,7 +11,7 @@ namespace DataBinding.UIBind
 {
 	using number = System.Double;
 
-	using TButtonBindCallback=System.Action<DataBinding.UIBind.CCButtonBind, double>;
+	using TButtonBindCallback=System.Object;
 
 	[AddComponentMenu("DataDrive/CCButtonBind")]
 	public class CCButtonBind : CCDataBindBase
@@ -127,9 +129,27 @@ namespace DataBinding.UIBind
 					for (var index = 0; index < funcs.Length; index++)
 					{
 						var clickHandleFunc = funcs[index];
-						if (clickHandleFunc != null)
+						if (clickHandleFunc is System.Action<CCButtonBind, int> uiCaller)
 						{
-							clickHandleFunc(this, index);
+							uiCaller(this, index);
+						}
+						else if (clickHandleFunc is System.Action call)
+						{
+							call();
+						}
+						else if (clickHandleFunc is VM.MemberMethod memberMethod)
+						{
+							if (memberMethod.GetParametersCount() == 0)
+							{
+								memberMethod.Invoke(Array.Empty<object>());
+							}
+							else
+							{
+								memberMethod.Invoke(new object[]
+								{
+									this, index,
+								});
+							}
 						}
 						else
 						{

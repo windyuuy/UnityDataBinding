@@ -7,6 +7,26 @@ using UnityEngine;
 
 public class TestUIATool : MonoBehaviour
 {
+    [MenuItem("Assets/ExportUIA")]
+    public static void ExportUIA()
+    {
+        foreach (var guid in Selection.assetGUIDs)
+        {
+            var path=AssetDatabase.GUIDToAssetPath(guid);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path); 
+            if (prefab != null)
+            {
+                var outPath = path.Replace(".prefab", ".cs");
+                var codeText = new UIDataBindExposer().ExposeBind(prefab.transform, "UIAOut1");
+                File.WriteAllText(outPath, codeText, Encoding.UTF8);
+            }
+            else
+            {
+                Debug.LogError("select valid gameobject please");
+            }
+        }
+    }
+    
     // Start is called before the first frame update
     void Start()
     {
