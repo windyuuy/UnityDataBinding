@@ -3,7 +3,7 @@ using Action = System.Action;
 
 namespace TestingCode
 {
-	public class UIAOut1: vm.Host
+	public class UIAOut1: DataBinding.IStdHost
 	{
 		/// <note>
 		/// env::enabled

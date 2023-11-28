@@ -3,7 +3,7 @@ using Action = System.Action;
 
 namespace TestingCode
 {
-	public class UIAOut3: vm.Host
+	public class UIAOut3: DataBinding.IStdHost
 	{
 		/// <note>
 		/// env::kk

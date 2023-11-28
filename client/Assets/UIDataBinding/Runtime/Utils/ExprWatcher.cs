@@ -26,11 +26,11 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected readonly List<vm.Watcher> watchList = new List<vm.Watcher>();
+		protected readonly List<VM.Watcher> watchList = new List<VM.Watcher>();
 
 		public virtual void ObserveData(T2 data)
 		{
-			this.host = vm.Utils.implementStdHost(data);
+			this.host = VM.Utils.implementStdHost(data);
 		}
 
 		/**
@@ -38,7 +38,7 @@ namespace DataBinding.UIBind
 		 * @param expOrFn 方法名
 		 * @param cb 回调函数
 		 */
-		protected virtual vm.Watcher Watch(vm.CombineType<object, string, Action> expOrFn, Action<object, object> cb, bool sync = false)
+		protected virtual VM.Watcher Watch(VM.CombineType<object, string, Action> expOrFn, Action<object, object> cb, bool sync = false)
 		{
 			if (this.Host == null)
 			{
@@ -56,7 +56,7 @@ namespace DataBinding.UIBind
 			return watcher;
 		}
 
-		public virtual vm.Watcher WatchExpr<T>(string expr, Action<T, T> call)
+		public virtual VM.Watcher WatchExpr<T>(string expr, Action<T, T> call)
 		{
 			if (string.IsNullOrEmpty(expr))
 			{
@@ -75,7 +75,7 @@ namespace DataBinding.UIBind
 			return watcher;
 		}
 
-		public virtual vm.Watcher WatchExprChangeOnly<T>(string expr, Action<T, T> call)
+		public virtual VM.Watcher WatchExprChangeOnly<T>(string expr, Action<T, T> call)
 		{
 			if (string.IsNullOrEmpty(expr))
 			{
@@ -90,7 +90,7 @@ namespace DataBinding.UIBind
 			return watcher;
 		}
 
-		public virtual void Unwatch(vm.Watcher watcher)
+		public virtual void Unwatch(VM.Watcher watcher)
 		{
 			this.watchList.Remove(watcher);
 			watcher.teardown();

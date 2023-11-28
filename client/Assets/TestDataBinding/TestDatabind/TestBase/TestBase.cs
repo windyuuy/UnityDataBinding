@@ -103,7 +103,7 @@ namespace DataBinding.UIBind
 
 		public virtual void Tick()
 		{
-			vm.Tick.Next();
+			VM.Tick.Next();
 		}
 
 		protected virtual void Update()

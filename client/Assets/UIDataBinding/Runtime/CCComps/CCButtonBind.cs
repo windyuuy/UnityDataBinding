@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Game.Diagnostics.IO;
 using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind

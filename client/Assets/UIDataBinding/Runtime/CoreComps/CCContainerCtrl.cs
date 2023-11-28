@@ -106,7 +106,7 @@ namespace DataBinding.UIBind
 							{
 								ccItem.ContainerItem.Index = i++;
 								var itemHost = dataSources[(int)ccItem.ContainerItem.Index];
-								var itemHost1 = vm.Utils.implementStdHost(itemHost);
+								var itemHost1 = VM.Utils.implementStdHost(itemHost);
 								ccItem.BindDataHost(itemHost1,$"N|{ccItem.ContainerItem.Index}");
 							});
 						}

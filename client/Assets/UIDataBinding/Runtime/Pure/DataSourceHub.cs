@@ -68,7 +68,7 @@ namespace DataBinding.UIBind
 
 		public void ObserveData(object data)
 		{
-			var d = vm.Utils.implementStdHost(data);
+			var d = VM.Utils.implementStdHost(data);
 			if(d==null||d is IStdHost)
             {
 				this.SetDataHost(d);
@@ -252,7 +252,7 @@ namespace DataBinding.UIBind
 
 		protected readonly Dictionary<string, number> watchingExprs = new Dictionary<string, number>();
 
-		protected readonly Dictionary<string, vm.Watcher> watcherList = new Dictionary<string, vm.Watcher>();
+		protected readonly Dictionary<string, VM.Watcher> watcherList = new Dictionary<string, VM.Watcher>();
 		protected readonly Dictionary<string, TPendingInfo> pendingInfoMergedCache = new Dictionary<string, TPendingInfo>();
 
 		protected bool running = true;
@@ -320,7 +320,7 @@ namespace DataBinding.UIBind
 			}
 			else
 			{
-				vm.Watcher watcher;
+				VM.Watcher watcher;
 				if(this.DataHost == null)
                 {
 					watcher = null;

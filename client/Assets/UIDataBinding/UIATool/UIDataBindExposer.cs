@@ -8,7 +8,7 @@ using ParseJSDataBindAbstract;
 using ParseJSDataBindAbstract.CodeWriter;
 using UIDataBinding.UIATool;
 using UnityEngine;
-using vm;
+using VM;
 
 public class UIDataBindExposer
 {

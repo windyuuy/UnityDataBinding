@@ -22,7 +22,7 @@ namespace TestRandom
 
 			this.testData.hello = "hello2";
 			this.testData.imageSrc = "doge_cartoon";
-			vm.Tick.Next();
+			VM.Tick.Next();
 		}
 
 	}

@@ -3,7 +3,7 @@ using Unity.VisualScripting;
 using DataBinding;
 using System.Collections.Generic;
 
-using TExpr = vm.CombineType<object, string, System.Func<object, object, object>>;
+using TExpr = VM.CombineType<object, string, System.Func<object, object, object>>;
 
 public class WatchExpr : Unit
 {
@@ -22,7 +22,7 @@ public class WatchExpr : Unit
     [DoNotSerialize]
     public ValueOutput result;
 
-    protected vm.Watcher watcher;
+    protected VM.Watcher watcher;
 
     protected override void Definition()
     {

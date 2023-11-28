@@ -18,7 +18,7 @@ public class Hello : MonoBehaviour
 		sampleHost.QQ = 2134;
 		sampleHost.hello.KKK = 3242;
 		// 通知表达式值变化
-		vm.Tick.Next();
+		VM.Tick.Next();
 
 		// 监听表达式
 		sampleHost.Watch("hello.IntList[2]", (host, value, oldValue) =>
@@ -28,7 +28,7 @@ public class Hello : MonoBehaviour
 		});
 		sampleHost.hello.IntList[2] = 44;
 		// 通知表达式值变化
-		vm.Tick.Next();
+		VM.Tick.Next();
 
 		// 监听表达式
 		sampleHost.Watch("hello.NumDictionary[123]", (host, value, oldValue) =>
@@ -40,7 +40,7 @@ public class Hello : MonoBehaviour
 		});
 		sampleHost.hello.NumDictionary[123] = "你变了";
 		// 通知表达式值变化
-		vm.Tick.Next();
+		VM.Tick.Next();
 
 	}
 

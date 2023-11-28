@@ -26,7 +26,7 @@ public class WatchGraph: Unit
     public object resultValue;
 
     protected GraphReference inputFlowRef=null;
-    protected vm.Watcher watcher;
+    protected VM.Watcher watcher;
 
     protected override void Definition()
     {
@@ -52,7 +52,7 @@ public class WatchGraph: Unit
                 inputFlowRef = flowRefer;
                 watcher = inputHost.Watch((host, env) =>
                 {
-                    // ´Ë´¦±Ø¶¨ÔËÐÐÒ»´Î
+                    // ï¿½Ë´ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
                     EvalValue(host, host);
                     return resultValue;
                 }, (host, newValue, oldValue) =>

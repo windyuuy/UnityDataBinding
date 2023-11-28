@@ -4,7 +4,7 @@ using Action = System.Action;
 
 namespace TestingCode
 {
-	public class UIAOut2: vm.Host
+	public class UIAOut2: DataBinding.IStdHost
 	{
 		/// <note>
 		/// env::C1

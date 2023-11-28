@@ -17,7 +17,7 @@ public class WatchImpulse : Unit
     public ValueInput host;
 
     protected GraphReference inputFlowRef = null;
-    protected vm.Watcher watcher;
+    protected VM.Watcher watcher;
 
     protected override void Definition()
     {
@@ -34,7 +34,7 @@ public class WatchImpulse : Unit
             inputFlowRef = flowRefer;
             watcher = inputHost.Watch((host, env) =>
             {
-                // ´Ë´¦±Ø¶¨ÔËÐÐÒ»´Î
+                // ï¿½Ë´ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
                 EvalValue(host, host);
                 return null;
             }, (host, newValue, oldValue) =>
