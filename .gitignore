@@ -1,3 +1,5 @@
 /Tools/sync2gitlab.bat
 client/client.sln
 /Build
+client/.idea
+.vs

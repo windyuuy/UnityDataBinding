@@ -46,7 +46,7 @@ namespace DataBinding.UIBind
 				{
 					var bindHub1 = this.bindHub;
 					EventHandlerMV2<object, object> onValueChanged = (object v1, object v2) =>
-					 {
+					{
 						 this.onDataChangedEvent.emit(v1, v2);
 
 						 var bindList1 = this.bindList;
@@ -60,7 +60,7 @@ namespace DataBinding.UIBind
 								 item.RealDataHub.SetDataHost(ls[(int)item.Index]);
 							 }
 						 }
-					 };
+					};
 					this.exprWatcher = bindHub1.WatchExprValue(expr0, onValueChanged);
 					if (this.exprWatcher != null)
 					{

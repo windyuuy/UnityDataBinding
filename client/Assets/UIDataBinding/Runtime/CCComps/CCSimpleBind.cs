@@ -63,7 +63,7 @@ namespace DataBinding.UIBind
 			this.target = label;
 			this.WatchValueChange<string>(this.key, (newValue, oldValue) =>
 			{
-				if (label) label.text = $"{ newValue}";
+				if (label) label.text = $"{newValue}";
 			});
 			return true;
 		}

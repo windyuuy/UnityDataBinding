@@ -38,7 +38,7 @@ namespace DataBinding.UIBind
 		{
 			if (bindHub1 == null || this.bindHub == bindHub1)
 			{
-				this.ClearWatchers();
+				this.BreakWatchers();
 				this.bindHub = null;
 			}
 			else
@@ -65,6 +65,11 @@ namespace DataBinding.UIBind
 			{
 				this.presetWatchingExprs.Remove(item);
 			}
+		}
+
+		protected void ClearRecordPresetExpr()
+		{
+			this.presetWatchingExprs.Clear();
 		}
 
 		protected List<ISEventCleanInfo2<object, object>> watchingExprs = new List<ISEventCleanInfo2<object, object>>();
@@ -116,7 +121,18 @@ namespace DataBinding.UIBind
 				});
 			}
 		}
+
 		public void ClearWatchers()
+		{
+			this.BreakWatchers();
+			// clear through, cannot be recover
+			this.ClearRecordPresetExpr();
+		}
+
+		/// <summary>
+		/// break watchers when hub is break
+		/// </summary>
+		public void BreakWatchers()
 		{
 			if (this.bindHub != null)
 			{

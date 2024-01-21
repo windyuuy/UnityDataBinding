@@ -80,7 +80,8 @@ namespace DataBinding.UIBind.Tests.TestContainer
 			var sample1 = "jjj";
 			this.rawData.C1[1].C2[0].QQ = sample1;
 			this.Tick();
-			Assert(Node1.CNRFF<Text>("sc/item[0]/Label").text == sample0);
+			var labelxx = Node1.CNRFF<Text>("sc/item[0]/Label");
+			Assert(labelxx.text == sample0);
 			//Node1.parent = C1;
 			Node1.gameObject.SetActive(true);
 			this.Tick();

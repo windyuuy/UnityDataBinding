@@ -1,0 +1,887 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using DataBinding.UIBind;
+using UnityEngine;
+using UnityEngine.Profiling;
+using UnityEngine.UI;
+
+namespace UIDataBinding.Runtime.RecycleContainer
+{
+	public class RecycleContainerCtrl : FlatContainerCtrl
+	{
+		[SerializeField] private ScrollRect scrollRect;
+
+		/// <summary>
+		/// Cached reference to the scrollRect's transform
+		/// </summary>
+		private RectTransform _scrollRectTransform;
+
+#if UNITY_EDITOR
+		[SerializeField] private bool enableDebugView;
+#endif
+
+		private bool isAwake = false;
+
+		protected override void Awake()
+		{
+			HandleDataChangedAfterAwake?.Invoke();
+
+			isAwake = true;
+		}
+
+		protected override void InitContainer()
+		{
+			InitLayoutRebuilder();
+            
+			Pool = new((index) => GenFromTemplate(index));
+			StandPool = new((index) => GenPlacer(index));
+			LentPool = new((index) => throw new Exception("cannot implement for this lent pool"));
+			if (this.scrollRect == null)
+			{
+				this.scrollRect = this.GetComponent<ScrollRect>();
+			}
+
+			if (this.scrollRect != null)
+			{
+				if (this._container == null)
+				{
+					this._container = this.scrollRect.content;
+				}
+
+				if (this._scrollRectTransform == null)
+				{
+					this._scrollRectTransform = this.scrollRect.GetComponent<RectTransform>();
+				}
+			}
+			else
+			{
+				Debug.LogError($"scroll rect invalid, please set it");
+			}
+
+			base.InitContainer();
+		}
+
+		protected bool IsDataDirty = false;
+		protected Action HandleDataChangedAfterAwake;
+
+		protected override void OnDataChanged(IList dataSources)
+		{
+			if (dataSources.Count > 0)
+			{
+				IsDataDirty = true;
+
+				if (!isAwake)
+				{
+					HandleDataChangedAfterAwake = () => { HandleDataChangedOnInit(dataSources); };
+				}
+				else
+				{
+					HandleDataChangedOnInit(dataSources);
+				}
+			}
+		}
+
+		protected void HandleDataChangedOnInit(IList dataSources)
+		{
+			CalcPreviewCount();
+			base.OnDataChanged(dataSources);
+
+			if (IsDataDirty)
+			{
+				IsDataDirty = false;
+				StartCoroutine(DelayStart());
+			}
+		}
+
+		IEnumerator DelayStart()
+		{
+			yield return new WaitForEndOfFrame();
+
+			this._ScrollRect_OnValueChanged(this.scrollRect.normalizedPosition);
+		}
+
+		void OnEnable()
+		{
+			// when the scroller is enabled, add a listener to the onValueChanged handler
+			scrollRect.onValueChanged.AddListener(_ScrollRect_OnValueChanged);
+		}
+
+		void OnDisable()
+		{
+			// when the scroller is disabled, remove the listener
+			scrollRect.onValueChanged.RemoveListener(_ScrollRect_OnValueChanged);
+		}
+
+		/// <summary>
+		/// 可滚动长度
+		/// </summary>
+		public float GetScrollSizeY()
+		{
+			return Mathf.Max(_container.rect.height - _scrollRectTransform.rect.height, 0);
+		}
+
+		/// <summary>
+		/// 可滚动长度
+		/// </summary>
+		public float GetScrollSizeX()
+		{
+			return Mathf.Max(_container.rect.width - _scrollRectTransform.rect.width, 0);
+		}
+
+		private Vector2 _scrollVal;
+
+		/// <summary>
+		/// The scrollers position
+		/// </summary>    
+		private Vector2 _scrollPosV;
+
+		private Vector2 _scrollPosH;
+		private Rect _scrollRectRange;
+
+		private void UpdateScrollRectStatus(Vector2 val)
+		{
+			_scrollVal = val;
+
+			var rect = _scrollRectTransform.rect;
+			// var offset = _scrollRectTransform.position - min3 - _root.transform.position;
+			if (scrollRect.vertical)
+			{
+				var scrollSizeY = GetScrollSizeY();
+				var scrollBeginY = (1f - val.y) * scrollSizeY;
+				// scrollBeginY = Mathf.Clamp(scrollBeginY, 0, scrollSizeY);
+				if (scrollBeginY.CompareTo(_scrollPosV.x) != 0)
+				{
+					var scrollEndY = scrollBeginY - rect.height;
+					_scrollPosV.x = scrollBeginY;
+					_scrollPosV.y = scrollEndY;
+					// Debug.Log($"_scrollBeginY: {scrollBeginY}, scrollEndY:{scrollEndY}, scrollSizeY:{scrollSizeY}");
+				}
+			}
+
+			if (scrollRect.horizontal)
+			{
+				var scrollSizeX = GetScrollSizeX();
+				var scrollBeginX = val.x * scrollSizeX;
+				// scrollBeginX = Mathf.Clamp(scrollBeginX, 0, scrollSizeX);
+				if (scrollBeginX.CompareTo(_scrollPosH.x) != 0)
+				{
+					var scrollEndX = scrollBeginX + rect.width;
+					_scrollPosH.x = scrollBeginX;
+					_scrollPosH.y = scrollEndX;
+					// Debug.Log($"_scrollBeginX: {scrollBeginX}, scrollEndX:{scrollEndX}, scrollSizeX:{scrollSizeX}");
+				}
+			}
+
+			var size = _scrollRectTransform.sizeDelta;
+			_scrollRectRange = new Rect(_scrollPosH.x, -_scrollPosV.x - size.y, size.x, size.y);
+		}
+
+		private int _childCountInit;
+
+		/// <summary>
+		/// Handler for when the scroller changes value
+		/// </summary>
+		/// <param name="val">The scroll rect's value</param>
+		private void _ScrollRect_OnValueChanged(Vector2 val)
+		{
+			UpdateScrollRectStatus(val);
+
+			_childCountInit = _container.childCount;
+			for (int i = _container.childCount - 1; i >= 0; i--)
+			{
+				if (_container.GetChild(i).gameObject.activeSelf)
+				{
+					break;
+				}
+
+				_childCountInit--;
+			}
+
+			var iInto = 0;
+
+			int IterIntoContainer(bool suff)
+			{
+				if (iInto < _childCountInit)
+				{
+					var child = this._container.GetChild(iInto);
+					var isInContainer = IsInContainer(child);
+					var isVirtual = IsVirtualNode(child);
+					if (isInContainer && isVirtual)
+					{
+						if (Pool.Count == 0 && suff)
+						{
+							return 1;
+						}
+
+						HandleChild(child, iInto);
+					}
+
+					iInto++;
+
+					return 0;
+				}
+
+				return 2;
+			}
+
+			var iOut = _childCountInit - 1;
+
+			int InterOutContainer(bool suff)
+			{
+				if (iOut >= 0)
+				{
+					var child = this._container.GetChild(iOut);
+					var isInContainer = IsInContainer(child);
+					var isVirtual = IsVirtualNode(child);
+					if (!isInContainer && !isVirtual)
+					{
+						if (StandPool.Count == 0 && suff)
+						{
+							return 1;
+						}
+
+						HandleChild(child, iOut);
+					}
+
+					iOut--;
+
+					return 0;
+				}
+
+				return 2;
+			}
+
+			Profiler.BeginSample("_ScrollRect_OnValueChanged1");
+
+			var seekIn = true;
+			while (iInto < _childCountInit || iOut >= 0)
+			{
+				if (seekIn)
+				{
+					var rIn = IterIntoContainer(iOut >= 0);
+					if (rIn >= 1)
+					{
+						seekIn = false;
+					}
+				}
+				else
+				{
+					var rOut = InterOutContainer(iInto < _childCountInit);
+					if (rOut >= 1)
+					{
+						seekIn = true;
+					}
+				}
+			}
+
+			Profiler.EndSample();
+
+			Profiler.BeginSample("_ScrollRect_OnValueChanged2");
+			this.HandleScollDone();
+			Profiler.EndSample();
+		}
+
+		protected void DetectBorder()
+		{
+			
+		}
+		
+		protected bool HandleChild(Transform child, int index)
+		{
+			var isInContainer = IsInContainer(child);
+			if (!isInContainer && IsVirtualNode(child))
+			{
+				return true;
+			}
+
+			if (isInContainer)
+			{
+				this.HandleChildAppear(child, index);
+			}
+			else
+			{
+				this.HandleChildDisappear(child, index);
+			}
+
+			return false;
+		}
+
+		protected bool IsInContainer(Transform child)
+		{
+			var rect = GetRectBounds(child);
+			var isInContainerVertical = false;
+			var isInContainerHorizontal = false;
+			if (scrollRect.vertical)
+			{
+				if (rect.yMax >= _scrollRectRange.yMin && rect.yMin <= _scrollRectRange.yMax)
+				{
+					isInContainerVertical = true;
+				}
+			}
+			else
+			{
+				isInContainerVertical = true;
+			}
+
+			if (scrollRect.horizontal)
+			{
+				if (rect.xMax >= _scrollRectRange.xMin && rect.xMin <= _scrollRectRange.xMax)
+				{
+					isInContainerHorizontal = true;
+				}
+			}
+			else
+			{
+				isInContainerHorizontal = true;
+			}
+
+			var isInContainer = isInContainerVertical && isInContainerHorizontal;
+			return isInContainer;
+		}
+
+		protected LocalNodePool Pool;
+		protected LocalNodePool StandPool;
+		protected LocalNodePool LentPool;
+
+		protected bool IsVirtualNode(Transform child)
+		{
+			return child.gameObject.name.StartsWith("$");
+		}
+
+		protected override Transform GetTemplateNode(int index)
+		{
+			if (TemplateNode.IsInValid())
+			{
+				TemplateNode = null;
+				for (var i = 0; i < _container.childCount; i++)
+				{
+					var child = _container.GetChild(i);
+					if (!IsVirtualNode(child))
+					{
+						TemplateNode = child;
+					}
+
+					return TemplateNode;
+				}
+			}
+
+			return TemplateNode;
+		}
+
+		/// <summary>
+		/// 只有滚动的时候调用
+		/// </summary>
+		/// <param name="child"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		private Transform HandleChildAppear(Transform child, int index)
+		{
+			if (!IsVirtualNode(child))
+			{
+				// 当前是真实节点，无需处理
+				return child;
+			}
+			else
+			{
+				StandPool.Recycle(child);
+				var childReal = Pool.Get(index);
+				LentPool.Recycle(childReal);
+				// AddPendingResetLocationAction(childReal, index, child.localPosition);
+				childReal.localPosition = child.localPosition;
+				childReal.SetSiblingIndex(index);
+
+				UpdateCurrentDataBind(childReal, index);
+				return childReal;
+			}
+		}
+
+		/// <summary>
+		/// 只有滚动的时候调用， 如果子节点不再是真实节点，那么返回false
+		/// </summary>
+		/// <param name="child"></param>
+		/// <returns></returns>
+		private bool HandleChildDisappear(Transform child, int index)
+		{
+			if (!IsVirtualNode(child))
+			{
+				Pool.Recycle(child);
+				LentPool.Remove(child);
+				var childVirt = StandPool.Get(index);
+				// AddPendingResetLocationAction(childVirt, index, child.localPosition);
+				childVirt.localPosition = child.localPosition;
+				childVirt.SetSiblingIndex(index);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		protected override void UpdateCurrentDataBind(Transform child, int index)
+		{
+			if (OldList != null && OldList.Count > index)
+			{
+				UpdateDataBind(child, OldList[index], index);
+			}
+			else
+			{
+				// TODO: add a warning
+			}
+		}
+
+		protected override void UpdateDataBind(Transform child, object dataSource, int index)
+		{
+			if (!IsVirtualNode(child))
+			{
+				base.UpdateDataBind(child, dataSource, index);
+			}
+		}
+
+		Vector2 ToVec2(Vector3 pos)
+		{
+			return new Vector2(pos.x, pos.y);
+		}
+
+		public Rect GetRectBounds(Transform trans)
+		{
+			// TODO: 需要优化性能
+			var rect = ((RectTransform)trans).rect;
+			// rect.center = rect.center + ToVec2(transform.position) - ToVec2(_root.transform.position);
+			rect.center += ToVec2(trans.localPosition);
+			return rect;
+		}
+
+		public int previewCount = -1;
+
+		public void CalcPreviewCount()
+		{
+			if (previewCount < 0)
+			{
+				var tempNode = this.GetTemplateNode(0);
+				if (tempNode == null)
+				{
+					previewCount = 0;
+					return;
+				}
+
+				var tempSize = ((RectTransform)tempNode).sizeDelta;
+				var rectSize = this._container.sizeDelta;
+
+				var ix = scrollRect.horizontal ? Mathf.FloorToInt(rectSize.x / tempSize.x * 0.5f) : 1;
+				var iy = scrollRect.vertical ? Mathf.FloorToInt(rectSize.y / tempSize.y * 0.5f) : 1;
+				previewCount = ix * iy;
+			}
+		}
+
+		public virtual Transform RequirePlacer(int index, string name)
+		{
+			var child = StandPool.Get(index);
+			child.gameObject.name = name;
+			return child;
+		}
+
+		public virtual Transform RequirePlacer(int index)
+		{
+			var child = StandPool.Get(index);
+			return child;
+		}
+
+		public virtual Transform GenPlacer(int index)
+		{
+			var emptyNode = new GameObject($"${index}", typeof(RectTransform));
+
+#if UNITY_EDITOR
+			if (this.enableDebugView)
+			{
+				emptyNode.AddComponent<Image>();
+			}
+#endif
+			emptyNode.transform.parent = this._container;
+			RectTransform tempNode;
+			if (index < this._container.childCount)
+			{
+				tempNode = (RectTransform)this._container.GetChild(index);
+			}
+			else
+			{
+				tempNode = (RectTransform)GetTemplateNode(index);
+			}
+
+			var emptyNodeTrans = (RectTransform)emptyNode.transform;
+			emptyNodeTrans.sizeDelta = tempNode.sizeDelta;
+			emptyNodeTrans.pivot = tempNode.pivot;
+			return emptyNode.transform;
+		}
+
+		public virtual Transform CreateNewNodeAsync(int index,
+			Action<Transform, Transform, Action<Transform>> onCreatedAsync,
+			Func<int, string, Transform> createStandSync, Action<Transform> recycleStandAsync)
+		{
+			// onCreatedAsync(childAsync, createStandSync(index, $"Stand{index}"), recycleStandAsync);
+			return createStandSync(index, $"Stand{index}");
+		}
+
+		protected virtual Transform CreateNewNodeAsyncInternal(int index, Func<int, string, Transform> createStandSync,
+			Action<Transform> defaultRecycleStandAsync)
+		{
+			return CreateNewNodeAsync(index, (childAsync, standSync, recycleStandAsync) =>
+			{
+				if (childAsync == standSync)
+				{
+					return;
+				}
+
+				Debug.Assert(childAsync.IsValid());
+
+				LentPool.Remove(standSync);
+				LentPool.Recycle(childAsync);
+				
+				if (standSync.IsValid())
+				{
+					Debug.Assert(!IsVirtualNode(standSync));
+
+					var isNotRecycled = !Pool.Exist(standSync);
+					if (
+						// not recycled
+						isNotRecycled)
+					{
+						Debug.Assert(standSync.GetSiblingIndex() < _childCountInit);
+						Debug.Assert(!Pool.Exist(standSync));
+
+						var index2 = standSync.GetSiblingIndex();
+						this.UpdateCurrentDataBind(childAsync, index2);
+						if (childAsync.parent != _container)
+						{
+							childAsync.parent = _container;
+						}
+
+						// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
+						childAsync.localPosition = standSync.localPosition;
+						childAsync.SetSiblingIndex(index2);
+
+						recycleStandAsync(standSync);
+					}
+					else
+					{
+						PrepareDataBind(childAsync);
+						if (childAsync.parent != _container)
+						{
+							childAsync.parent = _container;
+						}
+
+						RecycleNode(childAsync);
+						UnuseNode(childAsync);
+
+						var index2 = standSync.GetSiblingIndex();
+						childAsync.localPosition = standSync.localPosition;
+						childAsync.SetSiblingIndex(index2);
+
+						Pool.Remove(standSync);
+						recycleStandAsync(standSync);
+					}
+				}
+				else
+				{
+					PrepareDataBind(childAsync);
+					if (childAsync.parent != _container) ;
+					{
+						childAsync.parent = _container;
+					}
+					RecycleNode(childAsync);
+					UnuseNode(childAsync);
+
+					// try remove just for safe
+					Pool.Remove(standSync);
+				}
+			}, createStandSync, defaultRecycleStandAsync);
+		}
+
+		public virtual Transform RequireNewNodeCompatAsync(int index)
+		{
+			Transform child;
+			if (unallocNodes != null && unallocNodes.Count > 0)
+			{
+				child = unallocNodes[0];
+				// TemplateNode = child;
+				unallocNodes.RemoveAt(0);
+				LentPool.Recycle(child);
+			}
+			else
+			{
+				child = CreateNewNode(index);
+				if (child == null)
+				{
+					child = CreateNewNodeAsyncInternal(index, (index, name) =>
+					{
+						var placer = RequirePlacer(index, name);
+						placer.gameObject.name = $"stand{index}";
+						return placer;
+					}, (standSync) =>
+					{
+						var o = standSync.gameObject;
+						o.name = $"${o.name}";
+						RecycleNode(standSync);
+						UnuseNode(standSync);
+					});
+				}
+			}
+
+			return child;
+		}
+
+		public virtual Transform GenFromTemplate(int index)
+		{
+			return RequireNewNodeCompatAsync(index);
+		}
+
+		public override Transform RequireNewNode(int index)
+		{
+			var child = RequireNewNodeInternal(index);
+			AddPendingResetLocationAction(child, index);
+			child.SetSiblingIndex(index);
+			return child;
+		}
+
+		protected Transform RequireNewNodeInternal(int index)
+		{
+			if (!isAwake)
+			{
+				if (this._container.childCount < previewCount && index < this._container.childCount)
+				{
+					var child = this._container.GetChild(index);
+					if (child == TemplateNode || IsInContainer(child))
+					{
+						var childReal = RequireNewNodeCompatAsync(index);
+						return childReal;
+					}
+					else
+					{
+						return RequirePlacer(index);
+					}
+				}
+				else
+				{
+					return RequirePlacer(index);
+				}
+			}
+			else
+			{
+				var child = this._container.GetChild(index);
+				if (child.gameObject.activeSelf)
+				{
+					if (IsInContainer(child))
+					{
+						var childReal = Pool.Get(index);
+						LentPool.Recycle(childReal);
+						return childReal;
+					}
+					else
+					{
+						return RequirePlacer(index);
+					}
+				}
+				else
+				{
+					return RequirePlacer(index);
+				}
+			}
+		}
+
+		protected override void RecycleNode(Transform child)
+		{
+			if (IsVirtualNode(child))
+			{
+				StandPool.Recycle(child);
+			}
+			else
+			{
+				Pool.Recycle(child);
+				LentPool.Remove(child);
+			}
+		}
+
+		protected override void UnuseNode(Transform child)
+		{
+			child.gameObject.SetActive(false);
+		}
+
+		public virtual void ReleaseNode(Transform child)
+		{
+			child.gameObject.DestorySafe();
+		}
+
+		protected int LayoutDirtyFrameCount = 0;
+
+		protected override void OnAddItem(object dataSource, int index)
+		{
+			LayoutDirtyFrameCount = Time.renderedFrameCount;
+			base.OnAddItem(dataSource, index);
+		}
+
+		protected override void OnRemoveItem(object oldData, int i)
+		{
+			LayoutDirtyFrameCount = Time.renderedFrameCount;
+			base.OnRemoveItem(oldData, i);
+		}
+
+		protected virtual void HandleScollDone()
+		{
+			// while (Pool.Count>1
+			//        && -0.001f<=_scrollVal.y && _scrollVal.y<=1 && -0.001f<=_scrollVal.x && _scrollVal.x<=1
+			//        )
+			// {
+			// 	var child= Pool.PopRaw();
+			// 	if (child != TemplateNode)
+			// 	{
+			// 		child.gameObject.DestorySafe();
+			// 	}
+			// }
+
+			ApplyResetPosition();
+
+			if (_childCountInit != _container.childCount)
+			{
+				// var standCount = 0;
+				// for (var i = 0; i < _childCountInit; i++)
+				// {
+				// 	var child = _container.GetChild(i);
+				// 	if (IsVirtualNode(child))
+				// 	{
+				// 		standCount++;
+				// 	}
+				// }
+				//
+				// var lackCount = _childCountInit - standCount;
+				// while (StandPool.Count > lackCount)
+				// {
+				// 	var child = StandPool.PopRaw();
+				// 	Debug.Assert(IsVirtualNode(child));
+				// 	this.ReleaseNode(child);
+				// }
+
+				for (var i = _container.childCount - 1; i >= _childCountInit; i--)
+				{
+					var child = _container.GetChild(i);
+					if (child.IsValid())
+					{
+						this.UnuseNode(child);
+					}
+				}
+			}
+
+			if (LayoutDirtyFrameCount != Time.renderedFrameCount)
+			{
+				UnMarkRebuild();
+			}
+			else
+			{
+				// UpdateLentSizes();
+			}
+		}
+
+		protected override void OnUpdateDone(IList dataSources, int oldListCount)
+		{
+			base.OnUpdateDone(dataSources, oldListCount);
+
+			// TODO: 优化数据更新，尽量避免更新 layout
+			if (LayoutDirtyFrameCount != Time.renderedFrameCount)
+			{
+				UnMarkRebuild();
+			}
+		}
+
+		protected List<(Transform, Vector2)> LentSizes = new();
+
+		protected void UpdateLentSizes()
+		{
+			LentSizes.Clear();
+			var pool = LentPool.PeekAll();
+			foreach (var child in pool)
+			{
+				LentSizes.Add((child,((RectTransform)child).sizeDelta));
+			}
+		}
+
+		protected void CheckLentSizes()
+		{
+			if (LentSizes.Count != LentPool.Count)
+			{
+				MarkDirty();
+				return;
+			}
+			
+			for (var i = 0; i < LentPool.Count; i++)
+			{
+				var (child , size) = LentSizes[i];
+				if (size != ((RectTransform)child).sizeDelta)
+				{
+					MarkDirty();
+					 return;
+				}
+			}
+		}
+
+		// public virtual void Update()
+		// {
+		// 	CheckLentSizes();
+		// }
+		
+		public virtual void MarkDirty()
+		{
+			this.LayoutDirtyFrameCount = Time.frameCount;
+		}
+
+		protected static IList<ICanvasElement> LayoutRebuildQueue;
+		public static void InitLayoutRebuilder()
+		{
+			if (LayoutRebuildQueue == null)
+			{
+				var ii = CanvasUpdateRegistry.instance;
+				var f = ii.GetType().GetField("m_LayoutRebuildQueue",
+					BindingFlags.NonPublic | BindingFlags.Instance);
+				LayoutRebuildQueue = f!.GetValue(ii) as IList<ICanvasElement>;
+			}
+		}
+		protected bool IsRebuildingLayout()
+		{
+			ICanvasElement rebuilder = null;
+			for (var i = 0; i < LayoutRebuildQueue.Count; i++)
+			{
+				if (LayoutRebuildQueue[i].transform == this.transform)
+				{
+					rebuilder = LayoutRebuildQueue[i];
+					break;
+				}
+			}
+
+			if (rebuilder != null)
+			{
+				return true;
+			}
+
+			return false;
+		}
+		protected void UnMarkRebuild()
+		{
+			ICanvasElement rebuilder = null;
+			for (var i = 0; i < LayoutRebuildQueue.Count; i++)
+			{
+				if (LayoutRebuildQueue[i].transform == this.transform)
+				{
+					rebuilder = LayoutRebuildQueue[i];
+					break;
+				}
+			}
+
+			if (rebuilder != null)
+			{
+				LayoutRebuildQueue.Remove(rebuilder);
+				rebuilder.LayoutComplete();
+			}
+		}
+	}
+}

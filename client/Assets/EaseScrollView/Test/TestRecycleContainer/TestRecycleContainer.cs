@@ -1,0 +1,66 @@
+using System.Collections;
+using System.Linq;
+using System.Linq.Ext;
+using DataBinding.CollectionExt;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace DataBinding.UIBind.Tests.TestRecycleContainer
+{
+	class TC1Item : IStdHost
+	{
+		public string Title { get; set; }
+	}
+
+	class TRawData : IStdHost
+	{
+		public List<TC1Item> C1 { get; set; } = new List<TC1Item>();
+	}
+
+	public class TestRecycleContainer : TestBase
+	{
+		TRawData rawData => (TRawData)_rawData;
+
+		protected override void InitTestData()
+		{
+			_rawData = new TRawData()
+			{
+				C1 = new List<TC1Item>()
+				{
+				},
+			};
+
+			for (var i = 0; i < 1000; i++)
+			{
+				rawData.C1.Add(new()
+				{
+					Title = $"title_{i}",
+				});
+			}
+
+			StartCoroutine(DelayTest());
+		}
+
+		protected IEnumerator DelayTest()
+		{
+			yield return new WaitForSeconds(3);
+			for (var i = 0; i < rawData.C1.Count; i++)
+			{
+				rawData.C1[i].Title = $"cc_x{i}";
+			}
+			
+			yield return new WaitForSeconds(3);
+			var di5 = rawData.C1[5];
+			var di3 = rawData.C1[3];
+			rawData.C1.RemoveAt(5);
+			rawData.C1.Insert(5, di3);
+			rawData.C1.RemoveAt(3);
+			rawData.C1.Insert(3, di5);
+			
+			yield return new WaitForSeconds(5);
+			rawData.C1.RemoveAt(5);
+			rawData.C1.RemoveAt(3);
+			rawData.C1.RemoveAt(1);
+		}
+	}
+}

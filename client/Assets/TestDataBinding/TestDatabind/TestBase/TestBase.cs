@@ -41,7 +41,7 @@ namespace DataBinding.UIBind
 		 * 观测数据
 		 * @param data
 		 */
-		public void ObserveData(object data, bool updateChildren = true)
+		public virtual void ObserveData(object data, bool updateChildren = true)
 		{
 			this.autoAddDataHost = true;
 			if (this.DataHost)

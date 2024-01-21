@@ -2,7 +2,7 @@
 using gcc.layer;
 using UI.UISys.GameUILayer.Runtime;
 
-public class Main
+public static class UIMain
 {
 	public static UILayerRoot UILayerRoot;
 

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using DataBinding.UIBind;
 using TestingCode;
-using UnityEngine;
 
 public class UIExample1 : UILayer
 {
@@ -16,7 +15,6 @@ public class UIExample1 : UILayer
 
 	protected virtual void InitViewModel()
 	{
-		
 	}
 	
 	//#region data host

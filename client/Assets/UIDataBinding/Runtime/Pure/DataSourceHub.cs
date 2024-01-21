@@ -1,10 +1,8 @@
 
 using System;
-using System.Linq;
 using System.Linq.Ext;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Game.Diagnostics.IO;
 using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
@@ -68,15 +66,15 @@ namespace DataBinding.UIBind
 
 		public void ObserveData(object data)
 		{
-			var d = VM.Utils.implementStdHost(data);
-			if(d==null||d is IStdHost)
-            {
+			var d = VM.Utils.ImplementStdHost(data);
+			if (d == null || d is IStdHost)
+			{
 				this.SetDataHost(d);
-            }
-            else
-            {
+			}
+			else
+			{
 				throw new InvalidCastException("cannot cast data to IStdHost");
-            }
+			}
 		}
 
 		public void SetDataHost(IStdHost dataHost)
@@ -320,28 +318,29 @@ namespace DataBinding.UIBind
 			}
 			else
 			{
-				VM.Watcher watcher;
-				if(this.DataHost == null)
-                {
-					watcher = null;
-                }
-                else
-                {
-					watcher = this.DataHost.Watch(expr, (host, value, oldValue) =>
-					{
-						if (this.watchingExprs[expr] > 0)
-						{
-							this.EmitValueChangedEvent(expr, value, oldValue);
-						}
-					}, null, false);
+				//VM.Watcher watcher;
+				if (this.DataHost == null)
+				{
+					//watcher = null;
 				}
-				if (watcher != null)
+				else
 				{
 					if (this.watchingExprs[expr] > 0)
 					{
-						this.watcherList[expr] = watcher;
-						// 需要额外通知自身变化
-						this.EmitValueChangedEvent(expr, watcher.value, null);
+						var watcher = this.DataHost.Watch(expr, (host, value, oldValue) =>
+						{
+							if (this.watchingExprs[expr] > 0)
+							{
+								this.EmitValueChangedEvent(expr, value, oldValue);
+							}
+						}, null, false);
+
+						if (watcher != null)
+						{
+							this.watcherList[expr] = watcher;
+							// 需要额外通知自身变化
+							this.EmitValueChangedEvent(expr, watcher.value, null);
+						}
 					}
 				}
 			}
@@ -391,6 +390,11 @@ namespace DataBinding.UIBind
 			this.watchingExprs[expr] = this.watchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
 			this.watchingExprs[expr]--;
 			Debug.Assert(this.watchingExprs[expr] >= 0);
+
+			if (this.watchingExprs[expr] == 0)
+			{
+				this.watcherList.Remove(expr);
+			}
 		}
 
 	}

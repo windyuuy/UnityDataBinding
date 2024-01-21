@@ -90,7 +90,7 @@ public class UILayerInit
 	 */
     protected void initLayerMG()
     {
-        Main.UILayerRoot = layerRoot.Init();
+        UIMain.UILayerRoot = layerRoot.Init();
         var LayerMG = layerRoot.LayerManager;
         // 注册对话框主类
         LayerMG.RegisterLayerClass("CCLayerComp", typeof(UILayer));

@@ -13,9 +13,7 @@ public class TestUIOrgLauncher : MonoBehaviour
         var layerInit=new UILayerInit();
         layerInit.Init(layerRoot);
 
-        var layerMG = layerRoot.LayerManager;
-        layerMG.ShowLayer(new ShowLayerParam(
-            "UIExample1", null, "Assets/TestDataBinding/TestUIOrg/UIExample1/Layer/Viarant/UIExample1.prefab"));
+        HomeAPI.ShowUIExample1();
     }
 
     private void Update()

@@ -198,6 +198,7 @@ namespace DataBinding.UIBind
 
 
 			var ccContainerCtrl = selfComp.GetOrAddComponent<CCContainerCtrl>();
+			// var ccContainerCtrl = selfComp.GetComponent<CCContainerCtrl>();
 			ccContainerCtrl.Integrate();
 		}
 
@@ -211,6 +212,7 @@ namespace DataBinding.UIBind
 				self.ContainerBind.AddBindHub(ccDataBindHub.DataBindHub);
 			}
 			var ccContainerCtrl = selfComp.GetOrAddComponent<CCContainerCtrl>();
+			// var ccContainerCtrl = selfComp.GetComponent<CCContainerCtrl>();
 			ccContainerCtrl.Relate();
 			self.ContainerBind.BindExpr(self.BindSubExp);
 		}

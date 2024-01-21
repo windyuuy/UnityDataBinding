@@ -70,7 +70,7 @@ namespace DataBinding.UIBind
 
 		public virtual void BindDataHost(object data, string subKey)
 		{
-			this.SubKey = subKey;
+			 this.SubKey = subKey;
 			this.subDataHub.BindDataHost(data);
 		}
 

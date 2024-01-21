@@ -189,8 +189,11 @@ namespace DataBinding.UIBind
 			}
 			
 #if UNITY_EDITOR
-			this.IsPrefab = UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this)
-				|| UnityEditor.PrefabUtility.IsPartOfVariantPrefab(this);
+			if (Application.isPlaying)
+			{
+				this.IsPrefab = UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this)
+				                || UnityEditor.PrefabUtility.IsPartOfVariantPrefab(this);
+			}
 #else
 			this.IsPrefab = false;
 #endif

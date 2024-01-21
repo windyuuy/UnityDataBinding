@@ -10,9 +10,13 @@ namespace DataBinding.UIBind
 	{
 		protected Transform lastParent = null;
 		protected static CCNodeLife alteringComp = null;
+		private const bool IsLogEnabled = false;
 		protected virtual void OnBeforeTransformParentChanged()
 		{
-			Debug.Log("OnBeforeTransformParentChanged:" + this.name);
+			if (IsLogEnabled)
+			{
+				Debug.Log("OnBeforeTransformParentChanged:" + this.name);
+			}
 			if (alteringComp != null)
 			{
 				return;
@@ -22,7 +26,10 @@ namespace DataBinding.UIBind
 		}
 		protected virtual void OnTransformParentChanged()
 		{
-			Debug.Log("OnTransformParentChanged:" + this.name);
+			if (IsLogEnabled)
+			{
+				Debug.Log("OnTransformParentChanged:" + this.name);
+			}
 
 			// TODO: 处理父节点没有CCNodeLife托管的情况
 			if (alteringComp != this)

@@ -30,7 +30,7 @@ namespace DataBinding.UIBind
 
 		public virtual void ObserveData(T2 data)
 		{
-			this.host = VM.Utils.implementStdHost(data);
+			this.host = VM.Utils.ImplementStdHost(data);
 		}
 
 		/**

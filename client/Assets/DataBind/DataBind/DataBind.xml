@@ -25,10 +25,16 @@
         <member name="M:VM.Dep.notifyWatchers">
             通知所有侦听者
         </member>
-        <member name="M:VM.Utils.implementHost``1(``0)">
+        <member name="M:VM.Utils.ImplementHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
-        <member name="M:VM.Utils.implementStdHost``1(``0)">
+        <member name="M:VM.Utils.ImplementStdHost``1(``0)">
+            向普通对象注入Host相关方法
+        </member>
+        <member name="M:VM.Utils.UpdateHost``1(``0)">
+            向普通对象注入Host相关方法
+        </member>
+        <member name="M:VM.Utils.UpdateStdHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
         <member name="M:VM.Utils.IsObservable(System.Object)">
@@ -232,6 +238,33 @@
         </member>
         <member name="M:DataBinding.HostExt2.Destroy(DataBinding.IStdHost)">
             释放host，包括所有watch
+        </member>
+        <member name="M:DataBinding.HostExt2.NotifyChangeValue``1(DataBinding.IStdHost,System.String,``0)">
+            <summary>
+            通知设置值并强制通知值已更新
+            </summary>
+            <param name="self"></param>
+            <param name="key"></param>
+            <param name="newValue"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:DataBinding.HostExt2.MarkDirty``1(DataBinding.IStdHost,System.String,``0)">
+            <summary>
+            强制通知值已更新
+            </summary>
+            <param name="self"></param>
+            <param name="key"></param>
+            <param name="oldValue"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:DataBinding.HostExt2.MarkDirty``1(DataBinding.IStdHost,System.String)">
+            <summary>
+            强制通知值已更新
+            </summary>
+            <param name="self"></param>
+            <param name="key"></param>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="T:DataBinding.IStdHost">
             <summary>

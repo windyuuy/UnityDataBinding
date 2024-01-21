@@ -7,12 +7,20 @@ namespace TestingCode
 {
 	public class UserData : IStdHost
 	{
-		public string Name = "lkwje";
-
 		public static UserData Inst = new();
+		public string Name { get; set; } = "wkjjkewf";
+
+		public UserData()
+		{
+			// 必须实现基础方法，实现外部监听
+			VM.Utils.ImplementStdHost(this);
+		}
+
 	}
 	public class UIExample1ViewModel : IStdHost
 	{
+		// public UserData UserData { get; set; } = new();
+
 		/// <note>
 		/// env::ItemIcon
 		/// </note>
@@ -21,7 +29,13 @@ namespace TestingCode
 		/// <note>
 		/// env::Ttile
 		/// </note>
-		public string Title => UserData.Inst.Name;
+		public string Title
+		{
+			get
+			{
+				return UserData.Inst.Name;
+			}
+		}
 
 		/// <note>
 		/// env::OnClick
@@ -32,7 +46,7 @@ namespace TestingCode
 		public void OnClick()
 		{
 			Debug.Log("OnClick");
-			UserData.Inst.Name = "title2";
+			UserData.Inst.Name = "hello2";
 		}
 }
 }

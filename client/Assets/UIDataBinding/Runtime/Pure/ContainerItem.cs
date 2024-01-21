@@ -27,11 +27,11 @@ namespace DataBinding.UIBind
 
 		public object DataHost;
 		public void ObserveData(object data)
-		{
+		  {
 			this.DataHost = data;
 			if (this.RealDataHub != null)
 			{
-				this.RealDataHub.ObserveData(data);
+				 this.RealDataHub.ObserveData(data);
 			}
 		}
 
@@ -44,7 +44,7 @@ namespace DataBinding.UIBind
 		}
 
 		public void BindDataHost(object data)
-		{
+		 {
 			if (data == null)
 			{
 				this.UnsetDataHost();

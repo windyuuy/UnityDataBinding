@@ -95,4 +95,47 @@ public static class Utils
 	{
 		return comp != null;
 	}
+
+	public static void DestorySafe(this GameObject self, bool immediateForce = false)
+	{
+#if UNITY_EDITOR
+		if (immediateForce || !Application.isPlaying)
+		{
+			GameObject.DestroyImmediate(self.gameObject);
+		}
+		else
+#endif
+		{
+			GameObject.Destroy(self.gameObject);
+		}
+	}
+	
+	public static bool IsValid(this Transform self)
+	{
+		if (self == null || self.gameObject == null)
+		{
+			return false;
+		}
+		
+		if(self.GetSiblingIndex() >= self.parent.childCount)
+		{
+			return false;
+		}
+
+		return true;
+	}
+	public static bool IsInValid(this Transform self)
+	{
+		if (self == null || self.gameObject == null)
+		{
+			return true;
+		}
+		
+		if(self.GetSiblingIndex() >= self.parent.childCount)
+		{
+			return true;
+		}
+
+		return false;
+	}
 }
