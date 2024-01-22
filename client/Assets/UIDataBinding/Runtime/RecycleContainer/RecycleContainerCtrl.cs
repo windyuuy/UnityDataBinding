@@ -362,9 +362,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					if (!IsVirtualNode(child))
 					{
 						TemplateNode = child;
+						return TemplateNode;
 					}
-
-					return TemplateNode;
 				}
 			}
 
@@ -402,6 +401,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// 只有滚动的时候调用， 如果子节点不再是真实节点，那么返回false
 		/// </summary>
 		/// <param name="child"></param>
+		/// <param name="index"></param>
 		/// <returns></returns>
 		private bool HandleChildDisappear(Transform child, int index)
 		{
@@ -587,7 +587,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				else
 				{
 					PrepareDataBind(childAsync);
-					if (childAsync.parent != _container) ;
+					if (childAsync.parent != _container)
 					{
 						childAsync.parent = _container;
 					}
