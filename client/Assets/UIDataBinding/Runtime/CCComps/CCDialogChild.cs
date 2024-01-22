@@ -32,7 +32,7 @@ namespace DataBinding.UIBind
 		[SerializeField]
 		private string subKey = "";
 
-		public string SubKey
+		public override string SubKey
 		{
 			get
 			{
