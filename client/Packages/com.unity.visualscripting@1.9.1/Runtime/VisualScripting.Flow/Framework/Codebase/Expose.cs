@@ -123,6 +123,11 @@ namespace Unity.VisualScripting
                 return false;
             }
 
+            if (member.info.HasAttribute<DebuggerHiddenAttribute>())
+            {
+                return false;
+            }
+
             if (member.isIndexer)
             {
                 return false;
