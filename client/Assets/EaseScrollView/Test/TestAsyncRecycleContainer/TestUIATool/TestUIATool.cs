@@ -7,7 +7,9 @@ using UnityEngine;
 
 public class TestUIATool : MonoBehaviour
 {
+    #if UNITY_EDITOR
     [MenuItem("Assets/ExportUIA")]
+    #endif
     public static void ExportUIA()
     {
         foreach (var guid in Selection.assetGUIDs)

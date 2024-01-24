@@ -1,4 +1,18 @@
 {
-	"name": "TestUIATool",
-	"references":[ "GUID:794b0d0fd546502439defee892088cf3" ]
+    "name": "TestUIATool",
+    "rootNamespace": "",
+    "references": [
+        "GUID:794b0d0fd546502439defee892088cf3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

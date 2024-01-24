@@ -111,10 +111,15 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			var detectRect = this.GetDetectRect();
 
-#if UNITY_EDITOR
-			var checkDict = new Dictionary<int, bool>();
+			Dictionary<int, bool> checkDict = null;
 			void CheckIndex(int index)
 			{
+				if (!NeedCheck)
+				{
+					return;
+				}
+				
+				checkDict ??= new Dictionary<int, bool>();
 				if (checkDict.ContainsKey(index))
 				{
 					Debug.LogError("duplicate index: " + index);
@@ -124,7 +129,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					checkDict.Add(index, true);
 				}
 			}
-#endif
 
 			var isEmpty = this.IsEmpty();
 			if (!isEmpty)
