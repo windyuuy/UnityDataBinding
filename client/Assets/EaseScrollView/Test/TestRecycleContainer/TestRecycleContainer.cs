@@ -21,6 +21,7 @@ namespace DataBinding.UIBind.Tests.TestRecycleContainer
 	{
 		TRawData rawData => (TRawData)_rawData;
 
+		public int createCount = 0;
 		protected override void InitTestData()
 		{
 			_rawData = new TRawData()
@@ -30,7 +31,7 @@ namespace DataBinding.UIBind.Tests.TestRecycleContainer
 				},
 			};
 
-			for (var i = 0; i < 1000; i++)
+			for (var i = 0; i < createCount; i++)
 			{
 				rawData.C1.Add(new()
 				{
@@ -49,18 +50,26 @@ namespace DataBinding.UIBind.Tests.TestRecycleContainer
 				rawData.C1[i].Title = $"cc_x{i}";
 			}
 			
-			yield return new WaitForSeconds(3);
-			var di5 = rawData.C1[5];
-			var di3 = rawData.C1[3];
-			rawData.C1.RemoveAt(5);
-			rawData.C1.Insert(5, di3);
-			rawData.C1.RemoveAt(3);
-			rawData.C1.Insert(3, di5);
-			
-			yield return new WaitForSeconds(5);
-			rawData.C1.RemoveAt(5);
-			rawData.C1.RemoveAt(3);
-			rawData.C1.RemoveAt(1);
+			// yield return new WaitForSeconds(3);
+			// var di5 = rawData.C1[5];
+			// var di3 = rawData.C1[3];
+			// rawData.C1.RemoveAt(5);
+			// rawData.C1.Insert(5, di3);
+			// rawData.C1.RemoveAt(3);
+			// rawData.C1.Insert(3, di5);
+			//
+			// yield return new WaitForSeconds(5);
+			// rawData.C1.RemoveAt(5);
+			// rawData.C1.RemoveAt(3);
+			// rawData.C1.RemoveAt(1);
+		}
+
+		public void TestA()
+		{
+			var content = transform.Find("Scroll View").Find("Content");
+			var loc = content.localPosition;
+			loc.x -= 700;
+			content.localPosition = loc;
 		}
 	}
 }

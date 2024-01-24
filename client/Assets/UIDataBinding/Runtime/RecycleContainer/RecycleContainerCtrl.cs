@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using DataBinding.UIBind;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
+using Debug = UnityEngine.Debug;
+
+// ReSharper disable All
 
 namespace UIDataBinding.Runtime.RecycleContainer
 {
-	public class RecycleContainerCtrl : FlatContainerCtrl
+	public partial class RecycleContainerCtrl : FlatContainerCtrl
 	{
 		[SerializeField] private ScrollRect scrollRect;
 
@@ -23,22 +25,22 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		[SerializeField] private bool enableDebugView;
 #endif
 
-		private bool isAwake = false;
+		private bool _isAwake = false;
 
 		protected override void Awake()
 		{
 			HandleDataChangedAfterAwake?.Invoke();
 
-			isAwake = true;
+			_isAwake = true;
 		}
 
 		protected override void InitContainer()
 		{
 			InitLayoutRebuilder();
-            
-			Pool = new((index) => GenFromTemplate(index));
-			StandPool = new((index) => GenPlacer(index));
-			LentPool = new((index) => throw new Exception("cannot implement for this lent pool"));
+
+			Pool = new(GenFromTemplate);
+			StandPool = new(GenPlacer);
+			LentPool = new((_) => throw new Exception("cannot implement for this lent pool"));
 			if (this.scrollRect == null)
 			{
 				this.scrollRect = this.GetComponent<ScrollRect>();
@@ -73,7 +75,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			{
 				IsDataDirty = true;
 
-				if (!isAwake)
+				if (!_isAwake)
 				{
 					HandleDataChangedAfterAwake = () => { HandleDataChangedOnInit(dataSources); };
 				}
@@ -200,16 +202,42 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				_childCountInit--;
 			}
 
-			var iInto = 0;
+			if (!_gridIter.IsPrecision)
+			{
+				DetectRect(_scrollRectRange.center);
+			}
+			else
+			{
+				UpdateRectByScroll(_scrollRectRange.center);
+			}
+
+			UpdateElementViewState();
+
+			Profiler.BeginSample("_ScrollRect_OnValueChanged2");
+			this.HandleScollDone();
+			Profiler.EndSample();
+		}
+
+		private void UpdateElementViewState()
+		{
+			var isIn = false;
+			_gridIterNext.IterAcc = 0;
+			_gridIterNext.IterIndex = 1;
+			var iterInto = _gridIterNext.GetForwardIter(_gridIter, () => isIn).GetEnumerator();
+			iterInto.MoveNext();
+			_gridIterNext.IterIndex = 2;
+			var iterOut = _gridIterNext.GetBackwardIter(_gridIter, () => isIn).GetEnumerator();
+			iterOut.MoveNext();
+
+			var iInto = iterInto.Current;
 
 			int IterIntoContainer(bool suff)
 			{
-				if (iInto < _childCountInit)
+				if (0 <= iInto && iInto < _childCountInit)
 				{
 					var child = this._container.GetChild(iInto);
-					var isInContainer = IsInContainer(child);
-					var isVirtual = IsVirtualNode(child);
-					if (isInContainer && isVirtual)
+					var isInL = IsInContainer(child);
+					if (IsVirtualNode(child) && isInL)
 					{
 						if (Pool.Count == 0 && suff)
 						{
@@ -219,24 +247,33 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						HandleChild(child, iInto);
 					}
 
-					iInto++;
+					// iInto++;
+					isIn = isInL;
+					if (!iterInto.MoveNext())
+					{
+						iInto = _childCountInit;
+						return 2;
+					}
+
+					iInto = iterInto.Current;
 
 					return 0;
 				}
 
+				iInto = _childCountInit;
 				return 2;
 			}
 
-			var iOut = _childCountInit - 1;
+			// var iOut = _childCountInit - 1;
+			var iOut = iterOut.Current;
 
 			int InterOutContainer(bool suff)
 			{
-				if (iOut >= 0)
+				if (0 <= iOut && iOut < _childCountInit)
 				{
 					var child = this._container.GetChild(iOut);
-					var isInContainer = IsInContainer(child);
-					var isVirtual = IsVirtualNode(child);
-					if (!isInContainer && !isVirtual)
+					var isInL = IsInContainer(child);
+					if (!IsVirtualNode(child) && !isInL)
 					{
 						if (StandPool.Count == 0 && suff)
 						{
@@ -246,22 +283,31 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						HandleChild(child, iOut);
 					}
 
-					iOut--;
+					// iOut--;
+					isIn = isInL;
+					if (!iterOut.MoveNext())
+					{
+						iOut = _childCountInit;
+						return 2;
+					}
+
+					iOut = iterOut.Current;
 
 					return 0;
 				}
 
+				iOut = _childCountInit;
 				return 2;
 			}
 
 			Profiler.BeginSample("_ScrollRect_OnValueChanged1");
 
 			var seekIn = true;
-			while (iInto < _childCountInit || iOut >= 0)
+			while (IsValidIndex(iInto) || IsValidIndex(iOut))
 			{
 				if (seekIn)
 				{
-					var rIn = IterIntoContainer(iOut >= 0);
+					var rIn = IterIntoContainer(IsValidIndex(iOut));
 					if (rIn >= 1)
 					{
 						seekIn = false;
@@ -269,7 +315,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				}
 				else
 				{
-					var rOut = InterOutContainer(iInto < _childCountInit);
+					var rOut = InterOutContainer(IsValidIndex(iInto));
 					if (rOut >= 1)
 					{
 						seekIn = true;
@@ -277,18 +323,32 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				}
 			}
 
-			Profiler.EndSample();
+			Debug.Assert(!iterInto.MoveNext());
+			Debug.Assert(!iterOut.MoveNext());
+			_gridIter.Copy(ref _gridIterNext);
+			//
+			// for (var i = 0; i < _childCountInit; i++)
+			// {
+			// 	var child = _container.GetChild(i);
+			// 	if (IsVirtualNode(child) == IsInContainer(child))
+			// 	{
+			// 		Debug.LogError($"lkwjeflk: {i}");
+			// 	}
+			// }
 
-			Profiler.BeginSample("_ScrollRect_OnValueChanged2");
-			this.HandleScollDone();
 			Profiler.EndSample();
 		}
 
-		protected void DetectBorder()
+		public bool IsValidIndex(int index)
 		{
-			
+			return 0 <= index && index < _childCountInit;
 		}
-		
+
+		public bool IsInvalidIndex(int index)
+		{
+			return 0 > index || index >= _childCountInit;
+		}
+
 		protected bool HandleChild(Transform child, int index)
 		{
 			var isInContainer = IsInContainer(child);
@@ -309,6 +369,10 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return false;
 		}
 
+		protected bool IsInContainer(int index)
+		{
+			return IsInContainer(_container.GetChild(index));
+		}
 		protected bool IsInContainer(Transform child)
 		{
 			var rect = GetRectBounds(child);
@@ -539,7 +603,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 				LentPool.Remove(standSync);
 				LentPool.Recycle(childAsync);
-				
+
 				if (standSync.IsValid())
 				{
 					Debug.Assert(!IsVirtualNode(standSync));
@@ -591,6 +655,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					{
 						childAsync.parent = _container;
 					}
+
 					RecycleNode(childAsync);
 					UnuseNode(childAsync);
 
@@ -648,7 +713,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 		protected Transform RequireNewNodeInternal(int index)
 		{
-			if (!isAwake)
+			if (!_isAwake)
 			{
 				if (this._container.childCount < previewCount && index < this._container.childCount)
 				{
@@ -802,7 +867,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			var pool = LentPool.PeekAll();
 			foreach (var child in pool)
 			{
-				LentSizes.Add((child,((RectTransform)child).sizeDelta));
+				LentSizes.Add((child, ((RectTransform)child).sizeDelta));
 			}
 		}
 
@@ -813,14 +878,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				MarkDirty();
 				return;
 			}
-			
+
 			for (var i = 0; i < LentPool.Count; i++)
 			{
-				var (child , size) = LentSizes[i];
+				var (child, size) = LentSizes[i];
 				if (size != ((RectTransform)child).sizeDelta)
 				{
 					MarkDirty();
-					 return;
+					return;
 				}
 			}
 		}
@@ -829,13 +894,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		// {
 		// 	CheckLentSizes();
 		// }
-		
+
 		public virtual void MarkDirty()
 		{
 			this.LayoutDirtyFrameCount = Time.frameCount;
 		}
 
 		protected static IList<ICanvasElement> LayoutRebuildQueue;
+
 		public static void InitLayoutRebuilder()
 		{
 			if (LayoutRebuildQueue == null)
@@ -846,6 +912,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				LayoutRebuildQueue = f!.GetValue(ii) as IList<ICanvasElement>;
 			}
 		}
+
 		protected bool IsRebuildingLayout()
 		{
 			ICanvasElement rebuilder = null;
@@ -865,6 +932,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			return false;
 		}
+
 		protected void UnMarkRebuild()
 		{
 			ICanvasElement rebuilder = null;

@@ -30,8 +30,9 @@ namespace EaseScrollView.Test
 			var stand = createStandSync(index,$"stand{index}");
 			IEnumerator DelayCreate()
 			{
-				Debug.Log($"createasync: {ixz}");
-				yield return new WaitForSeconds(0.5f+1f*ixz++);
+				// Debug.Log($"createasync: {ixz}");
+				// yield return new WaitForSeconds(0.5f+0.01f*ixz++);
+				yield return null;
 				var child = GameObject.Instantiate(templateNode, Root).transform;
 				child.gameObject.name = templateNode.gameObject.name+$"_{e2++}";
 				onCreatedAsync(child, stand, recycleStandAsync);
