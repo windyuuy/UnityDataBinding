@@ -17,52 +17,27 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// </summary>
 		private GridIter _gridIter = new();
 
-		public void DetectRect(Vector2 val0)
+		public void DetectRectInit(Vector2 val0)
 		{
-			UpdateContainerBodySize(out var bodySize);
-
 			// create grid iters
-			if (bodySize == 0)
+			// no element
+			_gridIterNext =
+				GridIter.FromCorners(new IntVector2(0, 0), new IntVector2(-2, -2), _childCountInit, val0);
+
+			// if (_childCountInit == 0)
 			{
-				// no element
-				_gridIterNext = GridIter.FromCorners(new IntVector2(0, 0), new IntVector2(-2, -2), bodySize,
-					_childCountInit, Vector3.zero,
-					val0);
 				_gridIterNext.IsPrecision = true;
-			}
-			else
-			{
-				var bodyHeight = (_childCountInit + bodySize - 1) / bodySize;
-				var distance = UpdateDistance(bodySize);
-				var pSign = IntVector2.Sign(distance);
-
-				if (
-					SearchAnyPtInContainer(0, 2, 0, 2, bodySize, pSign, out var xHit, out var yHit)
-				||SearchAnyPtInContainer(0, bodySize, 0, bodyHeight, bodySize, pSign, out  xHit, out  yHit)
-					)
-				{
-					var (x1, x2, y1, y2) = DetectRectBorder(xHit, yHit, bodySize, bodyHeight);
-					
-					var p1 = new IntVector2(x1,y1);
-					var p2 = new IntVector2(x2, y2);
-					_gridIterNext = GridIter.FromCorners(p1, p2, bodySize, _childCountInit, distance, val0);
-				}
-				else
-				{
-					_gridIterNext = new GridIter(new Vector2(xHit, yHit), new IntVector2(-2, -2), bodySize,
-						_childCountInit, distance, val0);
-					_gridIterNext.IsPrecision = true;
-				}
-
 			}
 
 			_gridIter.Copy(ref _gridIterNext);
 			_gridIter.IsPrecision = true;
 
-			InjectDebugDetails();
+			if (_gridIterNext.NeedCheck)
+			{
+				InjectDebugDetails();
+			}
 		}
 
-		[Conditional("UNITY_EDITOR")]
 		protected void InjectDebugDetails()
 		{
 			#region DebugOnly
@@ -93,58 +68,157 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			_gridIter.CheckFunc = CheckFunc;
 			_gridIterNext.CheckFunc = CheckFunc;
-			
+
 			#endregion
 		}
+
+		protected Vector3 UpdateDistance(GridIter gridIter)
+		{
+			var lineBreakSize = gridIter.LineBreakSize;
+			var distance = Vector3.zero;
+			if (_childCountInit >= 2)
+			{
+				if (lineBreakSize + 1 < _childCountInit)
+				{
+					distance = _container.GetChild(gridIter.ToIndex(1, 1)).localPosition -
+					           _container.GetChild(0).localPosition;
+				}
+				else if (lineBreakSize < _childCountInit)
+				{
+					if (lineBreakSize >= 2)
+					{
+						var distanceX = _container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
+						                _container.GetChild(0).localPosition;
+						var distanceY = _container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
+						                _container.GetChild(0).localPosition;
+						distance = new Vector3(distanceX.x, distanceY.y, distanceX.z + distanceY.x);
+					}
+					else
+					{
+						distance = _container.GetChild(lineBreakSize).localPosition -
+						           _container.GetChild(0).localPosition;
+					}
+				}
+			}
+
+			return distance;
+		}
+
+		private LayoutGroup _layoutGroup;
 
 		/// <summary>
 		/// UpdateContainerBodySize
 		/// </summary>
-		/// <param name="bodySize"></param>
+		/// <param name="gridIter"></param>
 		/// <returns>return false if not update fully</returns>
 		/// <exception cref="NotImplementedException"></exception>
-		protected bool UpdateContainerBodySize(out int bodySize)
+		protected bool UpdateContainerParams(GridIter gridIter)
 		{
 			var isOk = false;
-			
-			var container = _container.GetComponent<LayoutGroup>();
-			if (container is VerticalLayoutGroup)
+
+			IntVector2 bodySizeInfo;
+			IntVector2 iterSize;
+			var lineBreakSize = 1;
+			_layoutGroup ??= _container.GetComponent<LayoutGroup>();
+			var layoutGroup = _layoutGroup;
+			if (layoutGroup is VerticalLayoutGroup)
 			{
-				bodySize = 1;
+				bodySizeInfo = new IntVector2(1, 1);
+				lineBreakSize = 1;
+				iterSize = new IntVector2(int.MaxValue, 1);
 				isOk = true;
 			}
-			else if (container is HorizontalLayoutGroup)
+			else if (layoutGroup is HorizontalLayoutGroup)
 			{
-				bodySize = int.MaxValue;
+				bodySizeInfo = new IntVector2(1, _childCountInit);
+				lineBreakSize = int.MaxValue;
+				iterSize = new IntVector2(1, int.MaxValue);
 				isOk = true;
 			}
-			else if (container is GridLayoutGroup)
+			else if (layoutGroup is GridLayoutGroup gridLayoutGroup)
 			{
 				if (_childCountInit == 0)
 				{
-					bodySize = 0;
+					bodySizeInfo = new IntVector2(1, 1);
+					lineBreakSize = 1;
+					iterSize = new IntVector2(1, 1);
+				}
+				else if (_childCountInit == 1)
+				{
+					bodySizeInfo = new IntVector2(1, 1);
+					lineBreakSize = 1;
+					iterSize = new IntVector2(1, 1);
 				}
 				else
 				{
-					bodySize = 1;
 					var p0I0 = _container.GetChild(0);
-					float xMax = p0I0.localPosition.x;
-					for (var i = bodySize; i < _childCountInit; i++)
+					var lineXSize = 1;
+					var lineYSize = 1;
+
+					if (_childCountInit >= 2)
 					{
-						var child = _container.GetChild(i);
-						var childX = child.localPosition.x;
-						if (childX >= xMax)
+						var p1 = _container.GetChild(1);
+						if (gridLayoutGroup.startAxis == GridLayoutGroup.Axis.Horizontal)
 						{
-							xMax = childX;
-							bodySize++;
+							var xMax = p0I0.localPosition.x;
+							var xSign = Math.Sign(p1.localPosition.x - xMax);
+							for (var i = lineXSize; i < _childCountInit; i++)
+							{
+								var child = _container.GetChild(i);
+								var childX = child.localPosition.x;
+								if (xSign * (childX - xMax) > 0)
+								{
+									xMax = childX;
+									lineXSize++;
+								}
+								else
+								{
+									isOk = true;
+									break;
+								}
+							}
+
+							lineYSize = (_childCountInit + lineXSize - 1) / lineXSize;
+
+							lineBreakSize = lineXSize;
+							iterSize = new IntVector2(1, lineBreakSize);
+						}
+						else if (gridLayoutGroup.startAxis == GridLayoutGroup.Axis.Vertical)
+						{
+							var yMax = p0I0.localPosition.y;
+							var ySign = Math.Sign(p1.localPosition.y - yMax);
+							for (var i = lineYSize; i < _childCountInit; i++)
+							{
+								var child = _container.GetChild(i);
+								var childY = child.localPosition.y;
+								if (ySign * (childY - yMax) > 0)
+								{
+									yMax = childY;
+									lineYSize++;
+								}
+								else
+								{
+									isOk = true;
+									break;
+								}
+							}
+
+							lineXSize = (_childCountInit + lineYSize - 1) / lineYSize;
+
+							lineBreakSize = int.MaxValue;
+							iterSize = new IntVector2(lineYSize, 1);
 						}
 						else
 						{
-							bodySize = i;
-							isOk = true;
-							break;
+							throw new NotImplementedException();
 						}
 					}
+					else
+					{
+						iterSize = new IntVector2(1, 1);
+					}
+
+					bodySizeInfo = new IntVector2(lineXSize, lineYSize);
 				}
 			}
 			else
@@ -152,45 +226,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				throw new NotImplementedException();
 			}
 
+			gridIter.LineBreakSize = lineBreakSize;
+			gridIter.BodySizeInfo = bodySizeInfo;
+			gridIter.IterSize = iterSize;
+
+			var distance = UpdateDistance(gridIter);
+			gridIter.Distance = distance;
+
 			return isOk;
-		}
-
-		protected Vector3 UpdateDistance(int bodySize)
-		{
-			if (bodySize == 1)
-			{
-				var distance = Vector3.zero;
-				if (bodySize < _childCountInit)
-				{
-					distance = _container.GetChild(bodySize).localPosition - _container.GetChild(0).localPosition;
-				}
-
-				return distance;
-			}
-			else if (bodySize == int.MaxValue)
-			{
-				var distance = Vector3.zero;
-				if (1 < _childCountInit)
-				{
-					distance = _container.GetChild(1).localPosition - _container.GetChild(0).localPosition;
-				}
-
-				return distance;
-			}
-			else
-			{
-				var distance = Vector3.zero;
-				if (bodySize + 1 < _childCountInit)
-				{
-					distance = _container.GetChild(bodySize + 1).localPosition - _container.GetChild(0).localPosition;
-				}
-				else if (bodySize < _childCountInit)
-				{
-					distance = _container.GetChild(bodySize).localPosition - _container.GetChild(0).localPosition;
-				}
-
-				return distance;
-			}
 		}
 
 		private GridIter _gridIterNext = new();
@@ -199,38 +242,15 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			Debug.Assert(_gridIterNext.IsPrecision);
 
-			// update dynamic params at first
-			{
-				if (_gridIterNext.CountMax != _childCountInit)
-				{
-					_gridIterNext.CountMax = _childCountInit;
-
-					UpdateContainerBodySize(out var newBodySize);
-					_gridIterNext.BodySize = newBodySize;
-					// re-update distance once
-					var distance2 = UpdateDistance(_gridIterNext.BodySize);
-					_gridIterNext.Distance = distance2;
-				}
-				else
-				{
-					if (_gridIterNext.Distance == Vector3.zero)
-					{
-						// re-update distance once
-						var distance2 = UpdateDistance(_gridIterNext.BodySize);
-						_gridIterNext.Distance = distance2;
-					}
-				}
-			}
-			
-			var bodySize = _gridIterNext.BodySize;
-			var bodyHeight = _gridIterNext.GetMaxRowCount();
+			var lineXSize = _gridIterNext.LineXSize;
+			var lineYSize = _gridIterNext.LineYSize;
 			var size = _gridIterNext.Size;
-			var bodyRect = new IntRect(0, 0, bodySize - 1, bodyHeight - 1);
-			var dir = scrollPos - _gridIterNext.ScrollPos;
+			var bodyRect = _gridIterNext.GetBodyRect();
+			var moveOffset = scrollPos - _gridIterNext.ScrollPos;
 			var center = _gridIterNext.Pos;
 
 			var distance = _gridIterNext.Distance;
-			var pSign = IntVector2.Sign(distance);
+			var iSign = IntVector2.Sign(distance);
 
 			var isValidCenterFound = false;
 			IntVector2 centerInContainer;
@@ -238,8 +258,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			if (_gridIterNext.Distance != Vector3.zero)
 			{
 				// TODO: 适配不同模式
-				var pDir = new Vector2(dir.x / distance.x, dir.y / distance.y);
-				guessCenter = center + pDir;
+				var iDir = new Vector2(moveOffset.x / distance.x, moveOffset.y / distance.y);
+				guessCenter = center + iDir;
 			}
 			else
 			{
@@ -269,17 +289,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					};
 					foreach (var centerN in centers)
 					{
-						if (0 <= centerN.x && centerN.x < bodySize
+						if (0 <= centerN.x && centerN.x < lineXSize
 						                   && 0 <= centerN.y)
 						{
-							var pos = GridIter.ToIndex(centerN, bodySize);
-							if (0 <= pos && pos < _childCountInit)
+							var pos = _gridIterNext.ToIndex(centerN);
+							if (IsInContainerSafe(pos))
 							{
-								if (IsInContainer(_container.GetChild(pos)))
-								{
-									ptInContainer = centerN;
-									return true;
-								}
+								ptInContainer = centerN;
+								return true;
 							}
 						}
 					}
@@ -296,38 +313,30 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				isValidCenterFound = true;
 			}
 
-			if (!isValidCenterFound && bodyRect.IsExtensive())
+			if (!isValidCenterFound && bodyRect.IsBroad())
 			{
-				var pDirSign = new IntVector2(Math.Sign(dir.x), Math.Sign(-dir.y));
 				// TODO: 适配不同模式
 				var halfSize = new Vector2(size.x * 0.5f, size.y * 0.5f);
-				var winSizeF = _scrollRectRange.size;
-				var winSize = new Vector2(winSizeF.x / Mathf.Abs(distance.x), winSizeF.y / Mathf.Abs(distance.y));
+				var fWinSize = _scrollRectRange.size;
+				var iWinSize = new Vector2(fWinSize.x / Mathf.Abs(distance.x), fWinSize.y / Mathf.Abs(distance.y));
+				var iMoveSign = new IntVector2(Math.Sign(moveOffset.x * iSign.x), Math.Sign(moveOffset.y * iSign.y));
 
-				IntVector2 searchCorner1 = new IntVector2(
-					(int)(center.x - halfSize.x * pDirSign.x),
-					(int)(center.y - halfSize.y * pDirSign.y));
-				searchCorner1 = bodyRect.Limit(searchCorner1);
+				IntVector2 searchCorner0 = new IntVector2(
+					(int)(center.x - halfSize.x * iMoveSign.x),
+					(int)(center.y - halfSize.y * iMoveSign.y));
+				searchCorner0 = bodyRect.Limit(searchCorner0);
 
-				IntVector2 searchCorner2 = new IntVector2(0, 0);
 				if (distance != Vector3.zero)
 				{
-					var pDir = new Vector2(dir.x / distance.x, dir.y / distance.y);
+					var iMoveOffset = new Vector2(moveOffset.x / distance.x, moveOffset.y / distance.y);
 
 					// presume corner1 with offset
-					var searchCorner1Assumpt = new Vector2(searchCorner1.x + pDir.x * pDirSign.x,
-						searchCorner1.y + pDir.y * pDirSign.y);
-					var ret1 = AssumptPt(searchCorner1Assumpt, out centerInContainer);
+					var searchCorner1 = new Vector2(searchCorner0.x + iMoveOffset.x,
+						searchCorner0.y + iMoveOffset.y);
+					var ret1 = AssumptPt(searchCorner1, out centerInContainer);
 					if (ret1)
 					{
 						isValidCenterFound = true;
-					}
-					else
-					{
-						searchCorner2 = new IntVector2(
-							Mathf.CeilToInt(searchCorner1.x + (pDir.x + winSize.x + 1) * pDirSign.x),
-							Mathf.CeilToInt(searchCorner1.y + (pDir.y + winSize.y + 1) * pDirSign.y));
-						searchCorner2 = bodyRect.Limit(searchCorner2);
 					}
 				}
 
@@ -338,25 +347,35 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						return (Math.Min(a, b), Math.Max(a, b));
 					}
 
+					// presume corner0 to corner2
+					IntVector2 searchCorner2 = new IntVector2(0, 0);
+					if (distance != Vector3.zero)
 					{
-						var (x1, x2) = SortNum(searchCorner1.x, searchCorner2.x);
-						var (y1, y2) = SortNum(searchCorner1.y, searchCorner2.y);
-						if (SearchAnyPtInContainer(x1, x2, y1, y2, bodySize,pSign,out var xHit, out var yHit))
-						{
-							Debug.Assert(IsInContainer(GridIter.ToIndex(xHit, yHit, bodySize)));
-							centerInContainer = new IntVector2(xHit, yHit);
-							isValidCenterFound = true;
-						}
+						var iMoveOffset = new Vector2(moveOffset.x / distance.x, moveOffset.y / distance.y);
+						searchCorner2 = new IntVector2(
+							Mathf.CeilToInt(searchCorner0.x + iMoveOffset.x + (iWinSize.x + 1) * iMoveSign.x),
+							Mathf.CeilToInt(searchCorner0.y + iMoveOffset.y + (iWinSize.y + 1) * iMoveSign.y));
+						searchCorner2 = bodyRect.Limit(searchCorner2);
+					}
+
+					var (x1, x2) = SortNum(searchCorner0.x, searchCorner2.x);
+					var (y1, y2) = SortNum(searchCorner0.y, searchCorner2.y);
+					if (SearchAnyPtInContainer(x1, x2, y1, y2, iSign, out var xHit, out var yHit))
+					{
+						Debug.Assert(IsInContainer(_gridIterNext.ToIndex(xHit, yHit)));
+						centerInContainer = new IntVector2(xHit, yHit);
+						isValidCenterFound = true;
 					}
 				}
 			}
-			
-			if (!isValidCenterFound && bodyRect.IsExtensive())
+
+			if (!isValidCenterFound && bodyRect.IsBroad())
 			{
-				if (SearchAnyPtInContainer(bodyRect.xMin, bodyRect.xMax, bodyRect.yMin, bodyRect.yMax,bodySize,pSign, out var xHit,
+				if (SearchAnyPtInContainer(bodyRect.xMin, bodyRect.xMax, bodyRect.yMin, bodyRect.yMax, iSign,
+					    out var xHit,
 					    out var yHit))
 				{
-					Debug.Assert(IsInContainer(GridIter.ToIndex(xHit, yHit, bodySize)));
+					Debug.Assert(IsInContainer(_gridIterNext.ToIndex(xHit, yHit)));
 					centerInContainer = new IntVector2(xHit, yHit);
 					isValidCenterFound = true;
 				}
@@ -374,7 +393,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			{
 				// find fuzzy size
 				{
-					var (x1, x2, y1, y2) = DetectRectBorder(centerInContainer.x,centerInContainer.y, bodySize, bodyHeight);
+					var (x1, x2, y1, y2) = DetectRectBorder(centerInContainer.x, centerInContainer.y, lineXSize,
+						lineYSize, _childCountInit);
 
 					_gridIterNext.Size = new IntVector2(x2 - x1, y2 - y1);
 					_gridIterNext.Pos = new Vector2((x2 + x1) * 0.5f, (y2 + y1) * 0.5f);
@@ -384,20 +404,21 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 		}
 
-		protected bool SearchAnyPtInContainer(int x1, int x2, int y1, int y2, int bodySize, IntVector2 pSign, out int xHit, out int yHit)
+		protected bool SearchAnyPtInContainer(int x1, int x2, int y1, int y2, IntVector2 iSign,
+			out int xHit, out int yHit)
 		{
 			Debug.Assert(x1 <= x2 && y1 <= y2);
 
-			if (pSign.x == 0)
+			if (iSign.x == 0)
 			{
-				pSign.x = 1;
+				iSign.x = 1;
 			}
 
-			if (pSign.y == 0)
+			if (iSign.y == 0)
 			{
-				pSign.y = 1;
+				iSign.y = 1;
 			}
-			
+
 			// 二分查找
 			(int, int) Select2XY(int mode, int n1, int n2, int mid)
 			{
@@ -438,7 +459,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				var xmid = Mathf.FloorToInt((x1 + x2) * 0.5f);
 				var ymid = Mathf.FloorToInt((y1 + y2) * 0.5f);
 
-				var index = GridIter.ToIndex(xmid, ymid, bodySize);
+				var index = _gridIterNext.ToIndex(xmid, ymid);
 				if (index >= _childCountInit)
 				{
 					return Search2XYInternal(x1, xmid - 1, y1, y2, out xHit, out yHit)
@@ -451,11 +472,11 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				int dy;
 				if (rect.yMin > _scrollRectRange.yMax)
 				{
-					dy = -1 * pSign.y;
+					dy = -1 * iSign.y;
 				}
 				else if (_scrollRectRange.yMin > rect.yMax)
 				{
-					dy = 1 * pSign.y;
+					dy = 1 * iSign.y;
 				}
 				else
 				{
@@ -465,11 +486,11 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				int dx;
 				if (rect.xMin > _scrollRectRange.xMax)
 				{
-					dx = -1 * pSign.x;
+					dx = -1 * iSign.x;
 				}
 				else if (_scrollRectRange.xMin > rect.xMax)
 				{
-					dx = 1 * pSign.x;
+					dx = 1 * iSign.x;
 				}
 				else
 				{
@@ -490,17 +511,18 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					return Search2XYInternal(xr.Item1, xr.Item2, yr.Item1, yr.Item2, out xHit, out yHit);
 				}
 			}
-			
+
 			return Search2XYInternal(x1, x2, y1, y2, out xHit, out yHit);
 		}
 
-		protected (int x1, int x2, int y1, int y2) DetectRectBorder(int ax,int ay, int bodySize, int bodyHeight)
+		protected (int x1, int x2, int y1, int y2) DetectRectBorder(int ax, int ay, int lineXSize, int lineYSize,
+			int total)
 		{
 			var y0 = ay;
 			var x1 = ax;
 			for (var ix = x1; ix >= 0; ix--)
 			{
-				var ipos = GridIter.ToIndex(ix, y0, bodySize);
+				var ipos = _gridIterNext.ToIndex(ix, y0);
 				var child = _container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
@@ -514,7 +536,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			var y1 = ay;
 			for (var iy = y1; iy >= 0; iy--)
 			{
-				var ipos = GridIter.ToIndex(x0, iy, bodySize);
+				var ipos = _gridIterNext.ToIndex(x0, iy);
 				var child = _container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
@@ -526,9 +548,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			y0 = y1;
 			var x2 = ax;
-			for (var ix = x2; ix < bodySize; ix++)
+			for (var ix = x2; ix < lineXSize; ix++)
 			{
-				var ipos = GridIter.ToIndex(ix, y0, bodySize);
+				var ipos = _gridIterNext.ToIndex(ix, y0);
+				if (ipos >= total)
+				{
+					break;
+				}
+
 				var child = _container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
@@ -540,9 +567,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			x0 = x1;
 			var y2 = ay;
-			for (var iy = y2; iy < bodyHeight; iy++)
+			for (var iy = y2; iy < lineYSize; iy++)
 			{
-				var ipos = GridIter.ToIndex(x0, iy, bodySize);
+				var ipos = _gridIterNext.ToIndex(x0, iy);
+				if (ipos >= total)
+				{
+					break;
+				}
+
 				var child = _container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{

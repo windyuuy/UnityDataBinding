@@ -139,8 +139,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// The scrollers position
 		/// </summary>    
 		private Vector2 _scrollPosV;
-
 		private Vector2 _scrollPosH;
+		
 		private Rect _scrollRectRange;
 
 		private void UpdateScrollRectStatus(Vector2 val)
@@ -204,12 +204,11 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			if (!_gridIter.IsPrecision)
 			{
-				DetectRect(_scrollRectRange.center);
+				DetectRectInit(_scrollRectRange.center);
 			}
-			else
-			{
-				UpdateRectByScroll(_scrollRectRange.center);
-			}
+
+			UpdateContainerParams(_gridIterNext);
+			UpdateRectByScroll(_scrollRectRange.center);
 
 			UpdateElementViewState();
 
@@ -373,6 +372,12 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			return IsInContainer(_container.GetChild(index));
 		}
+
+		protected bool IsInContainerSafe(int index)
+		{
+			return 0 <= index && index < _childCountInit && IsInContainer(_container.GetChild(index));
+		}
+
 		protected bool IsInContainer(Transform child)
 		{
 			var rect = GetRectBounds(child);

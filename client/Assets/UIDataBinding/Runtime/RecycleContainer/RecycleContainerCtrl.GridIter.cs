@@ -20,21 +20,33 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public IntVector2 PosSure;
 
 		public IntVector2 Size;
-		public int BodySize;
-		public int CountMax;
+
+		/// <summary>
+		/// (BodySizeMain, BodySizeX)
+		/// </summary>
+		public IntVector2 BodySizeInfo;
+
+		public int LineBreakSize;
+		public int LineXSize => BodySizeInfo.x;
+
+		public int LineYSize => BodySizeInfo.y;
+
+		public IntRect GetBodyRect()
+		{
+			return new IntRect
+			{
+				xMax = this.LineXSize - 1,
+				xMin = 0,
+				yMax = this.LineYSize - 1,
+				yMin = 0,
+			};
+		}
+
+		public IntVector2 IterSize;
+		public int TotalCount;
 		public Vector2 ScrollPos;
 		public Vector3 Distance;
 		public bool IsPrecision;
-
-		public int GetMaxRowCount()
-		{
-			if (CountMax <= 0)
-			{
-				return 0;
-			}
-
-			return (CountMax + BodySize - 1) / BodySize;
-		}
 
 		public bool IsEmpty()
 		{
@@ -45,26 +57,21 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 		}
 
-		public GridIter(Vector2 pos, IntVector2 size, int bodySize, int countMax, Vector3 distance,
-			Vector2 scrollPos)
+		public GridIter(Vector2 pos, IntVector2 size, int totalCount, Vector2 scrollPos)
 		{
 			Pos = pos;
 			Size = size;
-			BodySize = bodySize;
-			CountMax = countMax;
+			TotalCount = totalCount;
 			ScrollPos = scrollPos;
-			Distance = distance;
 			IsPrecision = false;
 		}
 
-		public static GridIter FromCorners(IntVector2 pos1, IntVector2 pos2, int bodySize, int countMax,
-			Vector3 distance,
-			Vector2 scrollPos)
+		public static GridIter FromCorners(IntVector2 pos1, IntVector2 pos2, int countMax, Vector2 scrollPos)
 		{
 			var center = new Vector2(((pos1.x + pos2.x) * 0.5f),
 				((pos1.y + pos2.y) * 0.5f));
 			var size = new IntVector2(pos2.x - pos1.x, pos2.y - pos1.y);
-			return new GridIter(center, size, bodySize, countMax, distance, scrollPos);
+			return new GridIter(center, size, countMax, scrollPos);
 		}
 
 		public int IterIndex = 0;
@@ -83,7 +90,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				checkList0 = new();
 				// if (iterIndex == 1)
 				{
-					var childCountInit = this.CountMax;
+					var childCountInit = this.TotalCount;
 					for (var i = 0; i < childCountInit; i++)
 					{
 						var b = DetectFunc(i);
@@ -95,9 +102,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			var bodySizeRect = new IntRect
 			{
-				xMax = BodySize - 1,
+				xMax = LineXSize - 1,
 				xMin = 0,
-				yMax = this.GetMaxRowCount() - 1,
+				yMax = this.LineYSize - 1,
 				yMin = 0,
 			};
 
@@ -112,13 +119,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			var detectRect = this.GetDetectRect();
 
 			Dictionary<int, bool> checkDict = null;
+
 			void CheckIndex(int index)
 			{
 				if (!NeedCheck)
 				{
 					return;
 				}
-				
+
 				checkDict ??= new Dictionary<int, bool>();
 				if (checkDict.ContainsKey(index))
 				{
@@ -143,8 +151,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					{
 						for (var ix = detectRect.xMin; ix <= detectRect.xMax; ix++)
 						{
-							var ii = GridIter.ToIndex(ix, iy, BodySize);
-							if (ii >= CountMax)
+							var ii = this.ToIndex(ix, iy);
+							if (ii >= TotalCount)
 							{
 								continue;
 							}
@@ -167,8 +175,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					{
 						for (var ix = detectRect.xMin; ix <= detectRect.xMax; ix++)
 						{
-							var ii = GridIter.ToIndex(ix, iy, BodySize);
-							if (ii >= CountMax)
+							var ii = this.ToIndex(ix, iy);
+							if (ii >= TotalCount)
 							{
 								continue;
 							}
@@ -202,15 +210,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 				if (!detectRect.ContainsAll(preDetectRect))
 				{
-					var preBodySize = preGridIter.BodySize;
 					for (var iy = preDetectRect.yMin; iy <= preDetectRect.yMax; iy++)
 					{
 						for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
 						{
 							if (!detectRect.Contains(ix, iy))
 							{
-								var ii = ToIndex(ix, iy, preBodySize);
-								if (ii >= CountMax)
+								var ii = preGridIter.ToIndex(ix, iy);
+								if (ii >= TotalCount)
 								{
 									continue;
 								}
@@ -226,7 +233,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			IterAcc++;
 			if (IterAcc == 2 && NeedCheck)
 			{
-				var childCountInit = this.CountMax;
+				var childCountInit = this.TotalCount;
 				for (var i = 0; i < childCountInit; i++)
 				{
 					var b = CheckFunc(i);
@@ -240,7 +247,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				{
 					for (var ix = rangeRect.xMin; ix <= rangeRect.xMax; ix++)
 					{
-						var ipos = GridIter.ToIndex(ix, iy, BodySize);
+						var ipos = this.ToIndex(ix, iy);
 						var b = CheckFunc(ipos);
 						if (!b)
 						{
@@ -261,7 +268,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				{
 					for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
 					{
-						var ipos = GridIter.ToIndex(ix, iy, BodySize);
+						var ipos = this.ToIndex(ix, iy);
 						var b = CheckFunc(ipos);
 						if (!b)
 						{
@@ -275,7 +282,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				{
 					for (var ix = Math.Max(rangeRect.xMax, preDetectRect.xMax) + 1; ix <= bodySizeRect.xMax; ix++)
 					{
-						var ipos = GridIter.ToIndex(ix, iy, BodySize);
+						var ipos = this.ToIndex(ix, iy);
 						var b = DetectFunc(ipos);
 						if (b)
 						{
@@ -335,14 +342,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return GetForwardIter(preGridIter, iterInput);
 		}
 
-		public static int ToIndex(int x, int y, int bodySize)
+		public int ToIndex(int x, int y)
 		{
-			return x + y * bodySize;
+			return x * IterSize.x + y * IterSize.y;
 		}
 
-		public static int ToIndex(IntVector2 vec, int bodySize)
+		public int ToIndex(IntVector2 vec)
 		{
-			return vec.x + vec.y * bodySize;
+			return vec.x * IterSize.x + vec.y * IterSize.y;
 		}
 
 		public void Copy(ref GridIter gridIter)
@@ -350,8 +357,10 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			this.Pos = gridIter.Pos;
 			this.PosSure = gridIter.PosSure;
 			this.Size = gridIter.Size;
-			this.BodySize = gridIter.BodySize;
-			this.CountMax = gridIter.CountMax;
+			this.BodySizeInfo = gridIter.BodySizeInfo;
+			this.LineBreakSize = gridIter.LineBreakSize;
+			this.IterSize = gridIter.IterSize;
+			this.TotalCount = gridIter.TotalCount;
 			this.ScrollPos = gridIter.ScrollPos;
 			this.Distance = gridIter.Distance;
 			this.IsPrecision = gridIter.IsPrecision;

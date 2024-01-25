@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/EaseScrollView/Test/TestAsyncRecycleContainer/TestAsyncRecycleContainer.unity
+    guid: e3def82dd08cf4b4680f5fe3860b256e
+  - enabled: 1
     path: Assets/TestDataBinding/TestDatabind/RandomTest/RandomTest.unity
     guid: 8148fa8ab212b0b46b71c1114237789e
   - enabled: 0

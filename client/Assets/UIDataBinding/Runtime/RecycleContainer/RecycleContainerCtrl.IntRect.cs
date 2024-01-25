@@ -49,7 +49,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			var dx = Math.Max(0, xMax - xMin + 1);
 			var dy = Math.Max(0, yMax - yMin + 1);
-			return  dx*dy ;
+			return dx * dy;
 		}
 
 		public void ExpandMax(IntVector2 pt)
@@ -87,32 +87,32 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return new IntVector2((int)xMax, (int)yMax);
 		}
 
-		public bool ExpandLimit(ref IntRect rangeRect, out IntRect detectRect, IntRect bodySize)
+		public bool ExpandLimit(ref IntRect rangeRect, out IntRect detectRect, IntRect bodyRect)
 		{
 			// if rangeRect is overflow than limit0, expand detectRect base on rangeRect
 			detectRect = rangeRect;
 			if (rangeRect.xMin < this.xMin)
 			{
 				detectRect.xMin--;
-				detectRect.xMin = Mathf.Clamp(detectRect.xMin, bodySize.xMin, bodySize.xMax);
+				detectRect.xMin = Mathf.Clamp(detectRect.xMin, bodyRect.xMin, bodyRect.xMax);
 			}
 
 			if (rangeRect.xMax > this.xMax)
 			{
 				detectRect.xMax++;
-				detectRect.xMax = Mathf.Clamp(detectRect.xMax, bodySize.xMin, bodySize.xMax);
+				detectRect.xMax = Mathf.Clamp(detectRect.xMax, bodyRect.xMin, bodyRect.xMax);
 			}
 
 			if (rangeRect.yMin < this.yMin)
 			{
 				detectRect.yMin--;
-				detectRect.yMin = Mathf.Clamp(detectRect.yMin, bodySize.yMin, bodySize.yMax);
+				detectRect.yMin = Mathf.Clamp(detectRect.yMin, bodyRect.yMin, bodyRect.yMax);
 			}
 
 			if (rangeRect.yMax > this.yMax)
 			{
 				detectRect.yMax++;
-				detectRect.yMax = Mathf.Clamp(detectRect.yMax, bodySize.yMin, bodySize.yMax);
+				detectRect.yMax = Mathf.Clamp(detectRect.yMax, bodyRect.yMin, bodyRect.yMax);
 			}
 
 			this = rangeRect;
@@ -297,7 +297,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return this.xMin > this.xMax || this.yMin > this.yMax;
 		}
 
-		public bool IsExtensive()
+		public bool IsBroad()
 		{
 			return this.xMin <= this.xMax || this.yMin <= this.yMax;
 		}
