@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 314324cb929d71545997c9d7b5f4054a
+guid: aa2c51d65e9cf5d4cac4d6e50d2bb968
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -14,12 +14,12 @@ PluginImporter:
   - first:
       Any: 
     second:
-      enabled: 0
+      enabled: 1
       settings: {}
   - first:
       Editor: Editor
     second:
-      enabled: 1
+      enabled: 0
       settings:
         DefaultValueInitialized: true
   - first:

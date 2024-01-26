@@ -1,18 +1,16 @@
 {
-    "name": "Entry",
+    "name": "DataBind.Runtime",
     "rootNamespace": "",
     "references": [
         "GUID:a002709b7dd49d64d88c1faa791c757e"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": true
 }

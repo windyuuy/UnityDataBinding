@@ -257,7 +257,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			Vector2 guessCenter;
 			if (_gridIterNext.Distance != Vector3.zero)
 			{
-				// TODO: 适配不同模式
 				var iDir = new Vector2(moveOffset.x / distance.x, moveOffset.y / distance.y);
 				guessCenter = center + iDir;
 			}
@@ -315,7 +314,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			if (!isValidCenterFound && bodyRect.IsBroad())
 			{
-				// TODO: 适配不同模式
 				var halfSize = new Vector2(size.x * 0.5f, size.y * 0.5f);
 				var fWinSize = _scrollRectRange.size;
 				var iWinSize = new Vector2(fWinSize.x / Mathf.Abs(distance.x), fWinSize.y / Mathf.Abs(distance.y));

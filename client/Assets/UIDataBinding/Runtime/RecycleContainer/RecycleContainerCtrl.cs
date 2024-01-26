@@ -21,9 +21,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// </summary>
 		private RectTransform _scrollRectTransform;
 
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
 		[SerializeField] private bool enableDebugView;
-#endif
+// #endif
 
 		private bool _isAwake = false;
 
@@ -517,7 +517,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 		public Rect GetRectBounds(Transform trans)
 		{
-			// TODO: 需要优化性能
 			var rect = ((RectTransform)trans).rect;
 			// rect.center = rect.center + ToVec2(transform.position) - ToVec2(_root.transform.position);
 			rect.center += ToVec2(trans.localPosition);

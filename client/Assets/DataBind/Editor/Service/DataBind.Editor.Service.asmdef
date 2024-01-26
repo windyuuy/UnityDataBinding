@@ -1,5 +1,5 @@
 {
-    "name": "DataBindSvr",
+    "name": "DataBind.Editor.Service",
     "rootNamespace": "",
     "references": [],
     "includePlatforms": [
