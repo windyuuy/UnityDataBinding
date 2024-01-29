@@ -633,7 +633,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 				Debug.Assert(childAsync.IsValid());
 
-				LentPool.Remove(standSync);
+				LentPool.Recycle(childAsync);
 
 				if (standSync.IsValid())
 				{
@@ -647,6 +647,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						Debug.Assert(standSync.GetSiblingIndex() < _childCountInit);
 						// Debug.Assert(IsInContainer(standSync));
 						
+						// recycle stand
+						LentPool.Remove(standSync);
+
 						var isInContainer = IsInContainer(standSync);
 						if (!isInContainer)
 						{
@@ -660,8 +663,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 							{
 								childAsync.SetParent(_container);
 							}
-
-							LentPool.Recycle(childAsync);
 
 							// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
 							childAsync.localPosition = standSync.localPosition;
@@ -700,6 +701,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					RecycleNode(childAsync);
 					UnuseNode(childAsync);
 
+					LentPool.Remove(standSync);
+					
 					// try remove just for safe
 					Pool.Remove(standSync);
 				}
