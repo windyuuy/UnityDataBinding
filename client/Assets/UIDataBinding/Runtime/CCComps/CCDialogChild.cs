@@ -57,12 +57,12 @@ namespace DataBinding.UIBind
 		/// <param name="data"></param>
 		public void ObserveData(object data)
 		{
-			this.RSubDataHub.observeData(data);
+			this.RSubDataHub.ObserveData(data);
 		}
 
 		public void UnsetDataHost()
 		{
-			this.RSubDataHub.unsetDataHost();
+			this.RSubDataHub.UnsetDataHost();
 		}
 
 		public override void Integrate()
@@ -87,11 +87,11 @@ namespace DataBinding.UIBind
 		public virtual ISEventCleanInfo2<object, object> BindFromParentHub(DataBindHub parentHub)
 		{
 			var subKey1 = string.IsNullOrEmpty(this.SubKey) ? "&this" : this.SubKey;
-			return this.RSubDataHub.bindFromParentHub(parentHub, subKey1);
+			return this.RSubDataHub.BindFromParentHub(parentHub, subKey1);
 		}
 		public virtual void UnbindFromParentHub()
 		{
-			this.RSubDataHub.unbindFromParentHub();
+			this.RSubDataHub.UnbindFromParentHub();
 		}
 
 		// private CCDialogComp _dialog;

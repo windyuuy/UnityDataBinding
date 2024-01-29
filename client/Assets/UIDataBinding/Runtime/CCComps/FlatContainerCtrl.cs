@@ -326,11 +326,11 @@ namespace DataBinding.UIBind
 			Debug.Assert(childCount > i);
 			var child = _container.GetChild(i);
 
-			// var ccItem = child.GetComponent<CCContainerItem>();
-			// if (ccItem != null)
-			// {
-			// 	ccItem.BindDataHost(null, $"N|{ccItem.ContainerItem.Index}");
-			// }
+			var ccItem = child.GetComponent<CCContainerItem>();
+			if (ccItem != null)
+			{
+				ccItem.UnsetDataHost();
+			}
 
 			RecycleNode(child);
 		}

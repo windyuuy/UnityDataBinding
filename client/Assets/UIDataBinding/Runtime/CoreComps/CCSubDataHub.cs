@@ -74,5 +74,10 @@ namespace DataBinding.UIBind
 			this.subDataHub.BindDataHost(data);
 		}
 
+		public virtual void UnsetDataHost()
+		{
+			this.subDataHub.UnsetDataHost();
+		}
+
 	}
 }

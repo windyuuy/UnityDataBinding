@@ -11,7 +11,7 @@ namespace DataBinding.UIBind
 	{
 		static number _oidAcc = 0;
 		public number Oid { get; set; } = SubDataHub._oidAcc++;
-		public number index = 0;
+		public number Index = 0;
 
 		public DataSourceHub RealDataHub { get; set; }
 		public Object RawObj { get; set; }
@@ -21,7 +21,7 @@ namespace DataBinding.UIBind
 			this.RealDataHub = realDataHub;
 		}
 
-		public void observeData(object data)
+		public void ObserveData(object data)
 		{
 			Debug.Assert(this.RealDataHub != null);
 			if (this.RealDataHub != null)
@@ -30,7 +30,7 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		public void unsetDataHost()
+		public void UnsetDataHost()
 		{
 			if (this.RealDataHub != null)
 			{
@@ -42,47 +42,47 @@ namespace DataBinding.UIBind
 		{
 			if (data == null)
 			{
-				this.unsetDataHost();
+				this.UnsetDataHost();
 			}
 			else
 			{
-				this.observeData(data);
+				this.ObserveData(data);
 			}
 		}
 
-		protected ISEventCleanInfo2<object, object> parentHostWatcher;
-		protected DataBindHub parentHub;
-		public ISEventCleanInfo2<object, object> bindFromParentHub(DataBindHub parentHub, string subKey)
+		protected ISEventCleanInfo2<object, object> ParentHostWatcher;
+		protected DataBindHub ParentHub;
+		public ISEventCleanInfo2<object, object> BindFromParentHub(DataBindHub parentHub, string subKey)
 		{
-			this.unbindFromParentHub();
+			this.UnbindFromParentHub();
 
 
 			var watcher = parentHub.EaseWatchExprValue(subKey, (value, oldValue) =>
 			{
 				if (value != null)
 				{
-					this.observeData(value);
+					this.ObserveData(value);
 				}
 				else
 				{
-					this.unsetDataHost();
+					this.UnsetDataHost();
 				}
 			});
-			this.parentHostWatcher = watcher;
-			this.parentHub = parentHub;
+			this.ParentHostWatcher = watcher;
+			this.ParentHub = parentHub;
 			return watcher;
 		}
-		public void unbindFromParentHub()
+		public void UnbindFromParentHub()
 		{
-			var parentHub = this.parentHub;
-			if (parentHub != null && this.parentHostWatcher != null)
+			var parentHub = this.ParentHub;
+			if (parentHub != null && this.ParentHostWatcher != null)
 			{
-				var key = this.parentHostWatcher.key;
-				var callback = this.parentHostWatcher.callback;
+				var key = this.ParentHostWatcher.key;
+				var callback = this.ParentHostWatcher.callback;
 
 				parentHub.EaseUnWatchExprValue(key, callback);
-				this.parentHostWatcher = null;
-				this.parentHub = null;
+				this.ParentHostWatcher = null;
+				this.ParentHub = null;
 			}
 		}
 

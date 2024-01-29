@@ -14,6 +14,7 @@ namespace DataBinding.UIBind
 		DataSourceHub RealDataHub { get; set; }
 
 		void BindDataHost(object data);
+		public void UnsetDataHost();
 
 	}
 }
