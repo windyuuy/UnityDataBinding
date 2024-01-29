@@ -84,26 +84,23 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			var distance = Vector3.zero;
 			if (_childCountInit >= 2)
 			{
-				if (lineBreakSize + 1 < _childCountInit)
+				if (lineBreakSize + 2 <= _childCountInit)
 				{
 					distance = _container.GetChild(gridIter.ToIndex(1, 1)).localPosition -
 					           _container.GetChild(0).localPosition;
 				}
-				else if (lineBreakSize < _childCountInit)
+				else if (2 <= lineBreakSize && lineBreakSize + 1 <= _childCountInit)
 				{
-					if (lineBreakSize >= 2)
-					{
-						var distanceX = _container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
-						                _container.GetChild(0).localPosition;
-						var distanceY = _container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
-						                _container.GetChild(0).localPosition;
-						distance = new Vector3(distanceX.x, distanceY.y, distanceX.z + distanceY.x);
-					}
-					else
-					{
-						distance = _container.GetChild(lineBreakSize).localPosition -
-						           _container.GetChild(0).localPosition;
-					}
+					var distanceX = _container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
+					                _container.GetChild(0).localPosition;
+					var distanceY = _container.GetChild(gridIter.ToIndex(0, 1)).localPosition -
+					                _container.GetChild(0).localPosition;
+					distance = new Vector3(distanceX.x, distanceY.y, distanceX.z + distanceY.x);
+				}
+				else
+				{
+					distance = _container.GetChild(lineBreakSize - 1).localPosition -
+					           _container.GetChild(0).localPosition;
 				}
 			}
 
