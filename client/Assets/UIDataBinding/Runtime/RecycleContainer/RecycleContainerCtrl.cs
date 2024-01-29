@@ -40,7 +40,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			InitLayoutRebuilder();
 
-			Pool = new(GenFromTemplate);
+			Pool = new LocalNodeLinearPool(GenFromTemplate);
 			StandPool = new(GenPlacer);
 			LentPool = new((_) => throw new Exception("cannot implement for this lent pool"));
 			if (this.scrollRect == null)
@@ -191,6 +191,13 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// <param name="val">The scroll rect's value</param>
 		private void _ScrollRect_OnValueChanged(Vector2 val)
 		{
+			UpdateContainerState(val);
+		}
+
+		protected void UpdateContainerState(Vector2 val)
+		{
+			NeedDelayUpdateContainer = false;
+			
 			UpdateScrollRectStatus(val);
 
 			_childCountInit = _container.childCount;
@@ -210,8 +217,12 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 
 			UpdateContainerParams(_gridIterNext);
+			if (this.IsGracefullyDirty())
+			{
+				// TODO: 完善会闪一下的问题
+				this.MarkLayoutDirty();
+			}
 			UpdateRectByScroll(_scrollRectRange.center);
-
 			UpdateElementViewState();
 
 			Profiler.BeginSample("_ScrollRect_OnValueChanged2");
@@ -219,15 +230,28 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			Profiler.EndSample();
 		}
 
+		public bool IsGracefullyDirty()
+		{
+			if (_gridIter.ScrollRectRange.width != _gridIterNext.ScrollRectRange.width ||
+			    _gridIter.ScrollRectRange.height != _gridIterNext.ScrollRectRange.height 
+			    )
+			{
+				_gridIter.ScrollRectRange = _gridIterNext.ScrollRectRange;
+				return true;
+			}
+
+			return false;
+		}
+
 		private void UpdateElementViewState()
 		{
 			var isIn = false;
 			_gridIterNext.IterAcc = 0;
 			_gridIterNext.IterIndex = 1;
-			var iterInto = _gridIterNext.GetForwardIter(_gridIter, () => isIn).GetEnumerator();
+			var iterInto = _gridIterNext.GetForwardIter(() => isIn).GetEnumerator();
 			var iterIntoRet0 = iterInto.MoveNext();
 			_gridIterNext.IterIndex = 2;
-			var iterOut = _gridIterNext.GetBackwardIter(_gridIter, () => isIn).GetEnumerator();
+			var iterOut = _gridIterNext.GetBackwardIter( () => isIn).GetEnumerator();
 			var iterOutRet0 = iterOut.MoveNext();
 
 			var iInto = iterIntoRet0 ? iterInto.Current : _childCountInit;
@@ -414,7 +438,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return isInContainer;
 		}
 
-		protected LocalNodePool Pool;
+		protected LocalNodeLinearPool Pool;
 		protected LocalNodePool StandPool;
 		protected LocalNodePool LentPool;
 
@@ -479,8 +503,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			if (!IsVirtualNode(child))
 			{
-				Pool.Recycle(child);
-				LentPool.Remove(child);
+				// Pool.Recycle(child);
+				// LentPool.Remove(child);
+				RecycleLent(child);
 				var childVirt = StandPool.Get(index);
 				// AddPendingResetLocationAction(childVirt, index, child.localPosition);
 				childVirt.localPosition = child.localPosition;
@@ -614,28 +639,36 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				{
 					Debug.Assert(!IsVirtualNode(standSync));
 
-					var isNotRecycled = !Pool.Exist(standSync);
+					var isNotRecycled = !Pool.Contains(standSync);
 					if (
 						// not recycled
 						isNotRecycled)
 					{
 						Debug.Assert(standSync.GetSiblingIndex() < _childCountInit);
-						Debug.Assert(IsInContainer(standSync));
-
-						var index2 = standSync.GetSiblingIndex();
-						this.UpdateCurrentDataBind(childAsync, index2);
-						if (childAsync.parent != _container)
+						// Debug.Assert(IsInContainer(standSync));
+						
+						var isInContainer = IsInContainer(standSync);
+						if (!isInContainer)
 						{
-							childAsync.SetParent(_container);
+							SetLayoutDirtyForce();
 						}
+						
+						{
+							var index2 = standSync.GetSiblingIndex();
+							this.UpdateCurrentDataBind(childAsync, index2);
+							if (childAsync.parent != _container)
+							{
+								childAsync.SetParent(_container);
+							}
 
-						LentPool.Recycle(childAsync);
+							LentPool.Recycle(childAsync);
 
-						// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
-						childAsync.localPosition = standSync.localPosition;
-						childAsync.SetSiblingIndex(index2);
+							// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
+							childAsync.localPosition = standSync.localPosition;
+							childAsync.SetSiblingIndex(index2);
 
-						recycleStandAsync(standSync);
+							recycleStandAsync(standSync);
+						}
 					}
 					else
 					{
@@ -673,6 +706,33 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}, createStandSync, defaultRecycleStandAsync);
 		}
 
+		protected bool NeedDelayUpdateContainer = false;
+		protected Coroutine CoDelayUpdateContainer;
+		protected void SetLayoutDirtyForce()
+		{
+			NeedDelayUpdateContainer = true;
+			if (CoDelayUpdateContainer == null)
+			{
+				StartCoroutine(DelayedSetDirty(this._container));
+			}
+		}
+
+		IEnumerator DelayedSetDirty(RectTransform rectTransform)
+		{
+			// yield return new WaitForSeconds(1);
+			yield return null;
+			yield return new WaitForEndOfFrame();
+			if (CoDelayUpdateContainer != null)
+			{
+				StopCoroutine(CoDelayUpdateContainer);
+				CoDelayUpdateContainer = null;
+			}
+			if (NeedDelayUpdateContainer)
+			{
+				UpdateContainerState(_scrollVal);
+			}
+		}
+
 		public virtual Transform RequireNewNodeCompatAsync(int index)
 		{
 			Transform child;
@@ -706,7 +766,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return child;
 		}
 
-		public virtual Transform GenFromTemplate(int index)
+		public virtual Transform GenFromTemplate(int index)         
 		{
 			return RequireNewNodeCompatAsync(index);
 		}
@@ -778,9 +838,23 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 			else
 			{
-				Pool.Recycle(child);
-				LentPool.Remove(child);
+				// Pool.Recycle(child);
+				// LentPool.Remove(child);
+				RecycleLent(child);
 			}
+		}
+
+		protected void RecycleLent(Transform child)
+		{
+			if (child.name.StartsWith("stand"))
+			{
+				Pool.RecycleBack(child);
+			}
+			else
+			{
+				Pool.Recycle(child);
+			}
+			LentPool.Remove(child);
 		}
 
 		protected override void UnuseNode(Transform child)

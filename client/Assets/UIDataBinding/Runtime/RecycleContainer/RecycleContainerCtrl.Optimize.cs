@@ -35,6 +35,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				_gridIterNext.IsPrecision = true;
 			}
 
+			_gridIterNext.ScrollRectRange = _scrollRectRange;
+
 			_gridIter.Copy(ref _gridIterNext);
 			_gridIter.IsPrecision = true;
 
@@ -233,6 +235,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			gridIter.LineBreakSize = lineBreakSize;
 			gridIter.BodySizeInfo = bodySizeInfo;
 			gridIter.IterSize = iterSize;
+			gridIter.ScrollRectRange = this._scrollRectRange;
 
 			var distance = UpdateDistance(gridIter);
 			gridIter.Distance = distance;
@@ -401,6 +404,21 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				}
 				_gridIterNext.PosSure = centerInContainer;
 				_gridIterNext.IsPrecision = false;
+			}
+
+			UpdateLentPool();
+		}
+
+		protected void UpdateLentPool()
+		{
+			var totalCount = _gridIterNext.TotalCount;
+			var lentPool = _gridIterNext.LentPool;
+			lentPool.Clear();
+			foreach (var child in this.LentPool.PeekAll())
+			{
+				var index = child.GetSiblingIndex();
+				Debug.Assert(index <= totalCount);
+				lentPool.Add(index);
 			}
 		}
 

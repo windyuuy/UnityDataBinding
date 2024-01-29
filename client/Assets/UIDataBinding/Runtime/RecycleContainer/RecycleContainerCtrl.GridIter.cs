@@ -7,8 +7,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 {
 	public interface ILayoutRectIter
 	{
-		public IEnumerable<int> GetForwardIter(GridIter preGridIter, Func<bool> iterInput);
-		public IEnumerable<int> GetBackwardIter(GridIter preGridIter, Func<bool> iterInput);
+		public IEnumerable<int> GetForwardIter(Func<bool> iterInput);
+		public IEnumerable<int> GetBackwardIter(Func<bool> iterInput);
 	}
 
 	public class GridIter : ILayoutRectIter
@@ -26,6 +26,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// (BodySizeMain, BodySizeX)
 		/// </summary>
 		public IntVector2 BodySizeInfo;
+
+		public Rect ScrollRectRange;
 
 		public int LineBreakSize;
 		public int LineXSize => BodySizeInfo.x;
@@ -50,6 +52,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public bool IsPrecision;
 
 		public List<int> DirtyIndexes;
+		public HashSet<int> LentPool = new();
 
 		public bool IsEmpty()
 		{
@@ -81,7 +84,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public int IterAcc = 0;
 		public bool NeedCheck = true;
 
-		public IEnumerable<int> GetForwardIter(GridIter preGridIter, Func<bool> iterInput)
+		public IEnumerable<int> GetForwardIter(Func<bool> iterInput)
 		{
 			var iterIndex = IterIndex;
 			var isPrecision = this.IsPrecision;
@@ -119,8 +122,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				yMin = 1
 			};
 
+			var lentPool = this.LentPool;
 			var detectRect = this.GetDetectRect();
-			var preDetectRect = preGridIter.GetDetectRect();
+			// var preDetectRect = preGridIter.GetDetectRect();
 
 			Dictionary<int, bool> checkDict = null;
 
@@ -204,32 +208,42 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 
 			// detect previours rect left
-			Debug.Assert(preGridIter.IsPrecision);
-			if (!preGridIter.IsEmpty())
+			// Debug.Assert(preGridIter.IsPrecision);
+			if (lentPool.Count>0)
 			{
 				// preDetectRect.ExpandMax1Round();
 				// preDetectRect.BeLimit(bodySizeRect);
 				// preDetectRect.Split(detectedRect);
 
-				if (!detectRect.ContainsAll(preDetectRect))
-				{
-					for (var iy = preDetectRect.yMin; iy <= preDetectRect.yMax; iy++)
-					{
-						for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
-						{
-							var ii = preGridIter.ToIndex(ix, iy);
-							if (ii >= TotalCount)
-							{
-								continue;
-							}
+				// if (!detectRect.ContainsAll(preDetectRect))
+				// {
+				// 	for (var iy = preDetectRect.yMin; iy <= preDetectRect.yMax; iy++)
+				// 	{
+				// 		for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
+				// 		{
+				// 			var ii = preGridIter.ToIndex(ix, iy);
+				// 			if (ii >= TotalCount)
+				// 			{
+				// 				continue;
+				// 			}
+				//
+				// 			var pt = ToPt(ii);
+				// 			if (!detectRect.Contains(pt.x, pt.y))
+				// 			{
+				// 				CheckIndex(ii);
+				// 				yield return ii;
+				// 			}
+				// 		}
+				// 	}
+				// }
 
-							var pt = ToPt(ii);
-							if (!detectRect.Contains(pt.x, pt.y))
-							{
-								CheckIndex(ii);
-								yield return ii;
-							}
-						}
+				foreach (var ii in lentPool)
+				{
+					var pt = ToPt(ii);
+					if (!detectRect.Contains(pt.x, pt.y))
+					{
+						CheckIndex(ii);
+						yield return ii;
 					}
 				}
 			}
@@ -246,7 +260,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				// 	Debug.Log($"handle-DirtyIndexes: {sb.ToString()}");
 				// }
 				
-				var isPreEmpty = preGridIter.IsEmpty();
+				// var isPreEmpty = preGridIter.IsEmpty();
+				var isPreEmpty = lentPool.Count == 0;
 				foreach (var dirtyIndex in DirtyIndexes)
 				{
 					if (!isEmpty)
@@ -259,8 +274,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					}
 					if (!isPreEmpty)
 					{
-						var dirtyPt2=preGridIter.ToPt(dirtyIndex);
-						if (preDetectRect.Contains(dirtyPt2))
+						// var dirtyPt2=preGridIter.ToPt(dirtyIndex);
+						// if (preDetectRect.Contains(dirtyPt2))
+						if(lentPool.Contains(dirtyIndex))
 						{
 							continue;
 						}
@@ -298,47 +314,49 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					}
 				}
 
-				if (preDetectRect != rangeRect)
-				{
-					Debug.Log($"diff: {preDetectRect} -> {detectRect} -> {rangeRect}");
-				}
-
-				for (var iy = preDetectRect.yMin; iy <= preDetectRect.yMax; iy++)
-				{
-					for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
-					{
-						var ipos = this.ToIndex(ix, iy);
-						var b = CheckFunc(ipos);
-						if (!b)
-						{
-							Debug.LogError($"preDetectRect-CheckFunc-Failed3: ({ix},{iy})");
-							break;
-						}
-					}
-				}
-
-				for (var iy = bodySizeRect.yMin; iy < bodySizeRect.yMax; iy++)
-				{
-					for (var ix = Math.Max(rangeRect.xMax, preDetectRect.xMax) + 1; ix <= bodySizeRect.xMax; ix++)
-					{
-						var ipos = this.ToIndex(ix, iy);
-						var b = DetectFunc(ipos);
-						if (b)
-						{
-							Debug.LogError($"bodySizeRect-Detect-Failed4: ({ix},{iy})");
-							break;
-						}
-					}
-				}
+				// if (preDetectRect != rangeRect)
+				// {
+				// 	Debug.Log($"diff: {preDetectRect} -> {detectRect} -> {rangeRect}");
+				// }
+				//
+				// for (var iy = preDetectRect.yMin; iy <= preDetectRect.yMax; iy++)
+				// {
+				// 	for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
+				// 	{
+				// 		var ipos = this.ToIndex(ix, iy);
+				// 		var b = CheckFunc(ipos);
+				// 		if (!b)
+				// 		{
+				// 			Debug.LogError($"preDetectRect-CheckFunc-Failed3: ({ix},{iy})");
+				// 			break;
+				// 		}
+				// 	}
+				// }
+				//
+				// for (var iy = bodySizeRect.yMin; iy < bodySizeRect.yMax; iy++)
+				// {
+				// 	for (var ix = Math.Max(rangeRect.xMax, preDetectRect.xMax) + 1; ix <= bodySizeRect.xMax; ix++)
+				// 	{
+				// 		var ipos = this.ToIndex(ix, iy);
+				// 		var b = DetectFunc(ipos);
+				// 		if (b)
+				// 		{
+				// 			Debug.LogError($"bodySizeRect-Detect-Failed4: ({ix},{iy})");
+				// 			break;
+				// 		}
+				// 	}
+				// }
 			}
 
 			if (iterIndex == 1)
 			{
+				IterHis1 ??= new();
 				IterHis1.Insert(0, rangeRect);
 			}
 
 			if (iterIndex == 2)
 			{
+				IterHis2 ??= new();
 				IterHis2.Insert(0, rangeRect);
 			}
 
@@ -347,6 +365,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				this.DirtyIndexes?.Clear();
 				this.Pos = rangeRect.Center();
 				this.Size = rangeRect.Size();
+				this.LentPool.Clear();
 				this.IsPrecision = true;
 			};
 		}
@@ -359,8 +378,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			FinishIterAction = null;
 		}
 
-		public static List<IntRect> IterHis1 = new();
-		public static List<IntRect> IterHis2 = new();
+		public static List<IntRect> IterHis1;
+		public static List<IntRect> IterHis2;
 
 		public Func<int, bool> DetectFunc;
 		public Func<int, bool> CheckFunc;
@@ -387,10 +406,10 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			};
 		}
 
-		public IEnumerable<int> GetBackwardIter(GridIter preGridIter, Func<bool> iterInput)
+		public IEnumerable<int> GetBackwardIter(Func<bool> iterInput)
 		{
 			// TODO: implement reverse
-			return GetForwardIter(preGridIter, iterInput);
+			return GetForwardIter(iterInput);
 		}
 
 		public int ToIndex(int x, int y)
@@ -434,6 +453,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			this.ScrollPos = gridIter.ScrollPos;
 			this.Distance = gridIter.Distance;
 			this.IsPrecision = gridIter.IsPrecision;
+			this.ScrollRectRange = gridIter.ScrollRectRange;
 		}
 
 		// public IntVector2 BL()

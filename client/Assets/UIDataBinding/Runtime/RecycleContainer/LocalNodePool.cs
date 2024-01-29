@@ -8,13 +8,15 @@ namespace UIDataBinding.Runtime.RecycleContainer
 	public class LocalNodePool
 	{
 		private Func<int, Transform> _creator;
+
 		public LocalNodePool(Func<int, Transform> creator)
 		{
 			_creator = creator;
 		}
-		protected HashSet<Transform> Pool = new();
 
-		public Transform Get(int index)
+		protected virtual ICollection<Transform> Pool { get; } = new HashSet<Transform>();
+
+		public virtual Transform Get(int index)
 		{
 			if (Pool.Count > 0)
 			{
@@ -24,6 +26,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				{
 					child2.gameObject.SetActive(true);
 				}
+
 				return child2;
 			}
 			else
@@ -33,43 +36,120 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				{
 					child.gameObject.SetActive(true);
 				}
+
 				return child;
 			}
 		}
 
-		public Transform PopRaw()
-		{
-			var child2 = Pool.First();
-			Pool.Remove(child2);
-			return child2;
-		}
+		// public Transform PopRaw()
+		// {
+		// 	var child2 = Pool.First();
+		// 	Pool.Remove(child2);
+		// 	return child2;
+		// }
+		//
+		// public Transform Peek()
+		// {
+		// 	return Pool.First();
+		// }
 
-		public Transform Peek()
-		{
-			return Pool.First();
-		}
-
-		public HashSet<Transform> PeekAll()
+		public virtual IEnumerable<Transform> PeekAll()
 		{
 			return Pool;
 		}
 
-		public void Recycle(Transform node)
+		public virtual void Recycle(Transform node)
 		{
 			node.SetSiblingIndex(node.parent.childCount);
 			Pool.Add(node);
 		}
 
-		public bool Exist(Transform node)
+		public virtual bool Contains(Transform node)
 		{
 			return Pool.Contains(node);
 		}
 
-		public void Remove(Transform node)
+		public virtual bool Remove(Transform node)
 		{
-			Pool.Remove(node);
+			return Pool.Remove(node);
 		}
 
-		public int Count => Pool.Count;
+		public virtual int Count => Pool.Count;
+	}
+
+	/// <summary>
+	/// 使用双端池，优化节点吞吐表现
+	/// </summary>
+	public class LocalNodeLinearPool : LocalNodePool
+	{
+		public LocalNodeLinearPool(Func<int, Transform> creator) : base(creator)
+		{
+		}
+
+		protected readonly List<Transform> BackPool = new();
+
+		public virtual void RecycleBack(Transform node)
+		{
+			node.SetSiblingIndex(node.parent.childCount);
+			BackPool.Add(node);
+		}
+
+		public override Transform Get(int index)
+		{
+			if (Pool.Count > 0)
+			{
+				return base.Get(index);
+			}
+
+			if (BackPool.Count > 0)
+			{
+				var child2 = BackPool.First();
+				BackPool.Remove(child2);
+				if (!child2.gameObject.activeSelf)
+				{
+					child2.gameObject.SetActive(true);
+				}
+
+				return child2;
+			}
+
+			return base.Get(index);
+		}
+
+		public override IEnumerable<Transform> PeekAll()
+		{
+			foreach (var transform in Pool)
+			{
+				yield return transform;
+			}
+
+			foreach (var transform in BackPool)
+			{
+				yield return transform;
+			}
+		}
+
+		public override bool Contains(Transform node)
+		{
+			return Pool.Contains(node) || BackPool.Contains(node);
+		}
+
+		public override bool Remove(Transform node)
+		{
+			Debug.Assert(BackPool.Count + Pool.Count > 0);
+			if (BackPool.Count > 0)
+			{
+				return BackPool.Remove(node);
+			}
+
+			if (Pool.Count > 0)
+			{
+				return Pool.Remove(node);
+			}
+
+			return false;
+		}
+
+		public override int Count => Pool.Count + BackPool.Count;
 	}
 }
