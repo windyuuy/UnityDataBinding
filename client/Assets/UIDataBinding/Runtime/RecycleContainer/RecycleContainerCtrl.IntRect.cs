@@ -270,6 +270,11 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return xMin <= ix && ix <= xMax
 			                  && yMin <= iy && iy <= yMax;
 		}
+		public bool Contains(IntVector2 pt)
+		{
+			return xMin <= pt.x && pt.x <= xMax
+			                  && yMin <= pt.y && pt.y <= yMax;
+		}
 
 		public bool ContainsAll(IntRect detectedRect)
 		{

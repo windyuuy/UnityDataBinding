@@ -33,8 +33,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 1664.5035}
-  m_SizeDelta: {x: 297.0558, y: 2336.684}
+  m_AnchoredPosition: {x: 0, y: 980.58997}
+  m_SizeDelta: {x: 297.0558, y: 1652.7705}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &3311462078858201248
 MonoBehaviour:
@@ -53,8 +53,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
-  m_StartCorner: 2
+  m_ChildAlignment: 1
+  m_StartCorner: 1
   m_StartAxis: 0
   m_CellSize: {x: 100, y: 100}
   m_Spacing: {x: 0, y: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ec0ce0829b281345a83bcf023554fbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  createCount: 1000
+  createCount: 12
 --- !u!114 &3578688903732428548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -312,10 +312,9 @@ MonoBehaviour:
   bindChildren: 1
   _container: {fileID: 605727087553588044}
   scrollRect: {fileID: 0}
-  enableDebugView: 0
+  enableDebugView: 1
   previewCount: -1
-  templateNode: {fileID: 9101326175732306488, guid: 7b618cb8479a37a4ab28ef621f87d421,
-    type: 3}
+  templateNode: {fileID: 9101326175732306488, guid: 7b618cb8479a37a4ab28ef621f87d421, type: 3}
 --- !u!1 &5293176405462880801
 GameObject:
   m_ObjectHideFlags: 0
@@ -673,8 +672,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8996125063030824279}
   m_HandleRect: {fileID: 3470648155802291750}
   m_Direction: 3
-  m_Value: -0.00000005500303
-  m_Size: 0.2876643
+  m_Value: -0.00000009336496
+  m_Size: 0.4066993
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

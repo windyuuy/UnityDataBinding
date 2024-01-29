@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using DataBinding.UIBind;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -223,12 +225,12 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			_gridIterNext.IterAcc = 0;
 			_gridIterNext.IterIndex = 1;
 			var iterInto = _gridIterNext.GetForwardIter(_gridIter, () => isIn).GetEnumerator();
-			iterInto.MoveNext();
+			var iterIntoRet0 = iterInto.MoveNext();
 			_gridIterNext.IterIndex = 2;
 			var iterOut = _gridIterNext.GetBackwardIter(_gridIter, () => isIn).GetEnumerator();
-			iterOut.MoveNext();
+			var iterOutRet0 = iterOut.MoveNext();
 
-			var iInto = iterInto.Current;
+			var iInto = iterIntoRet0 ? iterInto.Current : _childCountInit;
 
 			int IterIntoContainer(bool suff)
 			{
@@ -264,7 +266,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 
 			// var iOut = _childCountInit - 1;
-			var iOut = iterOut.Current;
+			var iOut = iterOutRet0 ? iterOut.Current : _childCountInit;
 
 			int InterOutContainer(bool suff)
 			{
@@ -314,7 +316,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				}
 				else
 				{
-					var rOut = InterOutContainer(IsValidIndex(iInto));
+					var rOut = InterOutContainer(IsValidIndex(iInto) && Pool.Count > 0);
 					if (rOut >= 1)
 					{
 						seekIn = true;
@@ -324,6 +326,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			Debug.Assert(!iterInto.MoveNext());
 			Debug.Assert(!iterOut.MoveNext());
+			_gridIterNext.FinishIter();
 			_gridIter.Copy(ref _gridIterNext);
 			//
 			// for (var i = 0; i < _childCountInit; i++)
@@ -568,7 +571,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				emptyNode.AddComponent<Image>();
 			}
 #endif
-			emptyNode.transform.parent = this._container;
+			emptyNode.transform.SetParent(this._container);
 			RectTransform tempNode;
 			if (index < this._container.childCount)
 			{
@@ -606,7 +609,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				Debug.Assert(childAsync.IsValid());
 
 				LentPool.Remove(standSync);
-				LentPool.Recycle(childAsync);
 
 				if (standSync.IsValid())
 				{
@@ -618,14 +620,16 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						isNotRecycled)
 					{
 						Debug.Assert(standSync.GetSiblingIndex() < _childCountInit);
-						Debug.Assert(!Pool.Exist(standSync));
+						Debug.Assert(IsInContainer(standSync));
 
 						var index2 = standSync.GetSiblingIndex();
 						this.UpdateCurrentDataBind(childAsync, index2);
 						if (childAsync.parent != _container)
 						{
-							childAsync.parent = _container;
+							childAsync.SetParent(_container);
 						}
+
+						LentPool.Recycle(childAsync);
 
 						// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
 						childAsync.localPosition = standSync.localPosition;
@@ -638,7 +642,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						PrepareDataBind(childAsync);
 						if (childAsync.parent != _container)
 						{
-							childAsync.parent = _container;
+							childAsync.SetParent(_container);
 						}
 
 						RecycleNode(childAsync);
@@ -657,7 +661,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					PrepareDataBind(childAsync);
 					if (childAsync.parent != _container)
 					{
-						childAsync.parent = _container;
+						childAsync.SetParent(_container);
 					}
 
 					RecycleNode(childAsync);
@@ -710,7 +714,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public override Transform RequireNewNode(int index)
 		{
 			var child = RequireNewNodeInternal(index);
-			AddPendingResetLocationAction(child, index);
 			child.SetSiblingIndex(index);
 			return child;
 		}
@@ -739,14 +742,21 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 			else
 			{
-				var child = this._container.GetChild(index);
-				if (child.gameObject.activeSelf)
+				if (index < this._container.childCount)
 				{
-					if (IsInContainer(child))
+					var child = this._container.GetChild(index);
+					if (child.gameObject.activeSelf)
 					{
-						var childReal = Pool.Get(index);
-						LentPool.Recycle(childReal);
-						return childReal;
+						if (IsInContainer(child))
+						{
+							var childReal = Pool.Get(index);
+							LentPool.Recycle(childReal);
+							return childReal;
+						}
+						else
+						{
+							return RequirePlacer(index);
+						}
 					}
 					else
 					{
@@ -782,19 +792,11 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			child.gameObject.DestorySafe();
 		}
-
-		protected int LayoutDirtyFrameCount = 0;
-
-		protected override void OnAddItem(object dataSource, int index)
+		
+		protected override void ApplyResetPosition(Transform child, int index, ref Vector3 localPosition)
 		{
-			LayoutDirtyFrameCount = Time.renderedFrameCount;
-			base.OnAddItem(dataSource, index);
-		}
-
-		protected override void OnRemoveItem(object oldData, int i)
-		{
-			LayoutDirtyFrameCount = Time.renderedFrameCount;
-			base.OnRemoveItem(oldData, i);
+			base.ApplyResetPosition(child, index, ref localPosition);
+			HandleChild(child, index);
 		}
 
 		protected virtual void HandleScollDone()
@@ -810,7 +812,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			// 	}
 			// }
 
-			ApplyResetPosition();
+			ApplyAllResetPosition();
 
 			if (_childCountInit != _container.childCount)
 			{
@@ -842,7 +844,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				}
 			}
 
-			if (LayoutDirtyFrameCount != Time.renderedFrameCount)
+			if (!IsLayoutDirty())
 			{
 				UnMarkRebuild();
 			}
@@ -852,14 +854,62 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 		}
 
-		protected override void OnUpdateDone(IList dataSources, int oldListCount)
+		protected override void OnUpdateDone(IList dataSources, int oldListCount, List<object> oldList)
 		{
-			base.OnUpdateDone(dataSources, oldListCount);
+			if (PendingResetPostion.Count > 0 || oldListCount < dataSources.Count)
+			{
+				var dirtyIndexes = this._gridIterNext.DirtyIndexes;
+				if (dirtyIndexes == null)
+				{
+					dirtyIndexes = this._gridIterNext.DirtyIndexes =
+						new(PendingResetPostion.Count + (dataSources.Count - oldListCount));
+				}
+				dirtyIndexes.Clear();
+
+				// 新增的部分可能在布局变更同时进行，需要延后到刷新布局时进行二次更新
+				if (PendingResetPostion.Count > 0)
+				{
+					dirtyIndexes.AddRange(PendingResetPostion.Select(p=>p.Item1));
+				}
+
+				// if (oldListCount < dataSources.Count)
+				// {
+				// 	for (var i = oldListCount; i < dataSources.Count; i++)
+				// 	{
+				// 		dirtyIndexes.Add(i);
+				// 	}
+				// }
+
+				// if (dirtyIndexes.Count > 0)
+				// {
+				// 	var sb = new StringBuilder();
+				// 	foreach (var dirtyIndex in dirtyIndexes)
+				// 	{
+				// 		sb.Append($"{dirtyIndex},");
+				// 	}
+				// 	Debug.Log($"DirtyIndexes: {sb.ToString()}");
+				// }
+			}
+
+			base.OnUpdateDone(dataSources, oldListCount, oldList);
 
 			// TODO: 优化数据更新，尽量避免更新 layout
-			if (LayoutDirtyFrameCount != Time.renderedFrameCount)
+			if (!IsLayoutDirty())
 			{
 				UnMarkRebuild();
+			}
+			
+			// CheckLent();
+		}
+
+		private void CheckLent()
+		{
+			foreach (var transform1 in LentPool.PeekAll())
+			{
+				if (!IsInContainer(transform1) && !IsVirtualNode(transform1))
+				{
+					Debug.LogError("lkwjeflkj");
+				}
 			}
 		}
 
@@ -879,7 +929,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			if (LentSizes.Count != LentPool.Count)
 			{
-				MarkDirty();
+				MarkLayoutDirty();
 				return;
 			}
 
@@ -888,7 +938,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				var (child, size) = LentSizes[i];
 				if (size != ((RectTransform)child).sizeDelta)
 				{
-					MarkDirty();
+					MarkLayoutDirty();
 					return;
 				}
 			}
@@ -898,12 +948,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		// {
 		// 	CheckLentSizes();
 		// }
-
-		public virtual void MarkDirty()
-		{
-			this.LayoutDirtyFrameCount = Time.frameCount;
-		}
-
+		
 		protected static IList<ICanvasElement> LayoutRebuildQueue;
 
 		public static void InitLayoutRebuilder()

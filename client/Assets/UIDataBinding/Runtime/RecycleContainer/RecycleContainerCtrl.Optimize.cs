@@ -17,12 +17,18 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		/// </summary>
 		private GridIter _gridIter = new();
 
-		public void DetectRectInit(Vector2 val0)
+		private GridIter _gridIterNext = new();
+
+		public void DetectRectInit(Vector2 scrollPos)
 		{
 			// create grid iters
 			// no element
-			_gridIterNext =
-				GridIter.FromCorners(new IntVector2(0, 0), new IntVector2(-2, -2), _childCountInit, val0);
+			// _gridIterNext =
+			// 	GridIter.FromCorners(new IntVector2(0, 0), new IntVector2(-2, -2), _childCountInit, scrollPos);
+			_gridIterNext.Pos = new Vector2(0, 0);
+			_gridIterNext.TotalCount = _childCountInit;
+			_gridIterNext.ScrollPos = scrollPos;
+			_gridIterNext.Size = new IntVector2(-2, -2);
 
 			// if (_childCountInit == 0)
 			{
@@ -226,6 +232,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				throw new NotImplementedException();
 			}
 
+			gridIter.TotalCount = _childCountInit;
 			gridIter.LineBreakSize = lineBreakSize;
 			gridIter.BodySizeInfo = bodySizeInfo;
 			gridIter.IterSize = iterSize;
@@ -235,8 +242,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 			return isOk;
 		}
-
-		private GridIter _gridIterNext = new();
 
 		public void UpdateRectByScroll(Vector2 scrollPos)
 		{

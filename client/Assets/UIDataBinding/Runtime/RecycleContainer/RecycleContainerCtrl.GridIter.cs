@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace UIDataBinding.Runtime.RecycleContainer
@@ -48,6 +49,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public Vector3 Distance;
 		public bool IsPrecision;
 
+		public List<int> DirtyIndexes;
+
 		public bool IsEmpty()
 		{
 			return this.IsPrecision && this.Size.IsAnyNegative();
@@ -76,7 +79,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 		public int IterIndex = 0;
 		public int IterAcc = 0;
-		public bool NeedCheck = false;
+		public bool NeedCheck = true;
 
 		public IEnumerable<int> GetForwardIter(GridIter preGridIter, Func<bool> iterInput)
 		{
@@ -117,6 +120,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			};
 
 			var detectRect = this.GetDetectRect();
+			var preDetectRect = preGridIter.GetDetectRect();
 
 			Dictionary<int, bool> checkDict = null;
 
@@ -203,7 +207,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			Debug.Assert(preGridIter.IsPrecision);
 			if (!preGridIter.IsEmpty())
 			{
-				var preDetectRect = preGridIter.GetDetectRect();
 				// preDetectRect.ExpandMax1Round();
 				// preDetectRect.BeLimit(bodySizeRect);
 				// preDetectRect.Split(detectedRect);
@@ -214,19 +217,57 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					{
 						for (var ix = preDetectRect.xMin; ix <= preDetectRect.xMax; ix++)
 						{
-							if (!detectRect.Contains(ix, iy))
+							var ii = preGridIter.ToIndex(ix, iy);
+							if (ii >= TotalCount)
 							{
-								var ii = preGridIter.ToIndex(ix, iy);
-								if (ii >= TotalCount)
-								{
-									continue;
-								}
+								continue;
+							}
 
+							var pt = ToPt(ii);
+							if (!detectRect.Contains(pt.x, pt.y))
+							{
 								CheckIndex(ii);
 								yield return ii;
 							}
 						}
 					}
+				}
+			}
+
+			if (DirtyIndexes != null && DirtyIndexes.Count > 0)
+			{
+				// if (DirtyIndexes.Count > 0)
+				// {
+				// 	var sb = new StringBuilder();
+				// 	foreach (var dirtyIndex in DirtyIndexes)
+				// 	{
+				// 		sb.Append($"{dirtyIndex},");
+				// 	}
+				// 	Debug.Log($"handle-DirtyIndexes: {sb.ToString()}");
+				// }
+				
+				var isPreEmpty = preGridIter.IsEmpty();
+				foreach (var dirtyIndex in DirtyIndexes)
+				{
+					if (!isEmpty)
+					{
+						var dirtyPt1=ToPt(dirtyIndex);
+						if (detectRect.Contains(dirtyPt1))
+						{
+							continue;
+						}
+					}
+					if (!isPreEmpty)
+					{
+						var dirtyPt2=preGridIter.ToPt(dirtyIndex);
+						if (preDetectRect.Contains(dirtyPt2))
+						{
+							continue;
+						}
+					}
+
+					CheckIndex(dirtyIndex);
+					yield return dirtyIndex;
 				}
 			}
 
@@ -256,8 +297,6 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						}
 					}
 				}
-
-				var preDetectRect = preGridIter.GetDetectRect();
 
 				if (preDetectRect != rangeRect)
 				{
@@ -303,9 +342,21 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				IterHis2.Insert(0, rangeRect);
 			}
 
-			this.Pos = rangeRect.Center();
-			this.Size = rangeRect.Size();
-			this.IsPrecision = true;
+			FinishIterAction = () =>
+			{
+				this.DirtyIndexes?.Clear();
+				this.Pos = rangeRect.Center();
+				this.Size = rangeRect.Size();
+				this.IsPrecision = true;
+			};
+		}
+
+		protected Action FinishIterAction;
+
+		public void FinishIter()
+		{
+			FinishIterAction?.Invoke();
+			FinishIterAction = null;
 		}
 
 		public static List<IntRect> IterHis1 = new();
@@ -350,6 +401,25 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public int ToIndex(IntVector2 vec)
 		{
 			return vec.x * IterSize.x + vec.y * IterSize.y;
+		}
+
+		public IntVector2 ToPt(int index)
+		{
+			if (index == 0)
+			{
+				return new IntVector2(0, 0);
+			}
+			
+			var column = index % LineBreakSize;
+			var rows = index / LineBreakSize;
+			if (IterSize.x == LineBreakSize)
+			{
+				return new IntVector2(rows, column);
+			}
+			else
+			{
+				return new IntVector2(column, rows);
+			}
 		}
 
 		public void Copy(ref GridIter gridIter)

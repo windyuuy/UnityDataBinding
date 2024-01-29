@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,34 +18,30 @@ namespace DataBinding.UIBind
 
 		protected List<Transform> unallocNodes;
 
-		protected List<(Transform, int, Vector3)> PendingResetPostion = new();
+		protected List<(int, Vector3)> PendingResetPostion = new();
 
-		protected Transform AddPendingResetLocationAction(Transform child, int index, Vector3 localPosition)
+		protected void AddPendingResetLocationAction(int index, Vector3 localPosition)
 		{
-			PendingResetPostion.Add((child, index, localPosition));
-			return child;
-		}
-		protected Transform AddPendingResetLocationAction(Transform child, int index)
-		{
-			if (index < _container.childCount)
-			{
-				var  localPosition = _container.GetChild(index).localPosition;
-				AddPendingResetLocationAction(child, index, localPosition);
-			}
-			return child;
+			PendingResetPostion.Add((index, localPosition));
 		}
 
-		protected void ApplyResetPosition()
+		protected virtual void ApplyAllResetPosition()
 		{
 			if (PendingResetPostion.Count > 0)
 			{
-				foreach (var item in PendingResetPostion)
+				foreach (var (index, vector3) in PendingResetPostion)
 				{
-					item.Item1.localPosition = item.Item3;
-					// item.Item1.SetSiblingIndex(item.Item2);
+					var child = _container.GetChild(index);
+					var localPosition = vector3;
+					ApplyResetPosition(child, index, ref localPosition);
 				}
 				PendingResetPostion.Clear();
 			}
+		}
+
+		protected virtual void ApplyResetPosition(Transform child, int index, ref Vector3 localPosition)
+		{
+			child.localPosition = localPosition;
 		}
 
 		protected virtual void Awake()
@@ -75,7 +72,19 @@ namespace DataBinding.UIBind
 			}
 		}
 
+		protected int LayoutDirtyFrameCount = 0;
+		public virtual void MarkLayoutDirty()
+		{
+			this.LayoutDirtyFrameCount = Time.frameCount;
+		}
+
+		public virtual bool IsLayoutDirty()
+		{
+			return LayoutDirtyFrameCount == Time.renderedFrameCount;
+		}
+
 		protected List<object> OldList;
+		protected List<object> TempList;
 
 		protected virtual void OnDataChanged(System.Collections.IList dataSources)
 		{
@@ -88,9 +97,40 @@ namespace DataBinding.UIBind
 				else
 				{
 					OldList = new List<object>(dataSources.Count);
+					TempList = new List<object>(dataSources.Count);
 				}
 			}
 
+			var oldListCount = OldList.Count;
+			
+			TempList.Clear();
+			TempList.AddRange(OldList);
+
+			// delay update locations
+			// if (OldList.Count < dataSources.Count)
+			{
+				var i = 0;
+				for (; i < Math.Min(dataSources.Count, OldList.Count); i++)
+				{
+					if (OldList[i] != dataSources[i])
+					{
+						var child = _container.GetChild(i);
+						this.AddPendingResetLocationAction(i, child.localPosition);
+					}
+				}
+
+				for (; i < dataSources.Count; i++)
+				{
+					var inVisiblePos = float.MaxValue * 0.5f;
+					this.AddPendingResetLocationAction(i, new Vector3(inVisiblePos,inVisiblePos,0));
+				}
+			}
+			if (OldList.Count < dataSources.Count)
+			{
+				this.MarkLayoutDirty();
+			}
+			
+			// remove first
 			for (var i = OldList.Count - 1; i >= 0; i--)
 			{
 				var oldData = OldList[i];
@@ -101,7 +141,7 @@ namespace DataBinding.UIBind
 					OldList.RemoveAt(i);
 					this.OnRemoveItem(oldData, i);
 				}
-			 }
+			}
 
 			for (var i = 0; i < dataSources.Count; i++)
 			{
@@ -125,41 +165,50 @@ namespace DataBinding.UIBind
 
 					if (oldIndex < 0)
 					{
-						OldList.Insert(i, dataSources[i]);
-						this.OnAddItem(dataSources[i], i);
+						OldList.Insert(i, dataSource);
+						this.OnAddItem(dataSource, i);
 					}
 					else
 					{
 						// move is usually fast, 暂时不考虑最优解
 						OldList.RemoveAt(oldIndex);
-						OldList.Insert(i, dataSources[i]);
-						this.OnMoveItem(dataSources[i], i, oldIndex);
+						OldList.Insert(i, dataSource);
+						var isIndexMoved = TempList.Count <= i || TempList[i] != dataSource;
+						this.OnMoveItem(dataSource, i, oldIndex, isIndexMoved);
 					}
 				}
 				else
 				{
+					var dataSource = dataSources[i];
 					// same
-					UpdateDataBind(_container.GetChild(i), dataSources[i], i);
+					var isIndexMoved = TempList.Count <= i || TempList[i] != dataSource;
+					if (isIndexMoved)
+					{
+						this.OnMoveItem(dataSource, i, i, isIndexMoved);
+					}
 				}
 			}
 
+			// remove duplicate at end
 			for (int i = OldList.Count - 1; i >= dataSources.Count; i--)
 			{
+				var oldData = OldList[i];
 				OldList.RemoveAt(i);
-				this.OnRemoveItem(OldList[i], i);
+				this.OnRemoveItem(oldData, i);
 			}
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
 			// check result
 			Debug.Assert(OldList.Count == dataSources.Count,
 				$"result length unmatched: old({OldList.Count})!=new({dataSources.Count})");
-			for (var i = 0; i < OldList.Count; i++)
+			for (var i = 0; i < Math.Min(OldList.Count, dataSources.Count); i++)
 			{
 				Debug.Assert(OldList[i] == dataSources[i], $"result unmatched: {i}");
 			}
 #endif
-
-			this.OnUpdateDone(dataSources, this.OldList.Count);
+			this.OnUpdateDone(dataSources, oldListCount, TempList);
+			
+			TempList.Clear();
 		}
 
 		protected virtual Transform GetTemplateNode(int index)
@@ -240,7 +289,6 @@ namespace DataBinding.UIBind
 				child = CreateNewNode(index);
 			}
 
-			AddPendingResetLocationAction(child, index);
 			child.SetSiblingIndex(index);
 			return child;
 		}
@@ -252,13 +300,24 @@ namespace DataBinding.UIBind
 			UpdateDataBind(child, dataSource, index);
 		}
 
-		protected virtual void OnMoveItem(object oldData, int newIndex, int oldIndex)
+		protected virtual void OnMoveItem(object oldData, int newIndex, int oldIndex, bool isIndexMoved)
 		{
 			var child = _container.GetChild(oldIndex);
-			AddPendingResetLocationAction(child, newIndex);
-			child.SetSiblingIndex(newIndex);
 
-			UpdateDataBind(child, oldData, newIndex);
+			OnMoveNode(child, newIndex, oldIndex, isIndexMoved);
+
+			if (isIndexMoved)
+			{
+				UpdateDataBind(child, oldData, newIndex);
+			}
+		}
+
+		protected virtual void OnMoveNode(Transform child, int newIndex, int oldIndex, bool isIndexMoved)
+		{
+			if (oldIndex != newIndex)
+			{
+				child.SetSiblingIndex(newIndex);
+			}
 		}
 
 		protected virtual void OnRemoveItem(object oldData, int i)
@@ -290,15 +349,15 @@ namespace DataBinding.UIBind
 			else
 			{
 #if UNITY_EDITOR
-				child.parent = null;
+				child.SetParent(null);
 #endif
 				child.gameObject.DestorySafe();
 			}
 		}
 
-		protected virtual void OnUpdateDone(System.Collections.IList dataSources, int oldListCount)
+		protected virtual void OnUpdateDone(IList dataSources, int oldListCount, List<object> oldList)
 		{
-			ApplyResetPosition();
+			ApplyAllResetPosition();
 			
 			if (unallocNodes != null)
 			{
@@ -311,13 +370,13 @@ namespace DataBinding.UIBind
 			}
 
 			var childCount = _container.childCount;
-			for (var i = childCount - 1; i >= oldListCount; i--)
+			for (var i = childCount - 1; i >= dataSources.Count; i--)
 			{
 				var child = _container.GetChild(i);
 				this.UnuseNode(child);
 			}
 
-			if (TemplateNode == null || TemplateNode.GetSiblingIndex() >= oldListCount)
+			if (TemplateNode == null || TemplateNode.GetSiblingIndex() >= dataSources.Count)
 			{
 				TemplateNode = null;
 			}
