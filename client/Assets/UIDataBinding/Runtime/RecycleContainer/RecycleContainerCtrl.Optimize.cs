@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
@@ -603,6 +604,76 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 
 			return (x1, x2, y1, y2);
+		}
+
+		protected readonly IList DataSourceSlice = new List<object>();
+
+		protected override IEnumerator UpdateItemsByTicks(IList dataSources)
+		{
+			var len0 = Math.Min(dataSources.Count, 100);
+			for (var i = 0; i < len0; i++)
+			{
+				DataSourceSlice.Add(dataSources[i]);
+			}
+
+			yield return UpdateItemsByData(DataSourceSlice);
+			LayoutRebuilder.MarkLayoutForRebuild(this._container);
+			yield return new WaitForEndOfFrame();
+			UpdateContainerState(this._scrollVal);
+			// SetLayoutDirtyForce();
+
+			if (dataSources.Count > 100)
+			{
+				yield return null;
+				yield return null;
+				var len1 = Math.Min(dataSources.Count, 512);
+				for (var i = 100; i < len1; i++)
+				{
+					DataSourceSlice.Add(dataSources[i]);
+				}
+
+				yield return UpdateItemsByData(DataSourceSlice);
+				LayoutRebuilder.MarkLayoutForRebuild(this._container);
+				yield return new WaitForEndOfFrame();
+				UpdateContainerState(this._scrollVal);
+				// SetLayoutDirtyForce();
+			}
+
+			if (dataSources.Count > 512)
+			{
+				yield return new WaitForSeconds(1f);
+				yield return null;
+				yield return null;
+				
+				Debug.Log("begin");
+				var len2 = dataSources.Count;
+				for (var i = StandPool.Count; i < len2; i++)
+				{
+					if (i % 100 == 0)
+					{
+						if (!IsLayoutDirty())
+						{
+							UnMarkRebuild();
+						}
+						yield return null;
+					}
+					var standNode = this.GenPlacer(i);
+					StandPool.Recycle(standNode);
+					UnuseNode(standNode);
+				}
+				if (!IsLayoutDirty())
+				{
+					UnMarkRebuild();
+				}
+				yield return null;
+
+				yield return UpdateItemsByData(dataSources);
+				LayoutRebuilder.MarkLayoutForRebuild(this._container);
+				yield return new WaitForEndOfFrame();
+				UpdateContainerState(this._scrollVal);
+				yield return null;
+				Debug.Log("endfwlkje");
+			}
 		}
 
 		#endregion

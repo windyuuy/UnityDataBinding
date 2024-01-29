@@ -82,7 +82,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 		public int IterIndex = 0;
 		public int IterAcc = 0;
-		public bool NeedCheck = true;
+		public bool NeedCheck = false;
 
 		public IEnumerable<int> GetForwardIter(Func<bool> iterInput)
 		{

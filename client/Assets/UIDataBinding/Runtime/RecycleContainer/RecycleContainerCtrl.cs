@@ -439,12 +439,22 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		}
 
 		protected LocalNodeLinearPool Pool;
-		protected LocalNodePool StandPool;
-		protected LocalNodePool LentPool;
+		protected LocalNodePoolFast StandPool;
+		protected LocalNodeLinearPool LentPool;
 
 		protected bool IsVirtualNode(Transform child)
 		{
-			return child.gameObject.name.StartsWith("$");
+			// return child.gameObject.name.StartsWith("$");
+			var name = child.gameObject.name;
+			if (name != null && name.Length > 0)
+			{
+				if (name[0] == '$')
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		protected override Transform GetTemplateNode(int index)
@@ -590,12 +600,12 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			var emptyNode = new GameObject($"${index}", typeof(RectTransform));
 
-#if UNITY_EDITOR
-			if (this.enableDebugView)
+// #if UNITY_EDITOR
+			if (true)
 			{
 				emptyNode.AddComponent<Image>();
 			}
-#endif
+// #endif
 			emptyNode.transform.SetParent(this._container);
 			RectTransform tempNode;
 			if (index < this._container.childCount)
@@ -724,7 +734,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 			// yield return new WaitForSeconds(1);
 			yield return null;
-			yield return new WaitForEndOfFrame();
+			// yield return new WaitForEndOfFrame();
 			if (CoDelayUpdateContainer != null)
 			{
 				StopCoroutine(CoDelayUpdateContainer);
@@ -777,7 +787,9 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public override Transform RequireNewNode(int index)
 		{
 			var child = RequireNewNodeInternal(index);
+			Profiler.BeginSample("SetSiblingIndex");
 			child.SetSiblingIndex(index);
+			Profiler.EndSample();
 			return child;
 		}
 
@@ -823,7 +835,10 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					}
 					else
 					{
-						return RequirePlacer(index);
+						Profiler.BeginSample("RequirePlacer");
+						var child2 = RequirePlacer(index);
+						Profiler.EndSample();
+						return child2;
 					}
 				}
 				else
@@ -889,7 +904,14 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			// 	}
 			// }
 
-			ApplyAllResetPosition();
+			if (!IsUpdatingItems)
+			{
+				ApplyAllResetPosition();
+			}
+			// else
+			// {
+			// 	SetLayoutDirtyForce();
+			// }
 
 			if (_childCountInit != _container.childCount)
 			{
@@ -931,7 +953,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 		}
 
-		protected override void OnUpdateDone(IList dataSources, int oldListCount, List<object> oldList)
+		protected override void OnUpdateDone(IList dataSources, int oldListCount, System.Collections.Generic.List<object> oldList)
 		{
 			if (PendingResetPostion.Count > 0 || oldListCount < dataSources.Count)
 			{
@@ -990,7 +1012,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 		}
 
-		protected List<(Transform, Vector2)> LentSizes = new();
+		protected System.Collections.Generic.List<(Transform, Vector2)> LentSizes = new();
 
 		protected void UpdateLentSizes()
 		{
