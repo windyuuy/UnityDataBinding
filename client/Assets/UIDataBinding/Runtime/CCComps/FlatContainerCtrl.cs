@@ -17,9 +17,9 @@ namespace DataBinding.UIBind
 
 		[SerializeField] protected RectTransform _container = null;
 
-		protected System.Collections.Generic.List<Transform> unallocNodes;
+		protected List<Transform> unallocNodes;
 
-		protected System.Collections.Generic.List<(int, Vector3)> PendingResetPostion = new();
+		protected List<(int, Vector3)> PendingResetPostion = new();
 
 		protected void AddPendingResetLocationAction(int index, Vector3 localPosition)
 		{
@@ -28,6 +28,7 @@ namespace DataBinding.UIBind
 
 		protected virtual void ApplyAllResetPosition()
 		{
+			Profiler.BeginSample($"ApplyAllResetPosition: {PendingResetPostion.Count}");
 			if (PendingResetPostion.Count > 0)
 			{
 				foreach (var (index, vector3) in PendingResetPostion)
@@ -36,8 +37,10 @@ namespace DataBinding.UIBind
 					var localPosition = vector3;
 					ApplyResetPosition(child, index, ref localPosition);
 				}
+
 				PendingResetPostion.Clear();
 			}
+			Profiler.EndSample();
 		}
 
 		protected virtual void ClearPendingResetPosition()
@@ -47,7 +50,10 @@ namespace DataBinding.UIBind
 
 		protected virtual void ApplyResetPosition(Transform child, int index, ref Vector3 localPosition)
 		{
-			child.localPosition = localPosition;
+			if (child.localPosition != localPosition)
+			{
+				child.localPosition = localPosition;
+			}
 		}
 
 		protected virtual void Awake()
@@ -79,6 +85,7 @@ namespace DataBinding.UIBind
 		}
 
 		protected int LayoutDirtyFrameCount = 0;
+
 		public virtual void MarkLayoutDirty()
 		{
 			this.LayoutDirtyFrameCount = Time.frameCount;
@@ -94,6 +101,7 @@ namespace DataBinding.UIBind
 		protected static readonly List<object> EmptyList = new();
 
 		protected Coroutine CoUpdateItemsByTicks;
+
 		protected virtual void OnDataChanged(System.Collections.IList dataSources)
 		{
 			if (CoUpdateItemsByTicks != null)
@@ -101,44 +109,56 @@ namespace DataBinding.UIBind
 				StopCoroutine(CoUpdateItemsByTicks);
 				CoUpdateItemsByTicks = null;
 			}
+
 			CoUpdateItemsByTicks = StartCoroutine(UpdateItemsByTicks(dataSources));
 		}
 
 		protected virtual IEnumerator UpdateItemsByTicks(IList dataSources)
 		{
-			yield return UpdateItemsByData(dataSources);
+			yield return UpdateItemsByData(dataSources, 0, dataSources.Count);
 			yield return null;
 		}
 
 		protected bool IsUpdatingItems = false;
-		protected virtual IEnumerator UpdateItemsByData(IList dataSources)
+		private static readonly float InVisiblePosV = Mathf.Floor(float.MaxValue * 0.5f);
+		protected static Vector3 InVisiblePos = new Vector3(InVisiblePosV,InVisiblePosV,0);
+		protected virtual IEnumerator UpdateItemsByData(IList dataSources, int start, int end)
 		{
 			IsUpdatingItems = true;
-			
-			if (OldList == null || OldList.Count == 0)
+
+
+			if ((OldList == null || OldList.Count >= end)
+			    && (start >= end || dataSources == null || dataSources.Count <= end))
 			{
-				if (dataSources==null || dataSources.Count == 0)
-				{
-					// return;
-					yield break;
-				}
-				else
-				{
-					OldList = new List<object>(dataSources.Count);
-					TempList = new List<object>(dataSources.Count);
-				}
+				yield break;
 			}
-			
+
 			if (dataSources == null)
 			{
 				dataSources = EmptyList;
 			}
 
-			var dataSourcesCount = dataSources.Count;
-			var oldListCount = OldList.Count;
-			
+			if (OldList == null)
+			{
+				OldList = new List<object>(dataSources.Count);
+				TempList = new List<object>(dataSources.Count);
+			}
+
+			var dataSourcesStart = Math.Min(dataSources.Count, start);
+			var dataSourcesEnd = Math.Min(dataSources.Count, end);
+			var dataSourcesCount = dataSourcesEnd - dataSourcesStart;
+
+			var oldListStart0 = Math.Min(OldList.Count, dataSourcesStart);
+			var oldListEnd0 = Math.Min(dataSourcesEnd, OldList.Count);
+			var oldListEnd = oldListEnd0;
+			Debug.Assert(oldListStart0 == dataSourcesStart, "oldListStart == start");
+			if (oldListStart0 != dataSourcesStart)
+			{
+				throw new ArgumentOutOfRangeException();
+			}
+
 			TempList.Clear();
-			TempList.AddRange(OldList);
+			TempList.AddRange(OldList.Skip(oldListStart0).Take(oldListEnd0 - oldListStart0));
 
 			// yield return null;
 			Profiler.BeginSample("AddPendingResetLocationAction");
@@ -146,8 +166,8 @@ namespace DataBinding.UIBind
 			// if (OldList.Count < dataSources.Count)
 			ClearPendingResetPosition();
 			{
-				var i = 0;
-				for (; i < Math.Min(dataSourcesCount, OldList.Count); i++)
+				var i = dataSourcesStart;
+				for (; i < Math.Min(dataSourcesEnd, oldListEnd); i++)
 				{
 					if (OldList[i] != dataSources[i])
 					{
@@ -155,19 +175,21 @@ namespace DataBinding.UIBind
 						this.AddPendingResetLocationAction(i, child.localPosition);
 					}
 				}
-
-				for (; i < dataSourcesCount; i++)
+				
+				for (; i < dataSourcesEnd; i++)
 				{
-					var inVisiblePos = float.MaxValue * 0.5f;
-					this.AddPendingResetLocationAction(i, new Vector3(inVisiblePos,inVisiblePos,0));
+					this.AddPendingResetLocationAction(i, InVisiblePos);
 				}
 			}
 			Profiler.EndSample();
-			yield return null;
+			if (dataSourcesCount > 512)
+			{
+				yield return null;
+			}
 
 			Profiler.BeginSample("UpdateDataItems");
 			// remove first
-			for (var i = OldList.Count - 1; i >= 0; i--)
+			for (var i = oldListEnd - 1; i >= oldListStart0; i--)
 			{
 				var oldData = OldList[i];
 
@@ -175,27 +197,29 @@ namespace DataBinding.UIBind
 				if (newIndex < 0)
 				{
 					OldList.RemoveAt(i);
+					oldListEnd--;
 					this.OnRemoveItem(oldData, i);
 				}
 			}
 
-			for (var i = 0; i < dataSourcesCount; i++)
+			for (var i = dataSourcesStart; i < dataSourcesEnd; i++)
 			{
 				// if (i % 200 == 0)
 				// {
 				// 	yield return null;
 				// }
-				
-				if (OldList.Count <= i)
+
+				var dataSource = dataSources[i];
+				if (oldListEnd <= i)
 				{
-					OldList.Add(dataSources[i]);
-					this.OnAddItem(dataSources[i], i);
+					OldList.Add(dataSource);
+					oldListEnd++;
+					this.OnAddItem(dataSource, i);
 				}
 				else if (OldList[i] != dataSources[i])
 				{
-					var dataSource = dataSources[i];
 					var oldIndex = -1;
-					for (var j = i + 1; j < OldList.Count; j++)
+					for (var j = i + 1; j < oldListEnd; j++)
 					{
 						if (OldList[j] == dataSource)
 						{
@@ -207,6 +231,7 @@ namespace DataBinding.UIBind
 					if (oldIndex < 0)
 					{
 						OldList.Insert(i, dataSource);
+						oldListEnd++;
 						this.OnAddItem(dataSource, i);
 					}
 					else
@@ -214,13 +239,13 @@ namespace DataBinding.UIBind
 						// move is usually fast, 暂时不考虑最优解
 						OldList.RemoveAt(oldIndex);
 						OldList.Insert(i, dataSource);
+						// oldListEnd += 0;
 						var isIndexMoved = TempList.Count <= i || TempList[i] != dataSource;
 						this.OnMoveItem(dataSource, i, oldIndex, isIndexMoved);
 					}
 				}
 				else
 				{
-					var dataSource = dataSources[i];
 					// same
 					var isIndexMoved = TempList.Count <= i || TempList[i] != dataSource;
 					if (isIndexMoved)
@@ -231,37 +256,48 @@ namespace DataBinding.UIBind
 			}
 
 			// remove duplicate at end
-			for (int i = OldList.Count - 1; i >= dataSourcesCount; i--)
+			for (int i = oldListEnd - 1; i >= dataSourcesEnd; i--)
 			{
 				var oldData = OldList[i];
 				OldList.RemoveAt(i);
+				oldListEnd--;
 				this.OnRemoveItem(oldData, i);
 			}
+
 			Profiler.EndSample();
 
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-			Profiler.BeginSample("CheckResult");
-			// check result
-			Debug.Assert(OldList.Count == dataSourcesCount,
-				$"result length unmatched: old({OldList.Count})!=new({dataSourcesCount})");
-			for (var i = 0; i < Math.Min(OldList.Count, dataSources.Count); i++)
+			Debug.Assert(OldList.Count >= oldListEnd);
+			Debug.Assert(oldListEnd == oldListStart0 + dataSourcesCount);
+
+
+			if (needCheck)
 			{
-				Debug.Assert(OldList[i] == dataSources[i], $"result unmatched: {i}");
+				Profiler.BeginSample("CheckResult");
+				// check result
+				Debug.Assert(oldListEnd == dataSourcesEnd,
+					$"result length unmatched: old({oldListEnd})!=new({dataSourcesEnd})");
+				for (var i = 0; i < Math.Min(oldListEnd, dataSources.Count); i++)
+				{
+					Debug.Assert(OldList[i] == dataSources[i], $"result unmatched: {i}");
+				}
+
+				Profiler.EndSample();
 			}
-			Profiler.EndSample();
-#endif
-			// yield return null;
-			this.OnUpdateDone(dataSources, oldListCount, TempList);
 			
+			// yield return null;
+			this.OnUpdateDone(dataSources, oldListEnd0, dataSourcesStart, dataSourcesEnd);
+
 			TempList.Clear();
 
-			if (oldListCount < dataSourcesCount)
+			if (oldListEnd0 < dataSourcesEnd)
 			{
 				this.MarkLayoutDirty();
 			}
-			
+
 			IsUpdatingItems = false;
 		}
+
+		public bool needCheck = false;
 
 		protected virtual Transform GetTemplateNode(int index)
 		{
@@ -410,7 +446,7 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected virtual void OnUpdateDone(IList dataSources, int oldListCount, System.Collections.Generic.List<object> oldList)
+		protected virtual void OnUpdateDone(IList dataSources, int oldListCount, int start, int end)
 		{
 			Profiler.BeginSample("UnuseNode");
 			if (unallocNodes != null)
@@ -424,21 +460,20 @@ namespace DataBinding.UIBind
 			}
 
 			var childCount = _container.childCount;
-			for (var i = childCount - 1; i >= dataSources.Count; i--)
+			for (var i = childCount - 1; i >= end; i--)
 			{
 				var child = _container.GetChild(i);
 				this.UnuseNode(child);
 			}
 
-			if (TemplateNode == null || TemplateNode.GetSiblingIndex() >= dataSources.Count)
+			if (TemplateNode == null || TemplateNode.GetSiblingIndex() >= end)
 			{
 				TemplateNode = null;
 			}
+
 			Profiler.EndSample();
-			
-			Profiler.BeginSample("ApplyAllResetPosition");
+
 			ApplyAllResetPosition();
-			Profiler.EndSample();
 		}
 	}
 }

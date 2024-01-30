@@ -200,15 +200,31 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			
 			UpdateScrollRectStatus(val);
 
-			_childCountInit = _container.childCount;
-			for (int i = _container.childCount - 1; i >= 0; i--)
+			_childCountInit = OldList.Count;
+			if (needCheck)
 			{
-				if (_container.GetChild(i).gameObject.activeSelf)
+				// var childCountInit = _container.childCount;
+				// for (int i = _container.childCount - 1; i >= 0; i--)
+				// {
+				// 	if (_container.GetChild(i).gameObject.activeSelf)
+				// 	{
+				// 		break;
+				// 	}
+				//
+				// 	childCountInit--;
+				// }
+				var childCountInit = 0;
+				for (var i = 0; i < _container.childCount; i++)
 				{
-					break;
+					if (!_container.GetChild(i).gameObject.activeSelf)
+					{
+						break;
+					}
+				
+					childCountInit++;
 				}
 
-				_childCountInit--;
+				Debug.Assert(_childCountInit == childCountInit);
 			}
 
 			if (!_gridIter.IsPrecision)
@@ -596,31 +612,36 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return child;
 		}
 
+		private RectTransform _standTempNode;
 		public virtual Transform GenPlacer(int index)
 		{
 			var emptyNode = new GameObject($"${index}", typeof(RectTransform));
 
 // #if UNITY_EDITOR
-			if (true)
+			if (enableDebugView)
 			{
 				emptyNode.AddComponent<Image>();
 			}
 // #endif
 			emptyNode.transform.SetParent(this._container);
-			RectTransform tempNode;
-			if (index < this._container.childCount)
+
+			if (_standTempNode.IsInValid())
 			{
-				tempNode = (RectTransform)this._container.GetChild(index);
-			}
-			else
-			{
-				tempNode = (RectTransform)GetTemplateNode(index);
+				if (index < this._container.childCount)
+				{
+					_standTempNode = (RectTransform)this._container.GetChild(index);
+				}
+				else
+				{
+					_standTempNode = (RectTransform)GetTemplateNode(index);
+				}
 			}
 
 			var emptyNodeTrans = (RectTransform)emptyNode.transform;
-			emptyNodeTrans.sizeDelta = tempNode.sizeDelta;
-			emptyNodeTrans.pivot = tempNode.pivot;
-			return emptyNode.transform;
+			emptyNodeTrans.sizeDelta = _standTempNode.sizeDelta;
+			emptyNodeTrans.pivot = _standTempNode.pivot;
+			emptyNodeTrans.localPosition = InVisiblePos;
+			return emptyNodeTrans;
 		}
 
 		public virtual Transform CreateNewNodeAsync(int index,
@@ -953,7 +974,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 		}
 
-		protected override void OnUpdateDone(IList dataSources, int oldListCount, System.Collections.Generic.List<object> oldList)
+		protected override void OnUpdateDone(IList dataSources, int oldListCount, int start, int end)
 		{
 			if (PendingResetPostion.Count > 0 || oldListCount < dataSources.Count)
 			{
@@ -990,7 +1011,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				// }
 			}
 
-			base.OnUpdateDone(dataSources, oldListCount, oldList);
+			base.OnUpdateDone(dataSources, oldListCount, start, end);
 
 			// TODO: 优化数据更新，尽量避免更新 layout
 			if (!IsLayoutDirty())

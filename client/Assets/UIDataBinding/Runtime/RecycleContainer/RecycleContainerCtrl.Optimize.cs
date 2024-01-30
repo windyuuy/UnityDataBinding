@@ -606,73 +606,75 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return (x1, x2, y1, y2);
 		}
 
-		protected readonly IList DataSourceSlice = new List<object>();
-
 		protected override IEnumerator UpdateItemsByTicks(IList dataSources)
 		{
-			var len0 = Math.Min(dataSources.Count, 100);
-			for (var i = 0; i < len0; i++)
-			{
-				DataSourceSlice.Add(dataSources[i]);
-			}
+			// TODO: 完善同步阻塞的时机！！！
 
-			yield return UpdateItemsByData(DataSourceSlice);
+			var batch1 = 128;
+			var batch2 = 1024;
+			yield return UpdateItemsByData(dataSources, 0, batch1);
 			LayoutRebuilder.MarkLayoutForRebuild(this._container);
 			yield return new WaitForEndOfFrame();
 			UpdateContainerState(this._scrollVal);
 			// SetLayoutDirtyForce();
 
-			if (dataSources.Count > 100)
+			if (dataSources.Count > batch1)
 			{
-				yield return null;
-				yield return null;
-				var len1 = Math.Min(dataSources.Count, 512);
-				for (var i = 100; i < len1; i++)
-				{
-					DataSourceSlice.Add(dataSources[i]);
-				}
-
-				yield return UpdateItemsByData(DataSourceSlice);
+				yield return UpdateItemsByData(dataSources, batch1, batch2);
 				LayoutRebuilder.MarkLayoutForRebuild(this._container);
 				yield return new WaitForEndOfFrame();
 				UpdateContainerState(this._scrollVal);
 				// SetLayoutDirtyForce();
 			}
 
-			if (dataSources.Count > 512)
+			if (dataSources.Count > batch2)
 			{
-				yield return new WaitForSeconds(1f);
 				yield return null;
 				yield return null;
-				
-				Debug.Log("begin");
+
+				Debug.Log("preload-stand-begin");
+				// var dt = 6;
+				// var timeStart = DateTime.Now.Millisecond;
 				var len2 = dataSources.Count;
-				for (var i = StandPool.Count; i < len2; i++)
+				for (var i = batch2-LentPool.Count; i < len2; i++)
 				{
-					if (i % 100 == 0)
+					if ((i & 63) == 0)
 					{
-						if (!IsLayoutDirty())
-						{
-							UnMarkRebuild();
-						}
-						yield return null;
+						// var timeEnd = DateTime.Now.Millisecond;
+						// if ((timeEnd - timeStart + 1000) % 1000 >= dt)
+						// {
+						// 	Debug.Log($"create2i: {i}, timecost: {(timeEnd - timeStart + 1000) % 1000}");
+						// 	timeStart = timeEnd;
+							
+							if (!IsLayoutDirty())
+							{
+								UnMarkRebuild();
+							}
+							yield return null;
+						// }
 					}
+
 					var standNode = this.GenPlacer(i);
 					StandPool.Recycle(standNode);
-					UnuseNode(standNode);
+					// UnuseNode(standNode);
 				}
+
 				if (!IsLayoutDirty())
 				{
 					UnMarkRebuild();
 				}
+
 				yield return null;
 
-				yield return UpdateItemsByData(dataSources);
+				yield return UpdateItemsByData(dataSources, batch2, dataSources.Count);
 				LayoutRebuilder.MarkLayoutForRebuild(this._container);
 				yield return new WaitForEndOfFrame();
+				var timeStart = DateTime.Now.Millisecond;
 				UpdateContainerState(this._scrollVal);
+				var timeEnd = DateTime.Now.Millisecond;
+				var dt = (timeEnd - timeStart + 1000) % 1000;
 				yield return null;
-				Debug.Log("endfwlkje");
+				Debug.Log($"preload-stand-end, {dt}");
 			}
 		}
 
