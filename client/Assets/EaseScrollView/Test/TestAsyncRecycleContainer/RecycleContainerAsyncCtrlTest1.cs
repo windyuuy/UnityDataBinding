@@ -34,7 +34,7 @@ namespace EaseScrollView.Test
 				// Debug.Log($"createasync: {ixz}");
 				// yield return new WaitForSeconds(0.5f+0.01f*ixz++);
 				// yield return null;
-				yield return new WaitForSeconds(7);
+				yield return new WaitForSeconds(0.1f);
 				var child = GameObject.Instantiate(templateNode, Root).transform;
 				child.gameObject.name = templateNode.gameObject.name+$"_{e2++}";
 				onCreatedAsync(child, stand, recycleStandAsync);

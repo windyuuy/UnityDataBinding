@@ -51,6 +51,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		public Vector3 Distance;
 		public bool IsPrecision;
 
+		public IntVector2 DistanceSign => new IntVector2(Math.Sign(Distance.x), Math.Sign(Distance.y));
+
 		public List<int> DirtyIndexes;
 		public HashSet<int> LentPool = new();
 
@@ -404,6 +406,16 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				yMax = Mathf.RoundToInt(Pos.y + Size.y * 0.5f),
 				yMin = Mathf.RoundToInt(Pos.y - Size.y * 0.5f),
 			};
+		}
+
+		public IntVector2 GetTopPt()
+		{
+			return new IntVector2(Mathf.RoundToInt(Pos.x + Size.x * 0.5f), Mathf.RoundToInt(Pos.y + Size.y * 0.5f));
+		}
+
+		public int GetTopIndex()
+		{
+			return ToIndex(GetTopPt());
 		}
 
 		public IEnumerable<int> GetBackwardIter(Func<bool> iterInput)

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Debug = UnityEngine.Debug;
 
 namespace UIDataBinding.Runtime.RecycleContainer
 {
@@ -41,6 +40,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			_gridIter.Copy(ref _gridIterNext);
 			_gridIter.IsPrecision = true;
 
+			_gridIterNext.NeedCheck = this.needCheck;
+			_gridIter.NeedCheck = this.needCheck;
 			if (_gridIterNext.NeedCheck)
 			{
 				InjectDebugDetails();
@@ -606,52 +607,116 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			return (x1, x2, y1, y2);
 		}
 
+		protected bool IsNearBottom()
+		{
+			if (OldList == null)
+			{
+				return false;
+			}
+
+			var detectRect = _gridIterNext.GetTopIndex();
+			var lineBreakSize = _gridIterNext.LineBreakSize;
+			var size = _gridIterNext.Size;
+			var nearDistance = Math.Max(1, Mathf.RoundToInt(Math.Max(size.x, size.y) * 0.5f));
+			if (OldList.Count <= detectRect + lineBreakSize * nearDistance)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		public bool loadAsync = false;
+		protected IEnumerator UpdateItemsByTicksIter;
+
 		protected override IEnumerator UpdateItemsByTicks(IList dataSources)
 		{
-			// TODO: 完善同步阻塞的时机！！！
+			if (loadAsync)
+			{
+				var iter = UpdateItemsByTicksInternal(dataSources).GetEnumerator();
+				using var unknown = iter as IDisposable;
+				UpdateItemsByTicksIter = iter;
+				while (iter.MoveNext())
+				{
+					yield return iter.Current;
+				}
 
-			var batch1 = 128;
-			var batch2 = 1024;
-			yield return UpdateItemsByData(dataSources, 0, batch1);
+				UpdateItemsByTicksIter = null;
+			}
+			else
+			{
+				yield return base.UpdateItemsByTicks(dataSources);
+			}
+		}
+
+		protected void EnsureBottomItemsEnough()
+		{
+			if (UpdateItemsByTicksIter != null)
+			{
+				var iter = UpdateItemsByTicksIter;
+				if (iter.Current is WaitForEndOfFrame)
+				{
+					return;
+				}
+
+				var next = false;
+				while (true)
+				{
+					next = iter.MoveNext();
+					if (!next)
+					{
+						break;
+					}
+
+					if (!IsNearBottom())
+					{
+						Debug.Log($"supply once");
+						break;
+					}
+
+					if (iter.Current is WaitForEndOfFrame)
+					{
+						break;
+					}
+				}
+
+				if (!next)
+				{
+					UpdateItemsByTicksIter = null;
+				}
+			}
+		}
+
+		protected IEnumerable UpdateItemsByTicksInternal(IList dataSources)
+		{
+			var area = Math.Max(128, (int)_gridIterNext.GetDetectRect().GetArea());
+			var batch1 = area;
+			foreach (var o in UpdateItemsByData(dataSources, 0, batch1, 0, batch1))
+			{
+				yield return o;
+			}
+
 			LayoutRebuilder.MarkLayoutForRebuild(this._container);
 			yield return new WaitForEndOfFrame();
 			UpdateContainerState(this._scrollVal);
-			// SetLayoutDirtyForce();
+			yield return null;
 
-			if (dataSources.Count > batch1)
-			{
-				yield return UpdateItemsByData(dataSources, batch1, batch2);
-				LayoutRebuilder.MarkLayoutForRebuild(this._container);
-				yield return new WaitForEndOfFrame();
-				UpdateContainerState(this._scrollVal);
-				// SetLayoutDirtyForce();
-			}
-
-			if (dataSources.Count > batch2)
+			var batch2 = area;
+			const int increaseRate = 3;
+			const int maxStep = 2048;
+			for (; batch2 < dataSources.Count; )
 			{
 				yield return null;
-				yield return null;
 
-				Debug.Log("preload-stand-begin");
-				// var dt = 6;
-				// var timeStart = DateTime.Now.Millisecond;
-				var len2 = dataSources.Count;
-				for (var i = batch2-LentPool.Count; i < len2; i++)
+				var nextBatch = Math.Min(Math.Min(batch2 * increaseRate, batch2 + maxStep), dataSources.Count);
+				Debug.Log($"preload-stand-begin: {nextBatch}");
+				for (var i = batch2+StandPool.Count; i < nextBatch; i++)
 				{
-					if ((i & 63) == 0)
+					if ((i & 31) == 0)
 					{
-						// var timeEnd = DateTime.Now.Millisecond;
-						// if ((timeEnd - timeStart + 1000) % 1000 >= dt)
-						// {
-						// 	Debug.Log($"create2i: {i}, timecost: {(timeEnd - timeStart + 1000) % 1000}");
-						// 	timeStart = timeEnd;
-							
-							if (!IsLayoutDirty())
-							{
-								UnMarkRebuild();
-							}
-							yield return null;
-						// }
+						UnMarkRebuildSafe();
+
+						yield return null;
 					}
 
 					var standNode = this.GenPlacer(i);
@@ -666,15 +731,33 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 				yield return null;
 
-				yield return UpdateItemsByData(dataSources, batch2, dataSources.Count);
+				foreach (var o in UpdateItemsByData(dataSources, batch2, nextBatch, batch2, nextBatch))
+				{
+					yield return o;
+				}
+
 				LayoutRebuilder.MarkLayoutForRebuild(this._container);
 				yield return new WaitForEndOfFrame();
 				var timeStart = DateTime.Now.Millisecond;
 				UpdateContainerState(this._scrollVal);
 				var timeEnd = DateTime.Now.Millisecond;
 				var dt = (timeEnd - timeStart + 1000) % 1000;
-				yield return null;
 				Debug.Log($"preload-stand-end, {dt}");
+				yield return null;
+
+				batch2 = nextBatch;
+			}
+
+			Debug.Assert(OldList.Count == dataSources.Count, "OldList.Count == dataSources.Count");
+
+			Debug.Log($"load all data done");
+		}
+
+		protected void UnMarkRebuildSafe()
+		{
+			if (!IsLayoutDirty())
+			{
+				UnMarkRebuild();
 			}
 		}
 

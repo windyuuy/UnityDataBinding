@@ -6,11 +6,11 @@ using UnityEngine.Profiling;
 
 namespace UIDataBinding.Runtime.RecycleContainer
 {
-	public class LocalNodePoolFast
+	public class LocalNodeQueue
 	{
 		private Func<int, Transform> _creator;
 
-		public LocalNodePoolFast(Func<int, Transform> creator)
+		public LocalNodeQueue(Func<int, Transform> creator)
 		{
 			_creator = creator;
 		}
@@ -149,6 +149,8 @@ namespace UIDataBinding.Runtime.RecycleContainer
 
 		public virtual bool Remove(Transform node)
 		{
+			Debug.Assert(Pool.Count > 0, "Pool.Count > 0");
+
 			return Pool.Remove(node);
 		}
 
@@ -164,25 +166,24 @@ namespace UIDataBinding.Runtime.RecycleContainer
 		{
 		}
 
-		protected readonly List<Transform> BackPool = new();
+		protected readonly Stack<Transform> BackPool = new();
 
 		public virtual void RecycleBack(Transform node)
 		{
 			node.SetSiblingIndex(node.parent.childCount);
-			BackPool.Add(node);
+			BackPool.Push(node);
+		}
+
+		public bool ContainsBack(Transform node)
+		{
+			return BackPool.Contains(node);
 		}
 
 		public override Transform Get(int index)
 		{
-			if (Pool.Count > 0)
-			{
-				return base.Get(index);
-			}
-
 			if (BackPool.Count > 0)
 			{
-				var child2 = BackPool.First();
-				BackPool.Remove(child2);
+				var child2 = BackPool.Pop();
 				if (!child2.gameObject.activeSelf)
 				{
 					child2.gameObject.SetActive(true);
@@ -191,41 +192,25 @@ namespace UIDataBinding.Runtime.RecycleContainer
 				return child2;
 			}
 
+			if (Pool.Count > 0)
+			{
+				return base.Get(index);
+			}
+
 			return base.Get(index);
 		}
 
 		public override IEnumerable<Transform> PeekAll()
 		{
-			foreach (var transform in Pool)
-			{
-				yield return transform;
-			}
-
 			foreach (var transform in BackPool)
 			{
 				yield return transform;
 			}
-		}
-
-		public override bool Contains(Transform node)
-		{
-			return Pool.Contains(node) || BackPool.Contains(node);
-		}
-
-		public override bool Remove(Transform node)
-		{
-			Debug.Assert(BackPool.Count + Pool.Count > 0, "BackPool.Count + Pool.Count > 0");
-			if (BackPool.Count > 0)
+			
+			foreach (var transform in Pool)
 			{
-				return BackPool.Remove(node);
+				yield return transform;
 			}
-
-			if (Pool.Count > 0)
-			{
-				return Pool.Remove(node);
-			}
-
-			return false;
 		}
 
 		public override int Count => Pool.Count + BackPool.Count;

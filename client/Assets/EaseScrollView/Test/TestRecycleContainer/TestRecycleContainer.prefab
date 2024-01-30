@@ -114,6 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ec0ce0829b281345a83bcf023554fbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  createCount: 0
 --- !u!114 &3578688903732428548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,6 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ec0ce0829b281345a83bcf023554fbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  createCount: 0
 --- !u!1 &2524331569500858566
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,7 +316,7 @@ MonoBehaviour:
   bindChildren: 1
   _container: {fileID: 605727087553588044}
   scrollRect: {fileID: 0}
-  enableDebugView: 0
+  enableDebugView: 1
   previewCount: -1
 --- !u!114 &2684262734249352869
 MonoBehaviour:

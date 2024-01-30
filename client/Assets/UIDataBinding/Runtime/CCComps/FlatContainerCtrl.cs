@@ -115,20 +115,23 @@ namespace DataBinding.UIBind
 
 		protected virtual IEnumerator UpdateItemsByTicks(IList dataSources)
 		{
-			yield return UpdateItemsByData(dataSources, 0, dataSources.Count);
+			foreach (var o in UpdateItemsByData(dataSources, 0, Math.Max(OldList?.Count??0, dataSources.Count), 0, dataSources.Count))
+			{
+				
+			}
 			yield return null;
 		}
 
 		protected bool IsUpdatingItems = false;
 		private static readonly float InVisiblePosV = Mathf.Floor(float.MaxValue * 0.5f);
 		protected static Vector3 InVisiblePos = new Vector3(InVisiblePosV,InVisiblePosV,0);
-		protected virtual IEnumerator UpdateItemsByData(IList dataSources, int start, int end)
+		protected virtual IEnumerable UpdateItemsByData(IList dataSources, int oldStart, int oldEnd, int start, int end)
 		{
 			IsUpdatingItems = true;
 
 
 			if ((OldList == null || OldList.Count >= end)
-			    && (start >= end || dataSources == null || dataSources.Count <= end))
+			    && (start >= end || dataSources == null || dataSources.Count <= start))
 			{
 				yield break;
 			}
@@ -148,9 +151,14 @@ namespace DataBinding.UIBind
 			var dataSourcesEnd = Math.Min(dataSources.Count, end);
 			var dataSourcesCount = dataSourcesEnd - dataSourcesStart;
 
-			var oldListStart0 = Math.Min(OldList.Count, dataSourcesStart);
-			var oldListEnd0 = Math.Min(dataSourcesEnd, OldList.Count);
+			Debug.Assert(OldList.Count >= oldStart, "OldList.Count > oldStart");
+			Debug.Assert(oldEnd >= oldStart, "oldEnd > oldStart");
+			// Debug.Assert(OldList.Count >= oldEnd, "OldList.Count > oldEnd");
+			var oldListStart0 = oldStart;
+			var oldListEnd0 = Math.Min(oldEnd, OldList.Count);
+			var oldListCount0 = oldListEnd0 - oldListStart0;
 			var oldListEnd = oldListEnd0;
+			var oldListLen0 = OldList.Count;
 			Debug.Assert(oldListStart0 == dataSourcesStart, "oldListStart == start");
 			if (oldListStart0 != dataSourcesStart)
 			{
@@ -158,7 +166,7 @@ namespace DataBinding.UIBind
 			}
 
 			TempList.Clear();
-			TempList.AddRange(OldList.Skip(oldListStart0).Take(oldListEnd0 - oldListStart0));
+			TempList.AddRange(OldList.Skip(oldListStart0).Take(oldListCount0));
 
 			// yield return null;
 			Profiler.BeginSample("AddPendingResetLocationAction");
@@ -268,6 +276,7 @@ namespace DataBinding.UIBind
 
 			Debug.Assert(OldList.Count >= oldListEnd);
 			Debug.Assert(oldListEnd == oldListStart0 + dataSourcesCount);
+			Debug.Assert(OldList.Count - oldListLen0 == dataSourcesCount - (oldListEnd0 - oldListStart0));
 
 
 			if (needCheck)
@@ -284,15 +293,15 @@ namespace DataBinding.UIBind
 				Profiler.EndSample();
 			}
 			
-			// yield return null;
-			this.OnUpdateDone(dataSources, oldListEnd0, dataSourcesStart, dataSourcesEnd);
-
-			TempList.Clear();
-
 			if (oldListEnd0 < dataSourcesEnd)
 			{
 				this.MarkLayoutDirty();
 			}
+
+			// yield return null;
+			this.OnUpdateDone(dataSources, oldListCount0, dataSourcesStart, dataSourcesEnd);
+
+			TempList.Clear();
 
 			IsUpdatingItems = false;
 		}
@@ -446,7 +455,7 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected virtual void OnUpdateDone(IList dataSources, int oldListCount, int start, int end)
+		protected virtual void OnUpdateDone(IList dataSources, int oldListCount0, int start, int end)
 		{
 			Profiler.BeginSample("UnuseNode");
 			if (unallocNodes != null)

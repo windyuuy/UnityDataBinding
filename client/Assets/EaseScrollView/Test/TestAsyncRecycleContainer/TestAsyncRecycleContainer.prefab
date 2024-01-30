@@ -34,7 +34,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 980.58997}
-  m_SizeDelta: {x: 297.0558, y: 1652.7705}
+  m_SizeDelta: {x: 176.6272, y: 1652.7705}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &3311462078858201248
 MonoBehaviour:
@@ -311,9 +311,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bindChildren: 1
   _container: {fileID: 605727087553588044}
+  needCheck: 1
   scrollRect: {fileID: 0}
   enableDebugView: 1
   previewCount: -1
+  loadAsync: 1
   templateNode: {fileID: 9101326175732306488, guid: 7b618cb8479a37a4ab28ef621f87d421, type: 3}
 --- !u!1 &5293176405462880801
 GameObject:
@@ -511,7 +513,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 3349226845853865607}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.6926845
+  m_Size: 0.79126674
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
