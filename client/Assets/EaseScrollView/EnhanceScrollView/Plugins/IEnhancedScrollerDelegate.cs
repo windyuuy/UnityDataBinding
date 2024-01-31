@@ -34,5 +34,7 @@ namespace EnhancedUI.EnhancedScroller
         /// <param name="cellIndex"></param>
         /// <returns></returns>
         EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex);
+
+        void OnScrollerInitialized();
     }
 }

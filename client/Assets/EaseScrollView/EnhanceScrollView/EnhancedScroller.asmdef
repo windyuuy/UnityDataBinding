@@ -1,6 +1,6 @@
 {
     "name": "EnhancedScroller_asmdef",
-    "references": [],
+    "references": ["GUID:7265bbcbb8b8fdc44b3d7b441284e560"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

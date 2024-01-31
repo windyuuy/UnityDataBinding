@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using DataBinding.UIBind;
 using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using UnityEngine;
@@ -17,7 +19,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		/// This will be the prefab of each cell in our scroller. Note that you can use more
 		/// than one kind of cell, but this example just has the one type.
 		/// </summary>
-		public GameObject cellViewPrefab;
+		protected GameObject CellViewPrefab;
 
 		protected EnhancedScrollerCellView CellViewPrefabComp;
 
@@ -26,23 +28,47 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 
 		void Awake()
 		{
-			if (cellViewPrefab == null)
+			InitContainer();
+			
+			CellViewPrefab = enhancedScroller.cellViewPrefab;
+			if (CellViewPrefab == null)
 			{
 				if (enhancedScroller.Container.childCount > 0)
 				{
-					cellViewPrefab = enhancedScroller.Container.GetChild(0).gameObject;
+					CellViewPrefab = enhancedScroller.Container.GetChild(0).gameObject;
 				}
 			}
 
-			Debug.Assert(cellViewPrefab != null, "cellViewPrefab != null");
-			var cellViewComp = cellViewPrefab.GetComponent<EnhancedScrollerCellView>();
+			Debug.Assert(CellViewPrefab != null, "cellViewPrefab != null");
+			var cellViewComp = CellViewPrefab.GetComponent<EnhancedScrollerCellView>();
 			if (cellViewComp == null)
 			{
-				cellViewComp = cellViewPrefab.AddComponent<EnhancedScrollerCellView>();
+				cellViewComp = CellViewPrefab.AddComponent<EnhancedScrollerCellView>();
 			}
 
 			CellViewPrefabComp = cellViewComp;
 
+			_isAwaked = true;
+			
+			DelayReloadData();
+		}
+
+		public void OnScrollerInitialized()
+		{
+			DelayReloadData();
+		}
+
+		public void DelayReloadData()
+		{
+			if (IsDirty && _isAwaked && enhancedScroller.IsInitialized)
+			{
+				IsDirty = true;
+				enhancedScroller.ReloadData();
+			}
+		}
+
+		protected void InitContainer()
+		{
 			if (enhancedScroller == null)
 			{
 				enhancedScroller = this.gameObject.GetComponent<EnhancedScroller>();
@@ -55,20 +81,6 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			Debug.Assert(enhancedScroller != null, "enhancedScroller != null");
 			// tell the scroller that this script will be its delegate
 			enhancedScroller.Delegate = this;
-
-			_isAwaked = true;
-		}
-
-		private void Start()
-		{
-			if (IsDirty)
-			{
-				enhancedScroller.ReloadData();
-			}
-		}
-
-		protected void InitContainer()
-		{
 		}
 
 		protected List<object> OldList;
@@ -89,13 +101,13 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 				OldList.Add(dataSource);
 			}
 
-			if (!_isAwaked)
+			if (_isAwaked && enhancedScroller.IsInitialized)
 			{
-				IsDirty = true;
+				enhancedScroller.ReloadData();
 			}
 			else
 			{
-				enhancedScroller.ReloadData();
+				IsDirty = true;
 			}
 		}
 
@@ -143,6 +155,24 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			}
 		}
 
+		protected virtual void UpdateDataBind(Transform child, object dataSource,int index)
+		{
+			var ccItem = child.GetComponent<CCContainerItem>();
+			if (ccItem == null)
+			{
+				ccItem = child.gameObject.AddComponent<CCContainerItem>();
+				ccItem.Integrate();
+			}
+
+			if (ccItem.DataHost != dataSource || ccItem.ContainerItem.Index != index)
+			{
+				ccItem.ContainerItem.Index = index;
+				var itemHost = dataSource;
+				var itemHost1 = VM.Utils.ImplementStdHost(itemHost);
+				ccItem.BindDataHost(itemHost1, $"N|{ccItem.ContainerItem.Index}");
+			}
+		}
+
 		/// <summary>
 		/// Gets the cell to be displayed. You can have numerous cell types, allowing variety in your list.
 		/// Some examples of this would be headers, footers, and other grouping cells.
@@ -157,6 +187,8 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			// if the scroller finds one it can recycle it will do so, otherwise
 			// it will create a new cell.
 			var cellView = scroller.GetCellView(CellViewPrefabComp);
+
+			UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
 
 			// set the name of the game object to the cell's data index.
 			// this is optional, but it helps up debug the objects in 

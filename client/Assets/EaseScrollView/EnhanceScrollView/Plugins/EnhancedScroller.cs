@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System;
+using EaseScrollView.EnhanceScrollView.Plugins;
 
 namespace EnhancedUI.EnhancedScroller
 {
@@ -107,17 +108,24 @@ namespace EnhancedUI.EnhancedScroller
         /// <summary>
         /// The direction the scroller is handling
         /// </summary>
+        [NonSerialized]
         public ScrollDirectionEnum scrollDirection;
+
+		/// <summary>
+		/// This will be the prefab of each cell in our scroller. Note that you can use more
+		/// than one kind of cell, but this example just has the one type.
+		/// </summary>
+		public GameObject cellViewPrefab;
 
         /// <summary>
         /// The number of pixels between cell views, starting after the first cell view
         /// </summary>
-        public float spacing;
+        public float spacing => _layoutGroup.spacing;
 
         /// <summary>
         /// The padding inside of the scroller: top, bottom, left, right.
         /// </summary>
-        public RectOffset padding;
+        public RectOffset padding => _layoutGroup.padding;
 
         /// <summary>
         /// Whether the scroller should loop the cell views
@@ -147,7 +155,7 @@ namespace EnhancedUI.EnhancedScroller
         /// <summary>
         /// Whether the scollbar should be shown
         /// </summary>
-        [SerializeField]
+        // [SerializeField]
         private ScrollbarVisibilityEnum scrollbarVisibility;
 
         /// <summary>
@@ -453,49 +461,50 @@ namespace EnhancedUI.EnhancedScroller
         {
             get
             {
-                return scrollbarVisibility;
+                // return scrollbarVisibility;
+                throw new NotImplementedException();
             }
             set
             {
-                scrollbarVisibility = value;
-
-                // only if the scrollbar exists
-                if (_scrollbar != null)
-                {
-                    // make sure we actually have some cell views
-                    if (_cellViewOffsetArray != null && _cellViewOffsetArray.Count > 0)
-                    {
-                        if (scrollDirection == ScrollDirectionEnum.Vertical)
-                        {
-                            ScrollRect.verticalScrollbar = _scrollbar;
-                        }
-                        else
-                        {
-                            ScrollRect.horizontalScrollbar = _scrollbar;
-                        }
-
-                        if (_cellViewOffsetArray.Last() < ScrollRectSize || loop)
-                        {
-                            // if the size of the scrollable area is smaller than the scroller
-                            // or if we have looping on, hide the scrollbar unless the visibility
-                            // is set to Always.
-                            _scrollbar.gameObject.SetActive(scrollbarVisibility == ScrollbarVisibilityEnum.Always);
-                        }
-                        else
-                        {
-                            // if the size of the scrollable areas is larger than the scroller
-                            // or looping is off, then show the scrollbars unless visibility
-                            // is set to Never.
-                            _scrollbar.gameObject.SetActive(scrollbarVisibility != ScrollbarVisibilityEnum.Never);
-                        }
-
-                        if (!_scrollbar.gameObject.activeSelf)
-                        {
-                            ScrollRect.verticalScrollbar = null;
-                            ScrollRect.horizontalScrollbar = null;
-                        }
-                    }
-                }
+                // scrollbarVisibility = value;
+                //
+                // // only if the scrollbar exists
+                // if (_scrollbar != null)
+                // {
+                //     // make sure we actually have some cell views
+                //     if (_cellViewOffsetArray != null && _cellViewOffsetArray.Count > 0)
+                //     {
+                //         if (scrollDirection == ScrollDirectionEnum.Vertical)
+                //         {
+                //             ScrollRect.verticalScrollbar = _scrollbar;
+                //         }
+                //         else
+                //         {
+                //             ScrollRect.horizontalScrollbar = _scrollbar;
+                //         }
+                //
+                //         if (_cellViewOffsetArray.Last() < ScrollRectSize || loop)
+                //         {
+                //             // if the size of the scrollable area is smaller than the scroller
+                //             // or if we have looping on, hide the scrollbar unless the visibility
+                //             // is set to Always.
+                //             _scrollbar.gameObject.SetActive(scrollbarVisibility == ScrollbarVisibilityEnum.Always);
+                //         }
+                //         else
+                //         {
+                //             // if the size of the scrollable areas is larger than the scroller
+                //             // or looping is off, then show the scrollbars unless visibility
+                //             // is set to Never.
+                //             _scrollbar.gameObject.SetActive(scrollbarVisibility != ScrollbarVisibilityEnum.Never);
+                //         }
+                //
+                //         if (!_scrollbar.gameObject.activeSelf)
+                //         {
+                //             ScrollRect.verticalScrollbar = null;
+                //             ScrollRect.horizontalScrollbar = null;
+                //         }
+                //     }
+                // }
             }
         }
 
@@ -708,11 +717,16 @@ namespace EnhancedUI.EnhancedScroller
             return cellView;
         }
 
+        public void ReloadData()
+        {
+            ReloadData(0, true);
+        }
+        
         /// <summary>
         /// This resets the internal size list and refreshes the cell views
         /// </summary>
         /// <param name="scrollPositionFactor">The percentage of the scroller to start at between 0 and 1, 0 being the start of the scroller</param>
-        public void ReloadData(float scrollPositionFactor = 0)
+        public void ReloadData(float scrollPositionFactor, bool keepPosition = false)
         {
             _reloadData = false;
 
@@ -723,7 +737,7 @@ namespace EnhancedUI.EnhancedScroller
             // if we have a delegate handling our data, then
             // call the resize
             if (_delegate != null)
-                _Resize(false);
+                _Resize(keepPosition);
 
             if (_scrollRect == null || _scrollRectTransform == null || _container == null)
             {
@@ -731,16 +745,19 @@ namespace EnhancedUI.EnhancedScroller
                 return;
             }
 
-            _scrollPosition = Mathf.Clamp(scrollPositionFactor * ScrollSize, 0, ScrollSize);
-            if (scrollDirection == ScrollDirectionEnum.Vertical)
+            if (!keepPosition)
             {
-                // set the vertical position
-                _scrollRect.verticalNormalizedPosition = 1f - scrollPositionFactor;
-            }
-            else
-            {
-                // set the horizontal position
-                _scrollRect.horizontalNormalizedPosition = scrollPositionFactor;
+                _scrollPosition = Mathf.Clamp(scrollPositionFactor * ScrollSize, 0, ScrollSize);
+                if (scrollDirection == ScrollDirectionEnum.Vertical)
+                {
+                    // set the vertical position
+                    _scrollRect.verticalNormalizedPosition = 1f - scrollPositionFactor;
+                }
+                else
+                {
+                    // set the horizontal position
+                    _scrollRect.horizontalNormalizedPosition = scrollPositionFactor;
+                }
             }
 
             _RefreshActive();
@@ -1195,6 +1212,8 @@ namespace EnhancedUI.EnhancedScroller
         /// </summary>
         private bool _initialized = false;
 
+        public bool IsInitialized => _initialized;
+
         /// <summary>
         /// Set when the spacing is changed in the inspector. Since we cannot
         /// make changes during the OnValidate, we have to use this flag to
@@ -1231,6 +1250,7 @@ namespace EnhancedUI.EnhancedScroller
         /// Reference to the delegate that will tell this scroller information
         /// about the underlying data
         /// </summary>
+        [SerializeField]
         private IEnhancedScrollerDelegate _delegate;
 
         /// <summary>
@@ -1758,25 +1778,43 @@ namespace EnhancedUI.EnhancedScroller
             // calculate the size of each padder
             var firstSize = _cellViewOffsetArray[_activeCellViewsStartIndex] - _cellViewSizeArray[_activeCellViewsStartIndex];
             var lastSize = _cellViewOffsetArray.Last() - _cellViewOffsetArray[_activeCellViewsEndIndex];
-
+            
+            var firstRectTransform = ((RectTransform)_firstPadder.transform);
+            var lastRectTransform = ((RectTransform)_lastPadder.transform);
             if (scrollDirection == ScrollDirectionEnum.Vertical)
             {
+                if (!_layoutGroup.childControlHeight)
+                {
+                    firstRectTransform.sizeDelta = new Vector2(firstRectTransform.sizeDelta.x, firstSize);
+                    lastRectTransform.sizeDelta= new Vector2(lastRectTransform.sizeDelta.x, lastSize);
+                }
+                // else
+                {
+                    _firstPadder.minHeight = firstSize;
+                    _lastPadder.minHeight = lastSize;
+                }
                 // set the first padder and toggle its visibility
-                _firstPadder.minHeight = firstSize;
                 _firstPadder.gameObject.SetActive(_firstPadder.minHeight > 0);
 
                 // set the last padder and toggle its visibility
-                _lastPadder.minHeight = lastSize;
                 _lastPadder.gameObject.SetActive(_lastPadder.minHeight > 0);
             }
             else
             {
+                if (!_layoutGroup.childControlWidth)
+                {
+                    firstRectTransform.sizeDelta = new Vector2(firstSize, firstRectTransform.sizeDelta.y);
+                    lastRectTransform.sizeDelta = new Vector2(lastSize, lastRectTransform.sizeDelta.y);
+                }
+                // else
+                {
+                    _firstPadder.minWidth = firstSize;
+                    _lastPadder.minWidth = lastSize;
+                }
                 // set the first padder and toggle its visibility
-                _firstPadder.minWidth = firstSize;
                 _firstPadder.gameObject.SetActive(_firstPadder.minWidth > 0);
 
                 // set the last padder and toggle its visibility
-                _lastPadder.minWidth = lastSize;
                 _lastPadder.gameObject.SetActive(_lastPadder.minWidth > 0);
             }
         }
@@ -1868,27 +1906,74 @@ namespace EnhancedUI.EnhancedScroller
         /// </summary>
         void Awake()
         {
-            GameObject go;
-
             // cache some components
             _scrollRect = this.GetComponent<ScrollRect>();
             _scrollRectTransform = _scrollRect.GetComponent<RectTransform>();
 
             // destroy any content objects if they exist. Likely there will be
             // one at design time because Unity gives errors if it can't find one.
+            // if (_scrollRect.content != null)
+            // {
+            //     DestroyImmediate(_scrollRect.content.gameObject);
+            // }
+
+            GameObject containerGo;
             if (_scrollRect.content != null)
             {
-                DestroyImmediate(_scrollRect.content.gameObject);
+                containerGo = _scrollRect.content.gameObject;
+            }
+            else
+            {
+                var layoutGroup=GetComponentInChildren<HorizontalOrVerticalLayoutGroup>();
+                if (layoutGroup != null)
+                {
+                    Debug.Assert(layoutGroup.transform.parent == this.transform,
+                        "layoutGroup.transform.parent == this.transform");
+                    containerGo=layoutGroup.gameObject;
+                }
+                else
+                {
+                    throw new NotImplementedException("invalid go");
+                }
             }
 
-            // Create a new active cell view container with a layout group
-            go = new GameObject("Container", typeof(RectTransform));
-            go.transform.SetParent(_scrollRectTransform);
-            if (scrollDirection == ScrollDirectionEnum.Vertical)
-                go.AddComponent<VerticalLayoutGroup>();
+            // if (go == null)
+            // {
+            //     // Create a new active cell view container with a layout group
+            //     go = new GameObject("Container", typeof(RectTransform));
+            //     go.transform.SetParent(_scrollRectTransform);
+            //     
+            //     // if (scrollDirection == ScrollDirectionEnum.Vertical)
+            //     //     go.AddComponent<VerticalLayoutGroup>();
+            //     // else
+            //     //     go.AddComponent<HorizontalLayoutGroup>();
+            // }
+            
+            // cache the layout group and set up its spacing and padding
+            _layoutGroup = containerGo.GetComponent<HorizontalOrVerticalLayoutGroup>();
+            // _layoutGroup.spacing = spacing;
+            // _layoutGroup.padding = padding;
+            _layoutGroup.childAlignment = TextAnchor.UpperLeft;
+            _layoutGroup.childForceExpandHeight = true;
+            _layoutGroup.childForceExpandWidth = true;
+            //
+            // // force the scroller to scroll in the direction we want
+            // _scrollRect.horizontal = scrollDirection == ScrollDirectionEnum.Horizontal;
+            // _scrollRect.vertical = scrollDirection == ScrollDirectionEnum.Vertical;
+            if (_layoutGroup is VerticalLayoutGroup)
+            {
+                scrollDirection = ScrollDirectionEnum.Vertical;
+            }
+            else if (_layoutGroup is HorizontalLayoutGroup)
+            {
+                scrollDirection = ScrollDirectionEnum.Horizontal;
+            }
             else
-                go.AddComponent<HorizontalLayoutGroup>();
-            _container = go.GetComponent<RectTransform>();
+            {
+                throw new NotImplementedException();
+            }
+
+            _container = containerGo.GetComponent<RectTransform>();
 
             // set the containers anchor and pivot
             if (scrollDirection == ScrollDirectionEnum.Vertical)
@@ -1909,7 +1994,7 @@ namespace EnhancedUI.EnhancedScroller
             _container.offsetMax = Vector2.zero;
             _container.offsetMin = Vector2.zero;
 
-            _scrollRect.content = _container;
+            // _scrollRect.content = _container;
 
             // cache the scrollbar if it exists
             if (scrollDirection == ScrollDirectionEnum.Vertical)
@@ -1921,32 +2006,20 @@ namespace EnhancedUI.EnhancedScroller
                 _scrollbar = _scrollRect.horizontalScrollbar;
             }
 
-            // cache the layout group and set up its spacing and padding
-            _layoutGroup = _container.GetComponent<HorizontalOrVerticalLayoutGroup>();
-            _layoutGroup.spacing = spacing;
-            _layoutGroup.padding = padding;
-            _layoutGroup.childAlignment = TextAnchor.UpperLeft;
-            _layoutGroup.childForceExpandHeight = true;
-            _layoutGroup.childForceExpandWidth = true;
-
-            // force the scroller to scroll in the direction we want
-            _scrollRect.horizontal = scrollDirection == ScrollDirectionEnum.Horizontal;
-            _scrollRect.vertical = scrollDirection == ScrollDirectionEnum.Vertical;
-
             // create the padder objects
 
-            go = new GameObject("First Padder", typeof(RectTransform), typeof(LayoutElement));
-            go.transform.SetParent(_container, false);
-            _firstPadder = go.GetComponent<LayoutElement>();
+            containerGo = new GameObject("First Padder", typeof(RectTransform), typeof(LayoutElement));
+            containerGo.transform.SetParent(_container, false);
+            _firstPadder = containerGo.GetComponent<LayoutElement>();
 
-            go = new GameObject("Last Padder", typeof(RectTransform), typeof(LayoutElement));
-            go.transform.SetParent(_container, false);
-            _lastPadder = go.GetComponent<LayoutElement>();
+            containerGo = new GameObject("Last Padder", typeof(RectTransform), typeof(LayoutElement));
+            containerGo.transform.SetParent(_container, false);
+            _lastPadder = containerGo.GetComponent<LayoutElement>();
 
             // create the recycled cell view container
-            go = new GameObject("Recycled Cells", typeof(RectTransform));
-            go.transform.SetParent(_scrollRect.transform, false);
-            _recycledCellViewContainer = go.GetComponent<RectTransform>();
+            containerGo = new GameObject("Recycled Cells", typeof(RectTransform));
+            containerGo.transform.SetParent(_scrollRect.transform, false);
+            _recycledCellViewContainer = containerGo.GetComponent<RectTransform>();
             _recycledCellViewContainer.gameObject.SetActive(false);
 
             // set up the last values for updates
@@ -1954,8 +2027,23 @@ namespace EnhancedUI.EnhancedScroller
             _lastLoop = loop;
             _lastScrollbarVisibility = scrollbarVisibility;
 
+            InitContainer();
+            
             _initialized = true;
+            _delegate.OnScrollerInitialized();
         }
+
+		protected void InitContainer()
+		{
+            if (_delegate == null)
+            {
+                _delegate=this.GetComponent<DefaultEnhancedScrollerController>();
+                if (_delegate == null)
+                {
+                    _delegate=this.gameObject.AddComponent<DefaultEnhancedScrollerController>();
+                }
+            }
+		}
 
 		/// <summary>
         /// This event is fired when the user begins dragging on the scroller.
