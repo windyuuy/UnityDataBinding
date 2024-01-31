@@ -30,7 +30,6 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		{
 			InitContainer();
 			
-			CellViewPrefab = enhancedScroller.cellViewPrefab;
 			if (CellViewPrefab == null)
 			{
 				if (enhancedScroller.Container.childCount > 0)
@@ -81,6 +80,11 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			Debug.Assert(enhancedScroller != null, "enhancedScroller != null");
 			// tell the scroller that this script will be its delegate
 			enhancedScroller.Delegate = this;
+
+			if (CellViewPrefab == null)
+			{
+				CellViewPrefab = enhancedScroller.cellViewPrefab;
+			}
 		}
 
 		protected List<object> OldList;
