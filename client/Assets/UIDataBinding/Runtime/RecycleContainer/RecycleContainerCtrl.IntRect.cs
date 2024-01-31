@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UIDataBinding.Runtime.RecycleContainer
+namespace DataBinding.UIBind.RecycleContainer
 {
 	[Serializable]
 	public struct IntRect

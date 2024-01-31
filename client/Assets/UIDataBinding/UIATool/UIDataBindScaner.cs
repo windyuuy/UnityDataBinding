@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DataBinding.UIBind;
 using UnityEngine;
 
-namespace UIDataBinding.UIATool
+namespace DataBinding.UIATool
 {
 	public class UIDataBindScaner
 	{

@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace UIDataBinding.Runtime.RecycleContainer
+namespace DataBinding.UIBind.RecycleContainer
 {
 	public class LocalNodeQueue
 	{

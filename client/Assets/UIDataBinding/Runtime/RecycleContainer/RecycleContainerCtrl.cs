@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using DataBinding.UIBind;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
@@ -12,7 +11,7 @@ using Debug = UnityEngine.Debug;
 
 // ReSharper disable All
 
-namespace UIDataBinding.Runtime.RecycleContainer
+namespace DataBinding.UIBind.RecycleContainer
 {
 	public partial class RecycleContainerCtrl : FlatContainerCtrl
 	{

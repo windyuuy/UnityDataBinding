@@ -6,7 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using ParseJSDataBindAbstract;
 using ParseJSDataBindAbstract.CodeWriter;
-using UIDataBinding.UIATool;
+using DataBinding.UIATool;
 using UnityEngine;
 using VM;
 
