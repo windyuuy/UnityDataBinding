@@ -100,7 +100,7 @@ namespace DataBinding.UIBind
 		{
 			var child = Instantiate(tempNode.gameObject, parent);
 			child.name = tempNode.name;
-			//child.transform.SetParent(parent);
+			//child.transform.SetParent(parent, false);
 			return child.transform;
 		}
 

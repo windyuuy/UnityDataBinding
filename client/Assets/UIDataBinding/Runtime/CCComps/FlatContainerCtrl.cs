@@ -449,7 +449,7 @@ namespace DataBinding.UIBind
 			else
 			{
 #if UNITY_EDITOR
-				child.SetParent(null);
+				child.SetParent(null, false);
 #endif
 				child.gameObject.DestorySafe();
 			}

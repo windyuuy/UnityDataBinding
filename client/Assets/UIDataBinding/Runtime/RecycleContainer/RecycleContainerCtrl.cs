@@ -639,7 +639,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 			}
 
 // #endif
-			emptyNode.transform.SetParent(this._container);
+			emptyNode.transform.SetParent(this._container, false);
 
 			if (_standTempNode.IsInValid())
 			{
@@ -708,7 +708,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 							this.UpdateCurrentDataBind(childAsync, index2);
 							if (childAsync.parent != _container)
 							{
-								childAsync.SetParent(_container);
+								childAsync.SetParent(_container, false);
 							}
 
 							// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
@@ -723,7 +723,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 						PrepareDataBind(childAsync);
 						if (childAsync.parent != _container)
 						{
-							childAsync.SetParent(_container);
+							childAsync.SetParent(_container, false);
 						}
 
 						RecycleNode(childAsync);
@@ -742,7 +742,7 @@ namespace UIDataBinding.Runtime.RecycleContainer
 					PrepareDataBind(childAsync);
 					if (childAsync.parent != _container)
 					{
-						childAsync.SetParent(_container);
+						childAsync.SetParent(_container, false);
 					}
 
 					RecycleNode(childAsync);
