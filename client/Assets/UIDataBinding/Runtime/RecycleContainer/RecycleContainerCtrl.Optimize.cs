@@ -15,9 +15,9 @@ namespace DataBinding.UIBind.RecycleContainer
 		/// - 初始化： DetectRect
 		/// - 后续更新： 移动窗口 -> 计算新窗口坐标 -> UpdateRectByScroll, 获得新窗口中心（待精确） -> 遍历时, 扩展新窗口矩形 -> 重新计算精确窗口中心和Size 
 		/// </summary>
-		private GridIter _gridIter = new();
+		protected GridIter GridIterPre = new();
 
-		private GridIter _gridIterNext = new();
+		protected GridIter GridIterNext = new();
 
 		public void DetectRectInit(Vector2 scrollPos)
 		{
@@ -25,24 +25,24 @@ namespace DataBinding.UIBind.RecycleContainer
 			// no element
 			// _gridIterNext =
 			// 	GridIter.FromCorners(new IntVector2(0, 0), new IntVector2(-2, -2), _childCountInit, scrollPos);
-			_gridIterNext.Pos = new Vector2(0, 0);
-			_gridIterNext.TotalCount = _childCountInit;
-			_gridIterNext.ScrollPos = scrollPos;
-			_gridIterNext.Size = new IntVector2(-2, -2);
+			GridIterNext.Pos = new Vector2(0, 0);
+			GridIterNext.TotalCount = ChildCountInit;
+			GridIterNext.ScrollPos = scrollPos;
+			GridIterNext.Size = new IntVector2(-2, -2);
 
 			// if (_childCountInit == 0)
 			{
-				_gridIterNext.IsPrecision = true;
+				GridIterNext.IsPrecision = true;
 			}
 
-			_gridIterNext.ScrollRectRange = _scrollRectRange;
+			GridIterNext.ScrollRectRange = ScrollRectRange;
 
-			_gridIter.Copy(ref _gridIterNext);
-			_gridIter.IsPrecision = true;
+			GridIterPre.Copy(ref GridIterNext);
+			GridIterPre.IsPrecision = true;
 
-			_gridIterNext.NeedCheck = this.needCheck;
-			_gridIter.NeedCheck = this.needCheck;
-			if (_gridIterNext.NeedCheck)
+			GridIterNext.NeedCheck = this.needCheck;
+			GridIterPre.NeedCheck = this.needCheck;
+			if (GridIterNext.NeedCheck)
 			{
 				InjectDebugDetails();
 			}
@@ -54,30 +54,30 @@ namespace DataBinding.UIBind.RecycleContainer
 
 			bool DetectFunc(int index)
 			{
-				if (index >= _childCountInit)
+				if (index >= ChildCountInit)
 				{
 					return false;
 				}
 
-				return IsInContainer(_container.GetChild(index));
+				return IsInContainer(container.GetChild(index));
 			}
 
-			_gridIter.DetectFunc = DetectFunc;
-			_gridIterNext.DetectFunc = DetectFunc;
+			GridIterPre.DetectFunc = DetectFunc;
+			GridIterNext.DetectFunc = DetectFunc;
 
 			bool CheckFunc(int index)
 			{
-				if (index >= _childCountInit)
+				if (index >= ChildCountInit)
 				{
 					return true;
 				}
 
-				var child = _container.GetChild(index);
+				var child = container.GetChild(index);
 				return IsVirtualNode(child) != IsInContainer(child);
 			}
 
-			_gridIter.CheckFunc = CheckFunc;
-			_gridIterNext.CheckFunc = CheckFunc;
+			GridIterPre.CheckFunc = CheckFunc;
+			GridIterNext.CheckFunc = CheckFunc;
 
 			#endregion
 		}
@@ -86,32 +86,32 @@ namespace DataBinding.UIBind.RecycleContainer
 		{
 			var lineBreakSize = gridIter.LineBreakSize;
 			var distance = Vector3.zero;
-			if (_childCountInit >= 2)
+			if (ChildCountInit >= 2)
 			{
-				if (lineBreakSize + 2 <= _childCountInit)
+				if (lineBreakSize + 2 <= ChildCountInit)
 				{
-					distance = _container.GetChild(gridIter.ToIndex(1, 1)).localPosition -
-					           _container.GetChild(0).localPosition;
+					distance = container.GetChild(gridIter.ToIndex(1, 1)).localPosition -
+					           container.GetChild(0).localPosition;
 				}
-				else if (2 <= lineBreakSize && lineBreakSize + 1 <= _childCountInit)
+				else if (2 <= lineBreakSize && lineBreakSize + 1 <= ChildCountInit)
 				{
-					var distanceX = _container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
-					                _container.GetChild(0).localPosition;
-					var distanceY = _container.GetChild(gridIter.ToIndex(0, 1)).localPosition -
-					                _container.GetChild(0).localPosition;
+					var distanceX = container.GetChild(gridIter.ToIndex(1, 0)).localPosition -
+					                container.GetChild(0).localPosition;
+					var distanceY = container.GetChild(gridIter.ToIndex(0, 1)).localPosition -
+					                container.GetChild(0).localPosition;
 					distance = new Vector3(distanceX.x, distanceY.y, distanceX.z + distanceY.x);
 				}
 				else
 				{
-					distance = _container.GetChild(lineBreakSize - 1).localPosition -
-					           _container.GetChild(0).localPosition;
+					distance = container.GetChild(lineBreakSize - 1).localPosition -
+					           container.GetChild(0).localPosition;
 				}
 			}
 
 			return distance;
 		}
 
-		private LayoutGroup _layoutGroup;
+		protected LayoutGroup LayoutGroup;
 
 		/// <summary>
 		/// UpdateContainerBodySize
@@ -126,8 +126,8 @@ namespace DataBinding.UIBind.RecycleContainer
 			IntVector2 bodySizeInfo;
 			IntVector2 iterSize;
 			var lineBreakSize = 1;
-			_layoutGroup ??= _container.GetComponent<LayoutGroup>();
-			var layoutGroup = _layoutGroup;
+			LayoutGroup ??= container.GetComponent<LayoutGroup>();
+			var layoutGroup = LayoutGroup;
 			if (layoutGroup is VerticalLayoutGroup)
 			{
 				bodySizeInfo = new IntVector2(1, 1);
@@ -137,20 +137,20 @@ namespace DataBinding.UIBind.RecycleContainer
 			}
 			else if (layoutGroup is HorizontalLayoutGroup)
 			{
-				bodySizeInfo = new IntVector2(1, _childCountInit);
+				bodySizeInfo = new IntVector2(1, ChildCountInit);
 				lineBreakSize = int.MaxValue;
 				iterSize = new IntVector2(1, int.MaxValue);
 				isOk = true;
 			}
 			else if (layoutGroup is GridLayoutGroup gridLayoutGroup)
 			{
-				if (_childCountInit == 0)
+				if (ChildCountInit == 0)
 				{
 					bodySizeInfo = new IntVector2(1, 1);
 					lineBreakSize = 1;
 					iterSize = new IntVector2(1, 1);
 				}
-				else if (_childCountInit == 1)
+				else if (ChildCountInit == 1)
 				{
 					bodySizeInfo = new IntVector2(1, 1);
 					lineBreakSize = 1;
@@ -158,20 +158,20 @@ namespace DataBinding.UIBind.RecycleContainer
 				}
 				else
 				{
-					var p0I0 = _container.GetChild(0);
+					var p0I0 = container.GetChild(0);
 					var lineXSize = 1;
 					var lineYSize = 1;
 
-					if (_childCountInit >= 2)
+					if (ChildCountInit >= 2)
 					{
-						var p1 = _container.GetChild(1);
+						var p1 = container.GetChild(1);
 						if (gridLayoutGroup.startAxis == GridLayoutGroup.Axis.Horizontal)
 						{
 							var xMax = p0I0.localPosition.x;
 							var xSign = Math.Sign(p1.localPosition.x - xMax);
-							for (var i = lineXSize; i < _childCountInit; i++)
+							for (var i = lineXSize; i < ChildCountInit; i++)
 							{
-								var child = _container.GetChild(i);
+								var child = container.GetChild(i);
 								var childX = child.localPosition.x;
 								if (xSign * (childX - xMax) > 0)
 								{
@@ -185,7 +185,7 @@ namespace DataBinding.UIBind.RecycleContainer
 								}
 							}
 
-							lineYSize = (_childCountInit + lineXSize - 1) / lineXSize;
+							lineYSize = (ChildCountInit + lineXSize - 1) / lineXSize;
 
 							lineBreakSize = lineXSize;
 							iterSize = new IntVector2(1, lineBreakSize);
@@ -194,9 +194,9 @@ namespace DataBinding.UIBind.RecycleContainer
 						{
 							var yMax = p0I0.localPosition.y;
 							var ySign = Math.Sign(p1.localPosition.y - yMax);
-							for (var i = lineYSize; i < _childCountInit; i++)
+							for (var i = lineYSize; i < ChildCountInit; i++)
 							{
-								var child = _container.GetChild(i);
+								var child = container.GetChild(i);
 								var childY = child.localPosition.y;
 								if (ySign * (childY - yMax) > 0)
 								{
@@ -210,7 +210,7 @@ namespace DataBinding.UIBind.RecycleContainer
 								}
 							}
 
-							lineXSize = (_childCountInit + lineYSize - 1) / lineYSize;
+							lineXSize = (ChildCountInit + lineYSize - 1) / lineYSize;
 
 							lineBreakSize = int.MaxValue;
 							iterSize = new IntVector2(lineYSize, 1);
@@ -233,11 +233,11 @@ namespace DataBinding.UIBind.RecycleContainer
 				throw new NotImplementedException();
 			}
 
-			gridIter.TotalCount = _childCountInit;
+			gridIter.TotalCount = ChildCountInit;
 			gridIter.LineBreakSize = lineBreakSize;
 			gridIter.BodySizeInfo = bodySizeInfo;
 			gridIter.IterSize = iterSize;
-			gridIter.ScrollRectRange = this._scrollRectRange;
+			gridIter.ScrollRectRange = this.ScrollRectRange;
 
 			var distance = UpdateDistance(gridIter);
 			gridIter.Distance = distance;
@@ -247,22 +247,22 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		public void UpdateRectByScroll(Vector2 scrollPos)
 		{
-			Debug.Assert(_gridIterNext.IsPrecision);
+			Debug.Assert(GridIterNext.IsPrecision);
 
-			var lineXSize = _gridIterNext.LineXSize;
-			var lineYSize = _gridIterNext.LineYSize;
-			var size = _gridIterNext.Size;
-			var bodyRect = _gridIterNext.GetBodyRect();
-			var moveOffset = scrollPos - _gridIterNext.ScrollPos;
-			var center = _gridIterNext.Pos;
+			var lineXSize = GridIterNext.LineXSize;
+			var lineYSize = GridIterNext.LineYSize;
+			var size = GridIterNext.Size;
+			var bodyRect = GridIterNext.GetBodyRect();
+			var moveOffset = scrollPos - GridIterNext.ScrollPos;
+			var center = GridIterNext.Pos;
 
-			var distance = _gridIterNext.Distance;
+			var distance = GridIterNext.Distance;
 			var iSign = IntVector2.Sign(distance);
 
 			var isValidCenterFound = false;
 			IntVector2 centerInContainer;
 			Vector2 guessCenter;
-			if (_gridIterNext.Distance != Vector3.zero)
+			if (GridIterNext.Distance != Vector3.zero)
 			{
 				var iDir = new Vector2(moveOffset.x / distance.x, moveOffset.y / distance.y);
 				guessCenter = center + iDir;
@@ -298,7 +298,7 @@ namespace DataBinding.UIBind.RecycleContainer
 						if (0 <= centerN.x && centerN.x < lineXSize
 						                   && 0 <= centerN.y)
 						{
-							var pos = _gridIterNext.ToIndex(centerN);
+							var pos = GridIterNext.ToIndex(centerN);
 							if (IsInContainerSafe(pos))
 							{
 								ptInContainer = centerN;
@@ -322,7 +322,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			if (!isValidCenterFound && bodyRect.IsBroad())
 			{
 				var halfSize = new Vector2(size.x * 0.5f, size.y * 0.5f);
-				var fWinSize = _scrollRectRange.size;
+				var fWinSize = ScrollRectRange.size;
 				var iWinSize = new Vector2(fWinSize.x / Mathf.Abs(distance.x), fWinSize.y / Mathf.Abs(distance.y));
 				var iMoveSign = new IntVector2(Math.Sign(moveOffset.x * iSign.x), Math.Sign(moveOffset.y * iSign.y));
 
@@ -367,7 +367,7 @@ namespace DataBinding.UIBind.RecycleContainer
 					var (y1, y2) = SortNum(searchCorner0.y, searchCorner2.y);
 					if (SearchAnyPtInContainer(x1, x2, y1, y2, iSign, out var xHit, out var yHit))
 					{
-						Debug.Assert(IsInContainer(_gridIterNext.ToIndex(xHit, yHit)));
+						Debug.Assert(IsInContainer(GridIterNext.ToIndex(xHit, yHit)));
 						centerInContainer = new IntVector2(xHit, yHit);
 						isValidCenterFound = true;
 					}
@@ -380,18 +380,18 @@ namespace DataBinding.UIBind.RecycleContainer
 					    out var xHit,
 					    out var yHit))
 				{
-					Debug.Assert(IsInContainer(_gridIterNext.ToIndex(xHit, yHit)));
+					Debug.Assert(IsInContainer(GridIterNext.ToIndex(xHit, yHit)));
 					centerInContainer = new IntVector2(xHit, yHit);
 					isValidCenterFound = true;
 				}
 			}
 
-			_gridIterNext.ScrollPos = scrollPos;
+			GridIterNext.ScrollPos = scrollPos;
 			if (!isValidCenterFound)
 			{
 				// 未找到任何窗内元素
-				_gridIterNext.Size = new IntVector2(-1, -1);
-				_gridIterNext.IsPrecision = true;
+				GridIterNext.Size = new IntVector2(-1, -1);
+				GridIterNext.IsPrecision = true;
 				// Debug.LogError("isValidCenterFound");
 			}
 			else
@@ -399,13 +399,13 @@ namespace DataBinding.UIBind.RecycleContainer
 				// find fuzzy size
 				{
 					var (x1, x2, y1, y2) = DetectRectBorder(centerInContainer.x, centerInContainer.y, lineXSize,
-						lineYSize, _childCountInit);
+						lineYSize, ChildCountInit);
 
-					_gridIterNext.Size = new IntVector2(x2 - x1, y2 - y1);
-					_gridIterNext.Pos = new Vector2((x2 + x1) * 0.5f, (y2 + y1) * 0.5f);
+					GridIterNext.Size = new IntVector2(x2 - x1, y2 - y1);
+					GridIterNext.Pos = new Vector2((x2 + x1) * 0.5f, (y2 + y1) * 0.5f);
 				}
-				_gridIterNext.PosSure = centerInContainer;
-				_gridIterNext.IsPrecision = false;
+				GridIterNext.PosSure = centerInContainer;
+				GridIterNext.IsPrecision = false;
 			}
 
 			UpdateLentPool();
@@ -413,8 +413,8 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		protected void UpdateLentPool()
 		{
-			var totalCount = _gridIterNext.TotalCount;
-			var lentPool = _gridIterNext.LentPool;
+			var totalCount = GridIterNext.TotalCount;
+			var lentPool = GridIterNext.LentPool;
 			lentPool.Clear();
 			foreach (var child in this.LentPool.PeekAll())
 			{
@@ -479,22 +479,22 @@ namespace DataBinding.UIBind.RecycleContainer
 				var xmid = Mathf.FloorToInt((x1 + x2) * 0.5f);
 				var ymid = Mathf.FloorToInt((y1 + y2) * 0.5f);
 
-				var index = _gridIterNext.ToIndex(xmid, ymid);
-				if (index >= _childCountInit)
+				var index = GridIterNext.ToIndex(xmid, ymid);
+				if (index >= ChildCountInit)
 				{
 					return Search2XYInternal(x1, xmid - 1, y1, y2, out xHit, out yHit)
 					       || Search2XYInternal(xmid, x2, y1, ymid - 1, out xHit, out yHit);
 				}
 
-				var child = _container.GetChild(index);
+				var child = container.GetChild(index);
 				var rect = GetRectBounds(child);
 
 				int dy;
-				if (rect.yMin > _scrollRectRange.yMax)
+				if (rect.yMin > ScrollRectRange.yMax)
 				{
 					dy = -1 * iSign.y;
 				}
-				else if (_scrollRectRange.yMin > rect.yMax)
+				else if (ScrollRectRange.yMin > rect.yMax)
 				{
 					dy = 1 * iSign.y;
 				}
@@ -504,11 +504,11 @@ namespace DataBinding.UIBind.RecycleContainer
 				}
 
 				int dx;
-				if (rect.xMin > _scrollRectRange.xMax)
+				if (rect.xMin > ScrollRectRange.xMax)
 				{
 					dx = -1 * iSign.x;
 				}
-				else if (_scrollRectRange.xMin > rect.xMax)
+				else if (ScrollRectRange.xMin > rect.xMax)
 				{
 					dx = 1 * iSign.x;
 				}
@@ -542,8 +542,8 @@ namespace DataBinding.UIBind.RecycleContainer
 			var x1 = ax;
 			for (var ix = x1; ix >= 0; ix--)
 			{
-				var ipos = _gridIterNext.ToIndex(ix, y0);
-				var child = _container.GetChild(ipos);
+				var ipos = GridIterNext.ToIndex(ix, y0);
+				var child = container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
 					break;
@@ -556,8 +556,8 @@ namespace DataBinding.UIBind.RecycleContainer
 			var y1 = ay;
 			for (var iy = y1; iy >= 0; iy--)
 			{
-				var ipos = _gridIterNext.ToIndex(x0, iy);
-				var child = _container.GetChild(ipos);
+				var ipos = GridIterNext.ToIndex(x0, iy);
+				var child = container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
 					break;
@@ -570,13 +570,13 @@ namespace DataBinding.UIBind.RecycleContainer
 			var x2 = ax;
 			for (var ix = x2; ix < lineXSize; ix++)
 			{
-				var ipos = _gridIterNext.ToIndex(ix, y0);
+				var ipos = GridIterNext.ToIndex(ix, y0);
 				if (ipos >= total)
 				{
 					break;
 				}
 
-				var child = _container.GetChild(ipos);
+				var child = container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
 					break;
@@ -589,13 +589,13 @@ namespace DataBinding.UIBind.RecycleContainer
 			var y2 = ay;
 			for (var iy = y2; iy < lineYSize; iy++)
 			{
-				var ipos = _gridIterNext.ToIndex(x0, iy);
+				var ipos = GridIterNext.ToIndex(x0, iy);
 				if (ipos >= total)
 				{
 					break;
 				}
 
-				var child = _container.GetChild(ipos);
+				var child = container.GetChild(ipos);
 				if (!IsInContainer(child))
 				{
 					break;
@@ -614,9 +614,9 @@ namespace DataBinding.UIBind.RecycleContainer
 				return false;
 			}
 
-			var detectRect = _gridIterNext.GetTopIndex();
-			var lineBreakSize = _gridIterNext.LineBreakSize;
-			var size = _gridIterNext.Size;
+			var detectRect = GridIterNext.GetTopIndex();
+			var lineBreakSize = GridIterNext.LineBreakSize;
+			var size = GridIterNext.Size;
 			var nearDistance = Math.Max(1, Mathf.RoundToInt(Math.Max(size.x, size.y) * 0.5f));
 			if (OldList.Count <= detectRect + lineBreakSize * nearDistance)
 			{
@@ -626,6 +626,9 @@ namespace DataBinding.UIBind.RecycleContainer
 			return false;
 		}
 
+		/// <summary>
+		/// 是否允许异步加载
+		/// </summary>
 		public bool loadAsync = false;
 		protected IEnumerator UpdateItemsByTicksIter;
 
@@ -689,16 +692,16 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		protected IEnumerable UpdateItemsByTicksInternal(IList dataSources)
 		{
-			var area = Math.Max(128, (int)_gridIterNext.GetDetectRect().GetArea());
+			var area = Math.Max(128, (int)GridIterNext.GetDetectRect().GetArea());
 			var batch1 = area;
 			foreach (var o in UpdateItemsByData(dataSources, 0, batch1, 0, batch1))
 			{
 				yield return o;
 			}
 
-			LayoutRebuilder.MarkLayoutForRebuild(this._container);
+			LayoutRebuilder.MarkLayoutForRebuild(this.container);
 			yield return new WaitForEndOfFrame();
-			UpdateContainerState(this._scrollVal);
+			UpdateContainerState(this.ScrollVal);
 			yield return null;
 
 			var batch2 = area;
@@ -736,10 +739,10 @@ namespace DataBinding.UIBind.RecycleContainer
 					yield return o;
 				}
 
-				LayoutRebuilder.MarkLayoutForRebuild(this._container);
+				LayoutRebuilder.MarkLayoutForRebuild(this.container);
 				yield return new WaitForEndOfFrame();
 				var timeStart = DateTime.Now.Millisecond;
-				UpdateContainerState(this._scrollVal);
+				UpdateContainerState(this.ScrollVal);
 				var timeEnd = DateTime.Now.Millisecond;
 				var dt = (timeEnd - timeStart + 1000) % 1000;
 				Debug.Log($"preload-stand-end, {dt}");

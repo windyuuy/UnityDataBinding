@@ -20,19 +20,19 @@ namespace DataBinding.UIBind.RecycleContainer
 		/// <summary>
 		/// Cached reference to the scrollRect's transform
 		/// </summary>
-		private RectTransform _scrollRectTransform;
+		protected RectTransform ScrollRectTransform;
 
 // #if UNITY_EDITOR
 		[SerializeField] private bool enableDebugView;
 // #endif
 
-		private bool _isAwake = false;
+		protected bool IsAwake = false;
 
 		protected override void Awake()
 		{
 			HandleDataChangedAfterAwake?.Invoke();
 
-			_isAwake = true;
+			IsAwake = true;
 		}
 
 		protected override void InitContainer()
@@ -49,14 +49,14 @@ namespace DataBinding.UIBind.RecycleContainer
 
 			if (this.scrollRect != null)
 			{
-				if (this._container == null)
+				if (this.container == null)
 				{
-					this._container = this.scrollRect.content;
+					this.container = this.scrollRect.content;
 				}
 
-				if (this._scrollRectTransform == null)
+				if (this.ScrollRectTransform == null)
 				{
-					this._scrollRectTransform = this.scrollRect.GetComponent<RectTransform>();
+					this.ScrollRectTransform = this.scrollRect.GetComponent<RectTransform>();
 				}
 			}
 			else
@@ -76,7 +76,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			{
 				IsDataDirty = true;
 
-				if (!_isAwake)
+				if (!IsAwake)
 				{
 					HandleDataChangedAfterAwake = () => { HandleDataChangedOnInit(dataSources); };
 				}
@@ -123,7 +123,7 @@ namespace DataBinding.UIBind.RecycleContainer
 		/// </summary>
 		public float GetScrollSizeY()
 		{
-			return Mathf.Max(_container.rect.height - _scrollRectTransform.rect.height, 0);
+			return Mathf.Max(container.rect.height - ScrollRectTransform.rect.height, 0);
 		}
 
 		/// <summary>
@@ -131,10 +131,10 @@ namespace DataBinding.UIBind.RecycleContainer
 		/// </summary>
 		public float GetScrollSizeX()
 		{
-			return Mathf.Max(_container.rect.width - _scrollRectTransform.rect.width, 0);
+			return Mathf.Max(container.rect.width - ScrollRectTransform.rect.width, 0);
 		}
 
-		private Vector2 _scrollVal;
+		protected Vector2 ScrollVal;
 
 		/// <summary>
 		/// The scrollers position
@@ -143,13 +143,13 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		private Vector2 _scrollPosH;
 
-		private Rect _scrollRectRange;
+		protected Rect ScrollRectRange;
 
 		private void UpdateScrollRectStatus(Vector2 val)
 		{
-			_scrollVal = val;
+			ScrollVal = val;
 
-			var rect = _scrollRectTransform.rect;
+			var rect = ScrollRectTransform.rect;
 			// var offset = _scrollRectTransform.position - min3 - _root.transform.position;
 			if (scrollRect.vertical)
 			{
@@ -179,11 +179,11 @@ namespace DataBinding.UIBind.RecycleContainer
 				}
 			}
 
-			var size = _scrollRectTransform.sizeDelta;
-			_scrollRectRange = new Rect(_scrollPosH.x, -_scrollPosV.x - size.y, size.x, size.y);
+			var size = ScrollRectTransform.sizeDelta;
+			ScrollRectRange = new Rect(_scrollPosH.x, -_scrollPosV.x - size.y, size.x, size.y);
 		}
 
-		private int _childCountInit;
+		protected int ChildCountInit;
 
 		/// <summary>
 		/// Handler for when the scroller changes value
@@ -218,19 +218,19 @@ namespace DataBinding.UIBind.RecycleContainer
 			// 	Debug.Assert(_childCountInit == childCountInit);
 			// }
 
-			if (!_gridIter.IsPrecision)
+			if (!GridIterPre.IsPrecision)
 			{
-				DetectRectInit(_scrollRectRange.center);
+				DetectRectInit(ScrollRectRange.center);
 			}
 
-			UpdateContainerParams(_gridIterNext);
+			UpdateContainerParams(GridIterNext);
 			if (this.IsGracefullyDirty())
 			{
 				// TODO: 完善会闪一下的问题
 				this.MarkLayoutDirty();
 			}
 
-			UpdateRectByScroll(_scrollRectRange.center);
+			UpdateRectByScroll(ScrollRectRange.center);
 			UpdateElementViewState();
 
 			Profiler.BeginSample("_ScrollRect_OnValueChanged2");
@@ -247,7 +247,7 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		protected void UpdateChildCount()
 		{
-			_childCountInit = OldList.Count;
+			ChildCountInit = OldList.Count;
 		}
 
 		/// <summary>
@@ -255,17 +255,17 @@ namespace DataBinding.UIBind.RecycleContainer
 		/// </summary>
 		public virtual int ChildCount
 		{
-			get { return _childCountInit; }
-			set { _childCountInit = value; }
+			get { return ChildCountInit; }
+			set { ChildCountInit = value; }
 		}
 
 		public bool IsGracefullyDirty()
 		{
-			if (_gridIter.ScrollRectRange.width != _gridIterNext.ScrollRectRange.width ||
-			    _gridIter.ScrollRectRange.height != _gridIterNext.ScrollRectRange.height
+			if (GridIterPre.ScrollRectRange.width != GridIterNext.ScrollRectRange.width ||
+			    GridIterPre.ScrollRectRange.height != GridIterNext.ScrollRectRange.height
 			   )
 			{
-				_gridIter.ScrollRectRange = _gridIterNext.ScrollRectRange;
+				GridIterPre.ScrollRectRange = GridIterNext.ScrollRectRange;
 				return true;
 			}
 
@@ -275,21 +275,21 @@ namespace DataBinding.UIBind.RecycleContainer
 		private void UpdateElementViewState()
 		{
 			var isIn = false;
-			_gridIterNext.IterAcc = 0;
-			_gridIterNext.IterIndex = 1;
-			var iterInto = _gridIterNext.GetForwardIter(() => isIn).GetEnumerator();
+			GridIterNext.IterAcc = 0;
+			GridIterNext.IterIndex = 1;
+			var iterInto = GridIterNext.GetForwardIter(() => isIn).GetEnumerator();
 			var iterIntoRet0 = iterInto.MoveNext();
-			_gridIterNext.IterIndex = 2;
-			var iterOut = _gridIterNext.GetBackwardIter(() => isIn).GetEnumerator();
+			GridIterNext.IterIndex = 2;
+			var iterOut = GridIterNext.GetBackwardIter(() => isIn).GetEnumerator();
 			var iterOutRet0 = iterOut.MoveNext();
 
-			var iInto = iterIntoRet0 ? iterInto.Current : _childCountInit;
+			var iInto = iterIntoRet0 ? iterInto.Current : ChildCountInit;
 
 			int IterIntoContainer(bool suff)
 			{
-				if (0 <= iInto && iInto < _childCountInit)
+				if (0 <= iInto && iInto < ChildCountInit)
 				{
-					var child = this._container.GetChild(iInto);
+					var child = this.container.GetChild(iInto);
 					var isInL = IsInContainer(child);
 					if (IsVirtualNode(child) && isInL)
 					{
@@ -305,7 +305,7 @@ namespace DataBinding.UIBind.RecycleContainer
 					isIn = isInL;
 					if (!iterInto.MoveNext())
 					{
-						iInto = _childCountInit;
+						iInto = ChildCountInit;
 						return 2;
 					}
 
@@ -314,18 +314,18 @@ namespace DataBinding.UIBind.RecycleContainer
 					return 0;
 				}
 
-				iInto = _childCountInit;
+				iInto = ChildCountInit;
 				return 2;
 			}
 
 			// var iOut = _childCountInit - 1;
-			var iOut = iterOutRet0 ? iterOut.Current : _childCountInit;
+			var iOut = iterOutRet0 ? iterOut.Current : ChildCountInit;
 
 			int InterOutContainer(bool suff)
 			{
-				if (0 <= iOut && iOut < _childCountInit)
+				if (0 <= iOut && iOut < ChildCountInit)
 				{
-					var child = this._container.GetChild(iOut);
+					var child = this.container.GetChild(iOut);
 					var isInL = IsInContainer(child);
 					if (!IsVirtualNode(child) && !isInL)
 					{
@@ -341,7 +341,7 @@ namespace DataBinding.UIBind.RecycleContainer
 					isIn = isInL;
 					if (!iterOut.MoveNext())
 					{
-						iOut = _childCountInit;
+						iOut = ChildCountInit;
 						return 2;
 					}
 
@@ -350,7 +350,7 @@ namespace DataBinding.UIBind.RecycleContainer
 					return 0;
 				}
 
-				iOut = _childCountInit;
+				iOut = ChildCountInit;
 				return 2;
 			}
 
@@ -379,8 +379,8 @@ namespace DataBinding.UIBind.RecycleContainer
 
 			Debug.Assert(!iterInto.MoveNext());
 			Debug.Assert(!iterOut.MoveNext());
-			_gridIterNext.FinishIter();
-			_gridIter.Copy(ref _gridIterNext);
+			GridIterNext.FinishIter();
+			GridIterPre.Copy(ref GridIterNext);
 			//
 			// for (var i = 0; i < _childCountInit; i++)
 			// {
@@ -396,12 +396,12 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		public bool IsValidIndex(int index)
 		{
-			return 0 <= index && index < _childCountInit;
+			return 0 <= index && index < ChildCountInit;
 		}
 
 		public bool IsInvalidIndex(int index)
 		{
-			return 0 > index || index >= _childCountInit;
+			return 0 > index || index >= ChildCountInit;
 		}
 
 		protected bool HandleChild(Transform child, int index)
@@ -426,12 +426,12 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		protected bool IsInContainer(int index)
 		{
-			return IsInContainer(_container.GetChild(index));
+			return IsInContainer(container.GetChild(index));
 		}
 
 		protected bool IsInContainerSafe(int index)
 		{
-			return 0 <= index && index < _childCountInit && IsInContainer(_container.GetChild(index));
+			return 0 <= index && index < ChildCountInit && IsInContainer(container.GetChild(index));
 		}
 
 		protected bool IsInContainer(Transform child)
@@ -441,7 +441,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			var isInContainerHorizontal = false;
 			if (scrollRect.vertical)
 			{
-				if (rect.yMax >= _scrollRectRange.yMin && rect.yMin <= _scrollRectRange.yMax)
+				if (rect.yMax >= ScrollRectRange.yMin && rect.yMin <= ScrollRectRange.yMax)
 				{
 					isInContainerVertical = true;
 				}
@@ -453,7 +453,7 @@ namespace DataBinding.UIBind.RecycleContainer
 
 			if (scrollRect.horizontal)
 			{
-				if (rect.xMax >= _scrollRectRange.xMin && rect.xMin <= _scrollRectRange.xMax)
+				if (rect.xMax >= ScrollRectRange.xMin && rect.xMin <= ScrollRectRange.xMax)
 				{
 					isInContainerHorizontal = true;
 				}
@@ -491,9 +491,9 @@ namespace DataBinding.UIBind.RecycleContainer
 			if (TemplateNode.IsInValid())
 			{
 				TemplateNode = null;
-				for (var i = 0; i < _container.childCount; i++)
+				for (var i = 0; i < container.childCount; i++)
 				{
-					var child = _container.GetChild(i);
+					var child = container.GetChild(i);
 					if (!IsVirtualNode(child))
 					{
 						TemplateNode = child;
@@ -604,7 +604,7 @@ namespace DataBinding.UIBind.RecycleContainer
 				}
 
 				var tempSize = ((RectTransform)tempNode).sizeDelta;
-				var rectSize = this._container.sizeDelta;
+				var rectSize = this.container.sizeDelta;
 
 				var ix = scrollRect.horizontal ? Mathf.FloorToInt(rectSize.x / tempSize.x * 0.5f) : 1;
 				var iy = scrollRect.vertical ? Mathf.FloorToInt(rectSize.y / tempSize.y * 0.5f) : 1;
@@ -625,7 +625,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			return child;
 		}
 
-		private RectTransform _standTempNode;
+		protected RectTransform StandTempNode;
 
 		public virtual Transform GenPlacer(int index)
 		{
@@ -638,23 +638,23 @@ namespace DataBinding.UIBind.RecycleContainer
 			}
 
 // #endif
-			emptyNode.transform.SetParent(this._container, false);
+			emptyNode.transform.SetParent(this.container, false);
 
-			if (_standTempNode.IsInValid())
+			if (StandTempNode.IsInValid())
 			{
-				if (index < this._container.childCount)
+				if (index < this.container.childCount)
 				{
-					_standTempNode = (RectTransform)this._container.GetChild(index);
+					StandTempNode = (RectTransform)this.container.GetChild(index);
 				}
 				else
 				{
-					_standTempNode = (RectTransform)GetTemplateNode(index);
+					StandTempNode = (RectTransform)GetTemplateNode(index);
 				}
 			}
 
 			var emptyNodeTrans = (RectTransform)emptyNode.transform;
-			emptyNodeTrans.sizeDelta = _standTempNode.sizeDelta;
-			emptyNodeTrans.pivot = _standTempNode.pivot;
+			emptyNodeTrans.sizeDelta = StandTempNode.sizeDelta;
+			emptyNodeTrans.pivot = StandTempNode.pivot;
 			emptyNodeTrans.localPosition = InVisiblePos;
 			return emptyNodeTrans;
 		}
@@ -690,7 +690,7 @@ namespace DataBinding.UIBind.RecycleContainer
 						// not recycled
 						isNotRecycled)
 					{
-						Debug.Assert(standSync.GetSiblingIndex() < _childCountInit);
+						Debug.Assert(standSync.GetSiblingIndex() < ChildCountInit);
 						// Debug.Assert(IsInContainer(standSync));
 
 						// recycle stand
@@ -705,9 +705,9 @@ namespace DataBinding.UIBind.RecycleContainer
 						{
 							var index2 = standSync.GetSiblingIndex();
 							this.UpdateCurrentDataBind(childAsync, index2);
-							if (childAsync.parent != _container)
+							if (childAsync.parent != container)
 							{
-								childAsync.SetParent(_container, false);
+								childAsync.SetParent(container, false);
 							}
 
 							// AddPendingResetLocationAction(childAsync, index2, standSync.localPosition);
@@ -720,9 +720,9 @@ namespace DataBinding.UIBind.RecycleContainer
 					else
 					{
 						PrepareDataBind(childAsync);
-						if (childAsync.parent != _container)
+						if (childAsync.parent != container)
 						{
-							childAsync.SetParent(_container, false);
+							childAsync.SetParent(container, false);
 						}
 
 						RecycleNode(childAsync);
@@ -739,9 +739,9 @@ namespace DataBinding.UIBind.RecycleContainer
 				else
 				{
 					PrepareDataBind(childAsync);
-					if (childAsync.parent != _container)
+					if (childAsync.parent != container)
 					{
-						childAsync.SetParent(_container, false);
+						childAsync.SetParent(container, false);
 					}
 
 					RecycleNode(childAsync);
@@ -768,7 +768,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			NeedDelayUpdateContainer = true;
 			if (CoDelayUpdateContainer == null)
 			{
-				StartCoroutine(DelayedSetDirty(this._container));
+				StartCoroutine(DelayedSetDirty(this.container));
 			}
 		}
 
@@ -785,18 +785,18 @@ namespace DataBinding.UIBind.RecycleContainer
 
 			if (NeedDelayUpdateContainer)
 			{
-				UpdateContainerState(_scrollVal);
+				UpdateContainerState(ScrollVal);
 			}
 		}
 
 		public virtual Transform RequireNewNodeCompatAsync(int index)
 		{
 			Transform child;
-			if (unallocNodes != null && unallocNodes.Count > 0)
+			if (UnallocNodes != null && UnallocNodes.Count > 0)
 			{
-				child = unallocNodes[0];
+				child = UnallocNodes[0];
 				// TemplateNode = child;
-				unallocNodes.RemoveAt(0);
+				UnallocNodes.RemoveAt(0);
 				LentPool.Recycle(child);
 			}
 			else
@@ -838,11 +838,11 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		protected Transform RequireNewNodeInternal(int index)
 		{
-			if (!_isAwake)
+			if (!IsAwake)
 			{
-				if (this._container.childCount < previewCount && index < this._container.childCount)
+				if (this.container.childCount < previewCount && index < this.container.childCount)
 				{
-					var child = this._container.GetChild(index);
+					var child = this.container.GetChild(index);
 					if (child == TemplateNode || IsInContainer(child))
 					{
 						var childReal = RequireNewNodeCompatAsync(index);
@@ -860,9 +860,9 @@ namespace DataBinding.UIBind.RecycleContainer
 			}
 			else
 			{
-				if (index < this._container.childCount)
+				if (index < this.container.childCount)
 				{
-					var child = this._container.GetChild(index);
+					var child = this.container.GetChild(index);
 					if (child.gameObject.activeSelf)
 					{
 						if (IsInContainer(child))
@@ -957,7 +957,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			// 	SetLayoutDirtyForce();
 			// }
 
-			if (_childCountInit != _container.childCount)
+			if (ChildCountInit != container.childCount)
 			{
 				// for (var i = _container.childCount - 1; i >= _childCountInit; i--)
 				// {
@@ -994,10 +994,10 @@ namespace DataBinding.UIBind.RecycleContainer
 		{
 			if (PendingResetPostion.Count > 0 || start + oldListCount0 < end)
 			{
-				var dirtyIndexes = this._gridIterNext.DirtyIndexes;
+				var dirtyIndexes = this.GridIterNext.DirtyIndexes;
 				if (dirtyIndexes == null)
 				{
-					dirtyIndexes = this._gridIterNext.DirtyIndexes =
+					dirtyIndexes = this.GridIterNext.DirtyIndexes =
 						new(PendingResetPostion.Count + (end - start - oldListCount0));
 				}
 

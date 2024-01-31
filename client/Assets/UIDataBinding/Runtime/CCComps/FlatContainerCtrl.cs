@@ -15,9 +15,9 @@ namespace DataBinding.UIBind
 		 */
 		[Rename("自动收容子节点")] public bool bindChildren = true;
 
-		[SerializeField] protected RectTransform _container = null;
+		[SerializeField] protected RectTransform container = null;
 
-		protected List<Transform> unallocNodes;
+		protected List<Transform> UnallocNodes;
 
 		protected List<(int, Vector3)> PendingResetPostion = new();
 
@@ -33,7 +33,7 @@ namespace DataBinding.UIBind
 			{
 				foreach (var (index, vector3) in PendingResetPostion)
 				{
-					var child = _container.GetChild(index);
+					var child = container.GetChild(index);
 					var localPosition = vector3;
 					ApplyResetPosition(child, index, ref localPosition);
 				}
@@ -62,25 +62,25 @@ namespace DataBinding.UIBind
 
 		protected virtual void InitContainer()
 		{
-			if (this._container == null)
+			if (this.container == null)
 			{
-				this._container = (RectTransform)this.transform;
+				this.container = (RectTransform)this.transform;
 			}
 
-			Debug.Assert(this._container != null, "this._container!=null");
+			Debug.Assert(this.container != null, "this._container!=null");
 
-			if (this._container != null)
+			if (this.container != null)
 			{
 				if (this.bindChildren)
 				{
-					this._container.ForEachChildren(child =>
+					this.container.ForEachChildren(child =>
 					{
 						var ccDataHost = child.GetOrAddComponent<CCDataHost>();
 						ccDataHost.Integrate();
 					});
 				}
 
-				unallocNodes = this._container.GetChildren().ToList();
+				UnallocNodes = this.container.GetChildren().ToList();
 			}
 		}
 
@@ -179,7 +179,7 @@ namespace DataBinding.UIBind
 				{
 					if (OldList[i] != dataSources[i])
 					{
-						var child = _container.GetChild(i);
+						var child = container.GetChild(i);
 						this.AddPendingResetLocationAction(i, child.localPosition);
 					}
 				}
@@ -312,9 +312,9 @@ namespace DataBinding.UIBind
 		{
 			if (TemplateNode == null)
 			{
-				if (_container.childCount > 0)
+				if (container.childCount > 0)
 				{
-					TemplateNode = _container.GetChild(0);
+					TemplateNode = container.GetChild(0);
 					return TemplateNode;
 				}
 			}
@@ -330,7 +330,7 @@ namespace DataBinding.UIBind
 			var tempNode = GetTemplateNode(index);
 			if (tempNode != null)
 			{
-				var child = GameObject.Instantiate(tempNode.gameObject, _container).transform;
+				var child = GameObject.Instantiate(tempNode.gameObject, container).transform;
 				child.gameObject.name = tempNode.gameObject.name;
 				return child;
 			}
@@ -374,12 +374,12 @@ namespace DataBinding.UIBind
 		public virtual Transform RequireNewNode(int index)
 		{
 			Transform child;
-			if (unallocNodes != null && unallocNodes.Count > 0)
+			if (UnallocNodes != null && UnallocNodes.Count > 0)
 			{
 				// child = GetTemplateNode(index);
-				child = unallocNodes[0];
+				child = UnallocNodes[0];
 				// TemplateNode = child;
-				unallocNodes.RemoveAt(0);
+				UnallocNodes.RemoveAt(0);
 			}
 			else
 			{
@@ -402,7 +402,7 @@ namespace DataBinding.UIBind
 
 		protected virtual void OnMoveItem(object oldData, int newIndex, int oldIndex, bool isIndexMoved)
 		{
-			var child = _container.GetChild(oldIndex);
+			var child = container.GetChild(oldIndex);
 
 			OnMoveNode(child, newIndex, oldIndex, isIndexMoved);
 
@@ -422,9 +422,9 @@ namespace DataBinding.UIBind
 
 		protected virtual void OnRemoveItem(object oldData, int i)
 		{
-			var childCount = _container.childCount;
+			var childCount = container.childCount;
 			Debug.Assert(childCount > i);
-			var child = _container.GetChild(i);
+			var child = container.GetChild(i);
 
 			var ccItem = child.GetComponent<CCContainerItem>();
 			if (ccItem != null)
@@ -442,7 +442,7 @@ namespace DataBinding.UIBind
 
 		protected virtual void UnuseNode(Transform child)
 		{
-			if (_container.childCount == 1)
+			if (container.childCount == 1)
 			{
 				TemplateNode = child;
 			}
@@ -458,20 +458,20 @@ namespace DataBinding.UIBind
 		protected virtual void OnUpdateDone(IList dataSources, int oldListCount0, int start, int end)
 		{
 			Profiler.BeginSample("UnuseNode");
-			if (unallocNodes != null)
+			if (UnallocNodes != null)
 			{
-				foreach (var unallocNode in unallocNodes)
+				foreach (var unallocNode in UnallocNodes)
 				{
 					this.UnuseNode(unallocNode);
 				}
 
-				unallocNodes = null;
+				UnallocNodes = null;
 			}
 
-			var childCount = _container.childCount;
+			var childCount = container.childCount;
 			for (var i = childCount - 1; i >= end; i--)
 			{
-				var child = _container.GetChild(i);
+				var child = container.GetChild(i);
 				this.UnuseNode(child);
 			}
 

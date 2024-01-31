@@ -20,15 +20,21 @@ namespace DataBinding.UIBind.RecycleContainer
 
 		public IntVector2 PosSure;
 
+		/// <summary>
+		/// BodySize
+		/// </summary>
 		public IntVector2 Size;
 
 		/// <summary>
-		/// (BodySizeMain, BodySizeX)
+		/// (BodySizeX, BodySizeY)
 		/// </summary>
 		public IntVector2 BodySizeInfo;
 
 		public Rect ScrollRectRange;
 
+		/// <summary>
+		/// BodySizeMain
+		/// </summary>
 		public int LineBreakSize;
 		public int LineXSize => BodySizeInfo.x;
 
