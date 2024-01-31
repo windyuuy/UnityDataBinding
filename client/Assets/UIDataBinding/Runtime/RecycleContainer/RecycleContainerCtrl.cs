@@ -577,7 +577,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			}
 		}
 
-		Vector2 ToVec2(Vector3 pos)
+		public Vector2 ToVec2(Vector3 pos)
 		{
 			return new Vector2(pos.x, pos.y);
 		}
