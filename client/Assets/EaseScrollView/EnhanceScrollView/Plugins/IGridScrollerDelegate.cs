@@ -1,26 +1,17 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 
 namespace EnhancedUI.EnhancedScroller
 {
 	/// <summary>
 	/// All scripts that handle the scroller's callbacks should inherit from this interface
 	/// </summary>
-	public interface IEnhancedScrollerDelegate
+	public interface IGridScrollerDelegate
 	{
 		/// <summary>
 		/// Gets the number of cells in a list of data
 		/// </summary>
 		/// <returns></returns>
 		int GetNumberOfCells();
-
-		/// <summary>
-		/// Gets the size of a cell view given the index of the data set.
-		/// This allows you to have different sized cells
-		/// </summary>
-		/// <param name="scroller"></param>
-		/// <param name="dataIndex"></param>
-		/// <returns></returns>
-		float GetCellViewSize(int dataIndex);
 
 		/// <summary>
 		/// Gets the cell view that should be used for the data index. Your implementation
@@ -31,8 +22,9 @@ namespace EnhancedUI.EnhancedScroller
 		/// <param name="dataIndex"></param>
 		/// <param name="cellIndex"></param>
 		/// <returns></returns>
-		EnhancedScrollerCellView GetCellView(int dataIndex, int cellIndex);
+		RectTransform GetCellView(int dataIndex, int cellIndex);
 
-		void OnScrollerInitialized();
+		bool IsVisible(RectTransform child);
+		ref Rect GetClipRect();
 	}
 }

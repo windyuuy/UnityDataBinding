@@ -1,27 +1,30 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DataBinding.UIBind;
-using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace EaseScrollView.EnhanceScrollView.Plugins
 {
-	public class DefaultEnhancedScrollerController : MonoBehaviour, IEnhancedScrollerDelegate
+	public class MyGridScrollerController : MonoBehaviour, IGridScrollerDelegate
 	{
 		/// <summary>
 		/// This is our scroller we will be a delegate for
 		/// </summary>
-		public EnhancedScroller enhancedScroller;
+		public MyGridLayoutGroup enhancedScroller;
+
+		public ScrollRect scrollRect;
+		protected RectTransform ScrollRectTransform;
+		protected Rect ScrollRectRange;
 
 		/// <summary>
 		/// This will be the prefab of each cell in our scroller. Note that you can use more
 		/// than one kind of cell, but this example just has the one type.
 		/// </summary>
-		protected GameObject CellViewPrefab;
-
-		protected EnhancedScrollerCellView CellViewPrefabComp;
+		[SerializeField] protected GameObject cellViewPrefab;
 
 		private bool _isAwaked = false;
 		protected bool IsDirty = false;
@@ -29,62 +32,52 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		protected virtual void Awake()
 		{
 			InitContainer();
-			
-			if (CellViewPrefab == null)
+
+			if (cellViewPrefab == null)
 			{
-				if (enhancedScroller.Container.childCount > 0)
+				if (scrollRect.content.childCount > 0)
 				{
-					CellViewPrefab = enhancedScroller.Container.GetChild(0).gameObject;
+					cellViewPrefab = scrollRect.content.GetChild(0).gameObject;
 				}
 			}
 
-			Debug.Assert(CellViewPrefab != null, "cellViewPrefab != null");
-			var cellViewComp = CellViewPrefab.GetComponent<EnhancedScrollerCellView>();
-			if (cellViewComp == null)
-			{
-				cellViewComp = CellViewPrefab.AddComponent<EnhancedScrollerCellView>();
-			}
-
-			CellViewPrefabComp = cellViewComp;
+			Debug.Assert(cellViewPrefab != null, "cellViewPrefab != null");
 
 			_isAwaked = true;
-			
-			DelayReloadData();
-		}
 
-		public virtual void OnScrollerInitialized()
-		{
 			DelayReloadData();
 		}
 
 		public void DelayReloadData()
 		{
-			if (IsDirty && _isAwaked && enhancedScroller.IsInitialized)
+			if (IsDirty && _isAwaked)
 			{
 				IsDirty = true;
-				enhancedScroller.ReloadData();
+				LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
 			}
 		}
 
 		protected virtual void InitContainer()
 		{
+			if (scrollRect == null)
+			{
+				scrollRect = this.GetComponent<ScrollRect>();
+			}
+
+			Debug.Assert(scrollRect != null, "scrollRect != null");
+			ScrollRectTransform = (RectTransform)scrollRect.transform;
+			ScrollRectRange = ScrollRectTransform.rect;
+			ScrollRectRange.center -= ToVec2(this.scrollRect.content.localPosition);
+
 			if (enhancedScroller == null)
 			{
-				enhancedScroller = this.gameObject.GetComponent<EnhancedScroller>();
-				if (enhancedScroller == null)
-				{
-					enhancedScroller = this.gameObject.AddComponent<EnhancedScroller>();
-				}
+				enhancedScroller = scrollRect.content.GetComponent<MyGridLayoutGroup>();
 			}
 
 			Debug.Assert(enhancedScroller != null, "enhancedScroller != null");
+
 			// tell the scroller that this script will be its delegate
 			enhancedScroller.Delegate = this;
-
-			if (CellViewPrefab == null)
-			{
-				CellViewPrefab = enhancedScroller.cellViewPrefab;
-			}
 		}
 
 		protected List<object> OldList;
@@ -105,14 +98,33 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 				OldList.Add(dataSource);
 			}
 
-			if (_isAwaked && enhancedScroller.IsInitialized)
+			if (_isAwaked)
 			{
-				enhancedScroller.ReloadData();
+				LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
 			}
 			else
 			{
 				IsDirty = true;
 			}
+		}
+
+		void OnEnable()
+		{
+			// when the scroller is enabled, add a listener to the onValueChanged handler
+			scrollRect.onValueChanged.AddListener(_ScrollRect_OnValueChanged);
+		}
+
+		void OnDisable()
+		{
+			// when the scroller is disabled, remove the listener
+			scrollRect.onValueChanged.RemoveListener(_ScrollRect_OnValueChanged);
+		}
+
+		private void _ScrollRect_OnValueChanged(Vector2 val)
+		{
+			ScrollRectRange = ScrollRectTransform.rect;
+			ScrollRectRange.center -= ToVec2(this.scrollRect.content.localPosition);
+			LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
 		}
 
 		#region EnhancedScroller Handlers
@@ -137,28 +149,10 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		/// <returns>The size of the cell</returns>
 		public virtual float GetCellViewSize(int dataIndex)
 		{
-			var cellView = this.enhancedScroller.GetCellViewAtDataIndex(dataIndex);
-			if (cellView == null)
-			{
-				cellView = this.CellViewPrefabComp;
-			}
-
-			switch (this.enhancedScroller.scrollDirection)
-			{
-				// in this example, even numbered cells are 30 pixels tall, odd numbered cells are 100 pixels tall
-				// return (dataIndex % 2 == 0 ? 30f : 100f);
-				case EnhancedScroller.ScrollDirectionEnum.Horizontal:
-					return ((RectTransform)cellView.transform).sizeDelta.x;
-				case EnhancedScroller.ScrollDirectionEnum.Vertical:
-					return ((RectTransform)cellView.transform).sizeDelta.y;
-				default:
-				{
-					throw new NotImplementedException();
-				}
-			}
+			throw new NotImplementedException();
 		}
 
-		protected virtual void UpdateDataBind(Transform child, object dataSource,int index)
+		protected virtual void UpdateDataBind(Transform child, object dataSource, int index)
 		{
 			var ccItem = child.GetComponent<CCContainerItem>();
 			if (ccItem == null)
@@ -176,20 +170,13 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			}
 		}
 
-		/// <summary>
-		/// Gets the cell to be displayed. You can have numerous cell types, allowing variety in your list.
-		/// Some examples of this would be headers, footers, and other grouping cells.
-		/// </summary>
-		/// <param name="scroller">The scroller requesting the cell</param>
-		/// <param name="dataIndex">The index of the data that the scroller is requesting</param>
-		/// <param name="cellIndex">The index of the list. This will likely be different from the dataIndex if the scroller is looping</param>
-		/// <returns>The cell for the scroller to use</returns>
-		public virtual EnhancedScrollerCellView GetCellView( int dataIndex, int cellIndex)
+		public virtual RectTransform GetCellView(int dataIndex, int cellIndex)
 		{
 			// first, we get a cell from the scroller by passing a prefab.
 			// if the scroller finds one it can recycle it will do so, otherwise
 			// it will create a new cell.
-			var cellView = this.enhancedScroller.GetCellView(CellViewPrefabComp);
+			// var cellView = this.enhancedScroller.GetCellView(CellViewPrefabComp);
+			var cellView = GameObject.Instantiate(cellViewPrefab, this.scrollRect.content);
 
 			UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
 
@@ -199,7 +186,44 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			cellView.name = "Cell " + dataIndex.ToString();
 
 			// return the cell to the scroller
-			return cellView;
+			return (RectTransform)cellView.transform;
+		}
+
+		public Vector2 ToVec2(Vector3 pos)
+		{
+			return new Vector2(pos.x, pos.y);
+		}
+
+		public Rect GetRectBounds(RectTransform trans)
+		{
+			var rect = trans.rect;
+			// rect.center = rect.center + ToVec2(transform.position) - ToVec2(_root.transform.position);
+			rect.center += ToVec2(trans.localPosition);
+			return rect;
+		}
+
+		protected bool IsInContainer(RectTransform child)
+		{
+			var rect = GetRectBounds(child);
+			return IsInContainer(ref rect);
+		}
+
+		protected bool IsInContainer(ref Rect rect)
+		{
+			var scrollRectRange = ScrollRectRange;
+			var isInContainer = (rect.yMax >= scrollRectRange.yMin && rect.yMin <= scrollRectRange.yMax) &&
+			                    (rect.xMax >= scrollRectRange.xMin && rect.xMin <= scrollRectRange.xMax);
+			return isInContainer;
+		}
+
+		public virtual bool IsVisible(RectTransform child)
+		{
+			return IsInContainer(child);
+		}
+
+		public virtual ref Rect GetClipRect()
+		{
+			return ref ScrollRectRange;
 		}
 
 		#endregion

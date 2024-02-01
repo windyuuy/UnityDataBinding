@@ -12,7 +12,7 @@ namespace DataBinding.UIBind.RecycleContainer
 	{
 		protected bool IsAwake = false;
 
-		[SerializeField] private ScrollRect scrollRect;
+		[SerializeField] protected ScrollRect scrollRect;
 
 		/// <summary>
 		/// Cached reference to the scrollRect's transform
@@ -359,7 +359,7 @@ namespace DataBinding.UIBind.RecycleContainer
 			}
 		}
 
-		Vector2 ToVec2(Vector3 pos)
+		public Vector2 ToVec2(Vector3 pos)
 		{
 			return new Vector2(pos.x, pos.y);
 		}
@@ -375,6 +375,11 @@ namespace DataBinding.UIBind.RecycleContainer
 		protected bool IsInContainer(Transform child)
 		{
 			var rect = GetRectBounds(child);
+			return IsInContainer(rect);
+		}
+
+		protected bool IsInContainer(Rect rect)
+		{
 			var isInContainerVertical = false;
 			var isInContainerHorizontal = false;
 			if (scrollRect.vertical)
@@ -404,6 +409,5 @@ namespace DataBinding.UIBind.RecycleContainer
 			var isInContainer = isInContainerVertical && isInContainerHorizontal;
 			return isInContainer;
 		}
-
 	}
 }

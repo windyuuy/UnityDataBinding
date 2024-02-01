@@ -615,7 +615,7 @@ namespace EnhancedUI.EnhancedScroller
         {
             get
             {
-                return (_delegate != null ? _delegate.GetNumberOfCells(this) : 0);
+                return (_delegate != null ? _delegate.GetNumberOfCells() : 0);
             }
         }
 
@@ -892,7 +892,7 @@ namespace EnhancedUI.EnhancedScroller
                 // calculate the cell offset position
 
                 // get the cell's size
-                var cellSize = (_delegate != null ? _delegate.GetCellViewSize(this, dataIndex) : 0);
+                var cellSize = (_delegate != null ? _delegate.GetCellViewSize(dataIndex) : 0);
 
                 if (useSpacing)
                 {
@@ -1143,7 +1143,7 @@ namespace EnhancedUI.EnhancedScroller
         /// <returns></returns>
         public float GetScrollPositionForDataIndex(int dataIndex, CellViewPositionEnum insertPosition)
         {
-            return GetScrollPositionForCellViewIndex(loop ? _delegate.GetNumberOfCells(this) + dataIndex : dataIndex, insertPosition);
+            return GetScrollPositionForCellViewIndex(loop ? _delegate.GetNumberOfCells() + dataIndex : dataIndex, insertPosition);
         }
 
         /// <summary>
@@ -1544,7 +1544,7 @@ namespace EnhancedUI.EnhancedScroller
             for (var i = 0; i < NumberOfCells; i++)
             {
                 // add the size of this cell based on what the delegate tells us to use. Also add spacing if this cell isn't the first one
-                _cellViewSizeArray.Add(_delegate.GetCellViewSize(this, i) + (i == 0 ? 0 : _layoutGroup.spacing));
+                _cellViewSizeArray.Add(_delegate.GetCellViewSize(i) + (i == 0 ? 0 : _layoutGroup.spacing));
 				_singleLoopGroupSize += _cellViewSizeArray[_cellViewSizeArray.Count - 1];
                 offset += _cellViewSizeArray[_cellViewSizeArray.Count - 1];
             }
@@ -1730,7 +1730,7 @@ namespace EnhancedUI.EnhancedScroller
             // get the dataIndex. Modulus is used in case of looping so that the first set of cells are ignored
             var dataIndex = cellIndex % NumberOfCells;
             // request a cell view from the delegate
-            var cellView = _delegate.GetCellView(this, dataIndex, cellIndex);
+            var cellView = _delegate.GetCellView(dataIndex, cellIndex);
 
             // set the cell's properties
             cellView.cellIndex = cellIndex;
