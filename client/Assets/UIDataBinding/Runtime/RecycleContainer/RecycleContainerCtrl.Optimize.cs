@@ -88,7 +88,12 @@ namespace DataBinding.UIBind.RecycleContainer
 			var distance = Vector3.zero;
 			if (ChildCountInit >= 2)
 			{
-				if (lineBreakSize + 2 <= ChildCountInit)
+				if (lineBreakSize == 1)
+				{
+					distance = container.GetChild(1).localPosition -
+					           container.GetChild(0).localPosition;
+				}
+				else if (lineBreakSize + 2 <= ChildCountInit)
 				{
 					distance = container.GetChild(gridIter.ToIndex(1, 1)).localPosition -
 					           container.GetChild(0).localPosition;
@@ -103,7 +108,7 @@ namespace DataBinding.UIBind.RecycleContainer
 				}
 				else
 				{
-					distance = container.GetChild(lineBreakSize - 1).localPosition -
+					distance = container.GetChild(1).localPosition -
 					           container.GetChild(0).localPosition;
 				}
 			}
@@ -144,17 +149,32 @@ namespace DataBinding.UIBind.RecycleContainer
 			}
 			else if (layoutGroup is GridLayoutGroup gridLayoutGroup)
 			{
-				if (ChildCountInit == 0)
+				// if (ChildCountInit == 0)
+				// {
+				// 	bodySizeInfo = new IntVector2(1, 1);
+				// 	lineBreakSize = 1;
+				// 	iterSize = new IntVector2(1, 1);
+				// }
+				// else 
+				if (ChildCountInit <= 1)
 				{
 					bodySizeInfo = new IntVector2(1, 1);
 					lineBreakSize = 1;
-					iterSize = new IntVector2(1, 1);
-				}
-				else if (ChildCountInit == 1)
-				{
-					bodySizeInfo = new IntVector2(1, 1);
-					lineBreakSize = 1;
-					iterSize = new IntVector2(1, 1);
+					// iterSize = new IntVector2(1, 1);
+					
+					switch (gridLayoutGroup.startAxis)
+					{
+						case GridLayoutGroup.Axis.Horizontal:
+							iterSize = new IntVector2(1, int.MaxValue);
+							break;
+						case GridLayoutGroup.Axis.Vertical:
+							iterSize = new IntVector2(int.MaxValue, 1);
+							break;
+						default:
+						{
+							throw new NotImplementedException();
+						}
+					}
 				}
 				else
 				{
@@ -162,7 +182,7 @@ namespace DataBinding.UIBind.RecycleContainer
 					var lineXSize = 1;
 					var lineYSize = 1;
 
-					if (ChildCountInit >= 2)
+					// if (ChildCountInit >= 2)
 					{
 						var p1 = container.GetChild(1);
 						if (gridLayoutGroup.startAxis == GridLayoutGroup.Axis.Horizontal)
@@ -188,7 +208,14 @@ namespace DataBinding.UIBind.RecycleContainer
 							lineYSize = (ChildCountInit + lineXSize - 1) / lineXSize;
 
 							lineBreakSize = lineXSize;
-							iterSize = new IntVector2(1, lineBreakSize);
+							if (lineBreakSize == 1)
+							{
+								iterSize = new IntVector2(int.MaxValue, lineBreakSize);
+							}
+							else
+							{
+								iterSize = new IntVector2(1, lineBreakSize);
+							}
 						}
 						else if (gridLayoutGroup.startAxis == GridLayoutGroup.Axis.Vertical)
 						{
@@ -213,16 +240,19 @@ namespace DataBinding.UIBind.RecycleContainer
 							lineXSize = (ChildCountInit + lineYSize - 1) / lineYSize;
 
 							lineBreakSize = int.MaxValue;
-							iterSize = new IntVector2(lineYSize, 1);
+							if (lineYSize == 1)
+							{
+								iterSize = new IntVector2(lineYSize, int.MaxValue);
+							}
+							else
+							{
+								iterSize = new IntVector2(lineYSize, 1);
+							}
 						}
 						else
 						{
 							throw new NotImplementedException();
 						}
-					}
-					else
-					{
-						iterSize = new IntVector2(1, 1);
 					}
 
 					bodySizeInfo = new IntVector2(lineXSize, lineYSize);

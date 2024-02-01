@@ -7,8 +7,8 @@ namespace DataBinding.UIBind.RecycleContainer
 {
 	public interface ILayoutRectIter
 	{
-		public IEnumerable<int> GetForwardIter(Func<bool> iterInput);
-		public IEnumerable<int> GetBackwardIter(Func<bool> iterInput);
+		public IEnumerable<int> GetForwardIter(GridIter gridIterPre, Func<bool> iterInput);
+		public IEnumerable<int> GetBackwardIter(GridIter gridIterPre, Func<bool> iterInput);
 	}
 
 	public class GridIter : ILayoutRectIter
@@ -92,7 +92,7 @@ namespace DataBinding.UIBind.RecycleContainer
 		public int IterAcc = 0;
 		public bool NeedCheck = false;
 
-		public IEnumerable<int> GetForwardIter(Func<bool> iterInput)
+		public IEnumerable<int> GetForwardIter(GridIter gridIterPre,Func<bool> iterInput)
 		{
 			var iterIndex = IterIndex;
 			var isPrecision = this.IsPrecision;
@@ -211,7 +211,7 @@ namespace DataBinding.UIBind.RecycleContainer
 				Debug.Assert(rangeRect.GetArea() > 0);
 				if (rangeRect.GetArea() <= 0)
 				{
-					Debug.LogError("lkwej");
+					Debug.LogError("Area may not be 0");
 				}
 			}
 
@@ -424,14 +424,18 @@ namespace DataBinding.UIBind.RecycleContainer
 			return ToIndex(GetTopPt());
 		}
 
-		public IEnumerable<int> GetBackwardIter(Func<bool> iterInput)
+		public IEnumerable<int> GetBackwardIter(GridIter gridIterPre, Func<bool> iterInput)
 		{
 			// TODO: implement reverse
-			return GetForwardIter(iterInput);
+			return GetForwardIter(gridIterPre, iterInput);
 		}
 
 		public int ToIndex(int x, int y)
 		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			Debug.Assert(IterSize.x!=int.MaxValue || x==0);
+			Debug.Assert(IterSize.y!=int.MaxValue || y==0);
+#endif
 			return x * IterSize.x + y * IterSize.y;
 		}
 

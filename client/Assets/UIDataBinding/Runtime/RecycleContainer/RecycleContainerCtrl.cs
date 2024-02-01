@@ -277,10 +277,10 @@ namespace DataBinding.UIBind.RecycleContainer
 			var isIn = false;
 			GridIterNext.IterAcc = 0;
 			GridIterNext.IterIndex = 1;
-			var iterInto = GridIterNext.GetForwardIter(() => isIn).GetEnumerator();
+			var iterInto = GridIterNext.GetForwardIter(GridIterPre, () => isIn).GetEnumerator();
 			var iterIntoRet0 = iterInto.MoveNext();
 			GridIterNext.IterIndex = 2;
-			var iterOut = GridIterNext.GetBackwardIter(() => isIn).GetEnumerator();
+			var iterOut = GridIterNext.GetBackwardIter(GridIterPre, () => isIn).GetEnumerator();
 			var iterOutRet0 = iterOut.MoveNext();
 
 			var iInto = iterIntoRet0 ? iterInto.Current : ChildCountInit;
