@@ -120,11 +120,25 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			scrollRect.onValueChanged.RemoveListener(_ScrollRect_OnValueChanged);
 		}
 
+		private RectTransform sampleChild;
 		private void _ScrollRect_OnValueChanged(Vector2 val)
 		{
 			ScrollRectRange = ScrollRectTransform.rect;
 			ScrollRectRange.center -= ToVec2(this.scrollRect.content.localPosition);
-			LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
+
+			// if (sampleChild == null)
+			// {
+			// 	this.sampleChild = (RectTransform)new GameObject("ef", typeof(RectTransform), typeof(Image)).transform;
+			// }
+			// this.sampleChild.SetParent(this.scrollRect.content, false);
+			// sampleChild.sizeDelta = ScrollRectRange.size;
+			// sampleChild.localPosition = ScrollRectRange.center;
+			// this.sampleChild.SetParent(this.transform, true);
+			
+			if (!IsContainRectFully(ref _richDelta,ref ScrollRectRange))
+			{
+				LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
+			}
 		}
 
 		#region EnhancedScroller Handlers
@@ -189,41 +203,39 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			return (RectTransform)cellView.transform;
 		}
 
+		public static readonly Vector3 InVisiblePos = new Vector3(float.MaxValue * 0.5f, float.MaxValue * 0.5f, 0);
+		public virtual void RecycleCellView(RectTransform cellView, int dataIndex)
+		{
+			cellView.localPosition = InVisiblePos;
+		}
+
 		public Vector2 ToVec2(Vector3 pos)
 		{
 			return new Vector2(pos.x, pos.y);
 		}
 
-		public Rect GetRectBounds(RectTransform trans)
+		protected bool IsContainRectFully(ref Rect scrollRectRange, ref Rect rect)
 		{
-			var rect = trans.rect;
-			// rect.center = rect.center + ToVec2(transform.position) - ToVec2(_root.transform.position);
-			rect.center += ToVec2(trans.localPosition);
-			return rect;
-		}
-
-		protected bool IsInContainer(RectTransform child)
-		{
-			var rect = GetRectBounds(child);
-			return IsInContainer(ref rect);
-		}
-
-		protected bool IsInContainer(ref Rect rect)
-		{
-			var scrollRectRange = ScrollRectRange;
-			var isInContainer = (rect.yMax >= scrollRectRange.yMin && rect.yMin <= scrollRectRange.yMax) &&
-			                    (rect.xMax >= scrollRectRange.xMin && rect.xMin <= scrollRectRange.xMax);
+			var isInContainer = (scrollRectRange.yMax >= rect.yMax && rect.yMin >= scrollRectRange.yMin) &&
+			                    (scrollRectRange.xMax >= rect.xMax && rect.xMin >= scrollRectRange.xMin);
 			return isInContainer;
 		}
 
-		public virtual bool IsVisible(RectTransform child)
+		public virtual bool IsVisible(ref Rect child, int dataIndex, bool isVisible)
 		{
-			return IsInContainer(child);
+			return isVisible;
 		}
 
-		public virtual ref Rect GetClipRect()
+		public virtual Rect GetClipRect()
 		{
-			return ref ScrollRectRange;
+			return ScrollRectRange;
+		}
+
+		private Rect _richDelta;
+
+		public virtual void SetRichDelta(float xMin, float yMin, float xMax, float yMax)
+		{
+			_richDelta.Set(xMin, yMin, xMax - xMin, yMax - yMin);
 		}
 
 		#endregion

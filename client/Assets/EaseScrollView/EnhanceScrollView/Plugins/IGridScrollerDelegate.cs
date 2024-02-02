@@ -24,7 +24,10 @@ namespace EnhancedUI.EnhancedScroller
 		/// <returns></returns>
 		RectTransform GetCellView(int dataIndex, int cellIndex);
 
-		bool IsVisible(RectTransform child);
-		ref Rect GetClipRect();
+		void RecycleCellView(RectTransform cellView, int dataIndex);
+
+		bool IsVisible(ref Rect child, int dataIndex, bool isInContainer);
+		Rect GetClipRect();
+		void SetRichDelta(float xMin, float yMin, float xMax, float yMax);
 	}
 }

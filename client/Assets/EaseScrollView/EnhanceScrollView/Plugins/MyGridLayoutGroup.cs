@@ -349,19 +349,17 @@ namespace UnityEngine.UI
             // Rect clipRect=new();
             ref var clipRect = ref GetClipRect();
 
-            // var sampleChild = (RectTransform)this.transform.GetChild(0);
-            // sampleChild.sizeDelta = clipRect.size;
-            // sampleChild.localPosition = clipRect.center;
-            // sampleChild.gameObject.SetActive(true);
-            // return;
             Func<IEnumerable<int>> iterFunc;
+            bool iterFuncReturnValue = false;
+            // isVisible
+            bool IterFuncReturn()=>iterFuncReturnValue;
             {
                 var p0=CalcPos(rectChildrenCount, 0, childrenToMove, cellsPerMainAxis, cornerX, actualCellCountX, cornerY, actualCellCountY, startOffset);
                 var diagonalIndex = cellsPerMainAxis <= 1 ? cellsPerMainAxis : cellsPerMainAxis + 1;
                 var p1=CalcPos(rectChildrenCount, diagonalIndex, childrenToMove, cellsPerMainAxis, cornerX, actualCellCountX, cornerY, actualCellCountY, startOffset);
 
                 var linesCount = (rectChildrenCount + cellsPerMainAxis - 1) / cellsPerMainAxis;
-                var iPosEnd = linesCount * cellsPerMainAxis - 1;
+                var iPosEnd = linesCount > 1 ? linesCount * cellsPerMainAxis - 1 : rectChildrenCount - 1;
                 var pEnd=CalcPos(iPosEnd+1, iPosEnd, childrenToMove, cellsPerMainAxis, cornerX, actualCellCountX, cornerY, actualCellCountY, startOffset);
 
                 var ar0 = CalcTransform(sampleTrans, ref p0);
@@ -387,14 +385,43 @@ namespace UnityEngine.UI
                     var offset0 = clipRect.center - ar0.center - 0.5f * (clipRect.size + ar0.size) * sign;
                     var offset1 = clipRect.center - ar0.center + 0.5f * (clipRect.size + ar1.size) * sign;
 
-                    var xCountMax =  isHorizontal? actualCellCountX-1 : int.MaxValue;
-                    var yCountMax =  isVertical? actualCellCountY-1 : int.MaxValue;
+                    var xCountMax = isHorizontal ? actualCellCountX - 1 : int.MaxValue;
+                    var yCountMax = isVertical ? actualCellCountY - 1 : int.MaxValue;
                     var iOffsetX0 = distance.x==0?0:Mathf.Clamp(Mathf.FloorToInt(offset0.x / distance.x), 0, xCountMax);
                     var iOffsetX1 = distance.x==0?0:Mathf.Clamp(Mathf.CeilToInt(offset1.x / distance.x), 0, xCountMax);
                     var iOffsetY0 = distance.y==0?0:Mathf.Clamp(Mathf.FloorToInt(offset0.y / distance.y),0,yCountMax);
                     var iOffsetY1 = distance.y==0?0:Mathf.Clamp(Mathf.CeilToInt(offset1.y / distance.y),0,yCountMax);
+
+                    var enableRichDelta =
+                        (isHorizontal && distance.x >= 100)
+                        || (isVertical && distance.y >= 100);
+                    
                     IEnumerable<int> IterFunc0()
                     {
+                        int ixMin = int.MaxValue;
+                        int ixMax = -int.MaxValue;
+                        int iyMin = int.MaxValue;
+                        int iyMax = -int.MaxValue;
+                        void Expand(int ix, int iy)
+                        {
+                            if (ixMin > ix)
+                            {
+                                ixMin = ix;
+                            }
+                            if (ixMax < ix)
+                            {
+                                ixMax = ix;
+                            }
+                            if (iyMin > iy)
+                            {
+                                iyMin = iy;
+                            }
+                            if (iyMax < iy)
+                            {
+                                iyMax = iy;
+                            }
+                        }
+
                         if (isHorizontal)
                         {
                             for (var iy = iOffsetY0; iy <= iOffsetY1; iy++)
@@ -405,6 +432,10 @@ namespace UnityEngine.UI
                                     if (0 <= iPos && iPos < rectChildrenCount)
                                     {
                                         yield return iPos;
+                                        if (enableRichDelta && IterFuncReturn())
+                                        {
+                                            Expand(ix, iy);
+                                        }
                                     }
                                 }
                             }
@@ -419,10 +450,36 @@ namespace UnityEngine.UI
                                     if (0 <= iPos && iPos < rectChildrenCount)
                                     {
                                         yield return iPos;
+                                        if (enableRichDelta && IterFuncReturn())
+                                        {
+                                            Expand(ix, iy);
+                                        }
                                     }
                                 }
                             }
                         }
+                        
+                        // calc rich delta
+                        if (enableRichDelta && Delegate != null)
+                        {
+                            var dx = isHorizontal ? 1 : cellsPerMainAxis;
+                            var dy = isHorizontal ? cellsPerMainAxis : 1;
+                            var rp0 = CalcPos(rectChildrenCount, ixMin * dx + iyMin * dy, childrenToMove,
+                                cellsPerMainAxis, cornerX, actualCellCountX,
+                                cornerY, actualCellCountY, startOffset);
+                            var r0 = CalcTransform(sampleTrans, ref rp0);
+                            var rp2 = CalcPos(rectChildrenCount, ixMax * dx + iyMax * dy, childrenToMove,
+                                cellsPerMainAxis, cornerX, actualCellCountX,
+                                cornerY, actualCellCountY, startOffset);
+                            var r2 = CalcTransform(sampleTrans, ref rp2);
+                            var xMin = Math.Min(r0.xMin, r2.xMin);
+                            var xMax = Math.Max(r0.xMax, r2.xMax);
+                            var yMin = Math.Min(r0.yMin, r2.yMin);
+                            var yMax = Math.Max(r0.yMax, r2.yMax);
+                        
+                            Delegate.SetRichDelta(xMin, yMin, xMax, yMax);
+                        }
+
                     }
 
                     iterFunc = IterFunc0;
@@ -475,7 +532,7 @@ namespace UnityEngine.UI
                         actualCellCountX, cornerY, actualCellCountY, startOffset);
                     SetChildAlongAxis2(sampleTrans, ref paras);
 
-                    var isVisible = IsVisibleInternal(sampleTrans, ref clipRect);
+                    var isVisible = IsVisibleInternal(sampleTrans, ref clipRect, i);
                     if (isVisible)
                     {
                         CellViewUpdateInfo.Add((i, paras));
@@ -485,6 +542,8 @@ namespace UnityEngine.UI
                             UsedDict.Add(i, rect);
                         }
                     }
+
+                    iterFuncReturnValue = isVisible;
                 }
             }
 
@@ -543,7 +602,14 @@ namespace UnityEngine.UI
                 // recycle left
                 foreach (var item in UsingDict)
                 {
-                    item.Value.localPosition = InVisiblePos;
+                    if (Delegate != null)
+                    {
+                        Delegate.RecycleCellView(item.Value, item.Key);
+                    }
+                    else
+                    {
+                        item.Value.localPosition = InVisiblePos;
+                    }
                 }
 
                 if (hideUnused)
@@ -579,13 +645,20 @@ namespace UnityEngine.UI
 
             UsedDict.Clear();
             CellViewUpdateInfo.Clear();
+            //
+            // var sampleChild = (RectTransform)this.transform.GetChild(0);
+            // sampleChild.sizeDelta = clipRect.size;
+            // sampleChild.localPosition = clipRect.center;
+            // sampleChild.gameObject.SetActive(true);
+            // return;
         }
 
-        private bool IsVisibleInternal(RectTransform sampleTrans, ref Rect clipRect)
+        private bool IsVisibleInternal(RectTransform sampleTrans, ref Rect clipRect, int dataIndex)
         {
+            var sampleTransRect = GetRectBounds(sampleTrans);
             return Delegate != null
-                ? Delegate.IsVisible(sampleTrans)
-                : IsInContainer(ref clipRect, sampleTrans);
+                ? Delegate.IsVisible(ref sampleTransRect, dataIndex, IsInContainer(ref clipRect,ref sampleTransRect))
+                : IsInContainer(ref clipRect,ref sampleTransRect);
         }
 
         protected Rect ScreenRect;
@@ -596,12 +669,12 @@ namespace UnityEngine.UI
             {
                 // clipRect = new();
                 var res = Screen.currentResolution;
-                var pos = ToVec2(this.rectTransform.localPosition);
+                var pos = this.rectTransform.localPosition;
                 clipRect = new(-res.width * 0.5f-pos.x, -res.height * 0.5f-pos.y, res.width, res.height);
             }
             else
             {
-                clipRect = ref Delegate.GetClipRect();
+                clipRect = Delegate.GetClipRect();
             }
 
             return ref clipRect;
@@ -743,46 +816,31 @@ namespace UnityEngine.UI
             SharedVec.y = paras.w;
             sampleTrans.sizeDelta = SharedVec;
 
-            var x = CalcAnchoredPositionAlongAxis(sampleTrans, 0, paras.x, paras.y);
-            var y = CalcAnchoredPositionAlongAxis(sampleTrans, 1, paras.z, paras.w);
-            SharedVec.x = x;
-            SharedVec.y = y;
+            // var scaleFactor = 1.0f;
+            var pivot = sampleTrans.pivot;
+            SharedVec.x = paras.x + paras.y * pivot.x;// * scaleFactor;
+            SharedVec.y = -paras.z - paras.w * (1f - pivot.y);// * scaleFactor;
             sampleTrans.anchoredPosition = SharedVec;
         }
 
-        private static Vector2 CalcAnchoredPosition(RectTransform rect, Vector4 paras)
+        public ref Vector2 ToVec2(Vector3 pos)
         {
-            var x = CalcAnchoredPositionAlongAxis(rect, 0, paras.x, paras.y);
-            var y = CalcAnchoredPositionAlongAxis(rect, 1, paras.z, paras.w);
-            return new Vector2(x, y);
-        }
-        private static float CalcAnchoredPositionAlongAxis(RectTransform rect, int axis, float pos, float size, float scaleFactor=1.0f)
-        {
-            var apos = (axis == 0) ? (pos + size * rect.pivot[axis] * scaleFactor) : (-pos - size * (1f - rect.pivot[axis]) * scaleFactor);
-            return apos;
-        }
-        
-        
-        public Vector2 ToVec2(Vector3 pos)
-        {
-            return new Vector2(pos.x, pos.y);
+            SharedVec.x = pos.x;
+            SharedVec.y = pos.y;
+            return ref SharedVec;
         }
 
         public Rect GetRectBounds(RectTransform trans)
         {
             var rect = trans.rect;
-            // rect.center = rect.center + ToVec2(transform.position) - ToVec2(_root.transform.position);
-            rect.center += ToVec2(trans.localPosition);
+            var center = rect.center;
+            var pos = trans.localPosition;
+            SharedVec.Set(pos.x + center.x, pos.y + center.y);
+            rect.center = SharedVec;
             return rect;
         }
 
-        protected bool IsInContainer(ref Rect clipRect, RectTransform child)
-        {
-            var rect = GetRectBounds(child);
-            return IsInContainer(ref clipRect, ref rect);
-        }
-
-        protected bool IsInContainer(ref Rect clipRect, ref Rect rect)
+        public static bool IsInContainer(ref Rect clipRect, ref Rect rect)
         {
             var isInContainer = (rect.yMax >= clipRect.yMin && rect.yMin <= clipRect.yMax) && (rect.xMax >= clipRect.xMin && rect.xMin <= clipRect.xMax);
             return isInContainer;
