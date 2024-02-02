@@ -17,6 +17,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		public MyGridLayoutGroup enhancedScroller;
 
 		public ScrollRect scrollRect;
+		public RectTransform container;
 		protected RectTransform ScrollRectTransform;
 		protected Rect ScrollRectRange;
 
@@ -35,9 +36,9 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 
 			if (cellViewPrefab == null)
 			{
-				if (scrollRect.content.childCount > 0)
+				if (container.childCount > 0)
 				{
-					cellViewPrefab = scrollRect.content.GetChild(0).gameObject;
+					cellViewPrefab = container.GetChild(0).gameObject;
 				}
 			}
 
@@ -53,7 +54,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			if (IsDirty && _isAwaked)
 			{
 				IsDirty = true;
-				LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
+				LayoutRebuilder.MarkLayoutForRebuild(this.container);
 			}
 		}
 
@@ -64,14 +65,19 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 				scrollRect = this.GetComponent<ScrollRect>();
 			}
 
+			if (container == null)
+			{
+				container = scrollRect.content;
+			}
+			
 			Debug.Assert(scrollRect != null, "scrollRect != null");
 			ScrollRectTransform = (RectTransform)scrollRect.transform;
 			ScrollRectRange = ScrollRectTransform.rect;
-			ScrollRectRange.center -= ToVec2(this.scrollRect.content.localPosition);
+			ScrollRectRange.center -= ToVec2(this.container.localPosition);
 
 			if (enhancedScroller == null)
 			{
-				enhancedScroller = scrollRect.content.GetComponent<MyGridLayoutGroup>();
+				enhancedScroller = container.GetComponent<MyGridLayoutGroup>();
 			}
 
 			Debug.Assert(enhancedScroller != null, "enhancedScroller != null");
@@ -100,7 +106,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 
 			if (_isAwaked)
 			{
-				LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
+				LayoutRebuilder.MarkLayoutForRebuild(this.container);
 			}
 			else
 			{
@@ -124,20 +130,20 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		private void _ScrollRect_OnValueChanged(Vector2 val)
 		{
 			ScrollRectRange = ScrollRectTransform.rect;
-			ScrollRectRange.center -= ToVec2(this.scrollRect.content.localPosition);
+			ScrollRectRange.center -= ToVec2(this.container.localPosition);
 
 			// if (sampleChild == null)
 			// {
 			// 	this.sampleChild = (RectTransform)new GameObject("ef", typeof(RectTransform), typeof(Image)).transform;
 			// }
-			// this.sampleChild.SetParent(this.scrollRect.content, false);
+			// this.sampleChild.SetParent(this.container, false);
 			// sampleChild.sizeDelta = ScrollRectRange.size;
 			// sampleChild.localPosition = ScrollRectRange.center;
 			// this.sampleChild.SetParent(this.transform, true);
 			
 			if (!IsContainRectFully(ref _richDelta,ref ScrollRectRange))
 			{
-				LayoutRebuilder.MarkLayoutForRebuild(this.scrollRect.content);
+				LayoutRebuilder.MarkLayoutForRebuild(this.container);
 			}
 		}
 
@@ -190,7 +196,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			// if the scroller finds one it can recycle it will do so, otherwise
 			// it will create a new cell.
 			// var cellView = this.enhancedScroller.GetCellView(CellViewPrefabComp);
-			var cellView = GameObject.Instantiate(cellViewPrefab, this.scrollRect.content);
+			var cellView = GameObject.Instantiate(cellViewPrefab, this.container);
 
 			UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
 
