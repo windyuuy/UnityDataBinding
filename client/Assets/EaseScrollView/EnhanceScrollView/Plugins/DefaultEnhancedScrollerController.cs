@@ -124,7 +124,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		public virtual int GetNumberOfCells()
 		{
 			// in this example, we just pass the number of our data elements
-			return OldList?.Count ?? 0;
+			return OldList?.Count ?? enhancedScroller.Container.childCount;
 		}
 
 		/// <summary>
