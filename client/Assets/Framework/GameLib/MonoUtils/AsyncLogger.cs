@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Game.Diagnostics;
 
 namespace lang.log
 {
-	using Debug = Game.Diagnostics.Debug;
-
 	enum LogType
 	{
 		Log,
@@ -57,13 +56,13 @@ namespace lang.log
 					switch (s.type)
 					{
 						case LogType.Log:
-							Debug.Log(s.message);
+							Console.Log(s.message);
 							break;
 						case LogType.Warn:
-							Debug.LogWarning(s.message);
+							Console.LogWarning(s.message);
 							break;
 						case LogType.Error:
-							Debug.LogError(s.message);
+							Console.LogError(s.message);
 							break;
 					}
 				}

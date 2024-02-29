@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace EaseScrollView.EnhanceScrollView.Plugins
 {
+	[ExecuteInEditMode]
 	public class DefaultEnhancedScrollerController : MonoBehaviour, IEnhancedScrollerDelegate
 	{
 		/// <summary>
@@ -115,6 +116,31 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			}
 		}
 
+		public bool EnablePreview
+		{
+			get
+			{
+				if (enhancedScroller!=null)
+				{
+					return enhancedScroller.EnablePreview;
+				}
+
+				return false;
+			}
+		}
+
+		public int PreviewCount
+		{
+			get
+			{
+				if (enhancedScroller!=null)
+				{
+					return enhancedScroller.PreviewCount;
+				}
+
+				return 0;
+			}
+		}
 		#region EnhancedScroller Handlers
 
 		/// <summary>
@@ -123,6 +149,12 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		/// <returns>The number of cells</returns>
 		public virtual int GetNumberOfCells()
 		{
+#if UNITY_EDITOR
+			if (EnablePreview)
+			{
+				return PreviewCount;
+			}
+#endif
 			// in this example, we just pass the number of our data elements
 			return OldList?.Count ?? enhancedScroller.Container.childCount;
 		}
@@ -191,7 +223,10 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			// it will create a new cell.
 			var cellView = this.enhancedScroller.GetCellView(CellViewPrefabComp);
 
-			UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
+			if (!EnablePreview)
+			{
+				UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
+			}
 
 			// set the name of the game object to the cell's data index.
 			// this is optional, but it helps up debug the objects in 

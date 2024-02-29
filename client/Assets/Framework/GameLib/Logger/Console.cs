@@ -111,11 +111,3 @@ namespace Game.Diagnostics
         }
     }
 }
-
-namespace Game.Diagnostics
-{
-    public class Debug : Console
-    {
-
-    }
-}

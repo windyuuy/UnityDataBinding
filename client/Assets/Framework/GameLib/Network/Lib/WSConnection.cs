@@ -256,9 +256,10 @@ namespace ElRaccoone.WebSockets
                     {
 						// this.onMessage(Encoding.UTF8.GetString(_bytes.ToArray(), 0, _bytes.Count));
 						this.onMessage(_bytes.ToArray());
-					}catch (Exception ex)
+					}
+                    catch (Exception ex)
                     {
-						Debug.LogError(ex);
+						UnityEngine.Debug.LogException(ex);
                     }
 				}
 				if(this.isConnected == true)

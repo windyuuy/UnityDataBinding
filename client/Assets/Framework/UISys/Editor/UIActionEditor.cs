@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Framework.GameLib.MonoUtils;
 using gcc.layer;
 using UISys.Runtime;
 using UnityEditor;
@@ -204,7 +205,7 @@ namespace UISys.Editor
 			}
 			finally
 			{
-				if (objRef != null)
+				if (objRef != null && objRef.IsValid())
 				{
 					objRef.ReleaseAsset();
 				}
@@ -254,7 +255,10 @@ namespace UISys.Editor
 					}
 				}
 
-				DrawObjectAndActions(property, selfObj0, selfPropRect);
+				if (selfObj0 != null)
+				{
+					DrawObjectAndActions(property, selfObj0, selfPropRect);
+				}
 			}
 			finally
 			{
@@ -527,20 +531,20 @@ namespace UISys.Editor
 							var text = paraProp.stringValue;
 							if (paraType == typeof(int))
 							{
-								inputValue = EditorGUI.IntField(paraPropRect, GUIContent.none, ParseInt(text));
+								inputValue = EditorGUI.IntField(paraPropRect, GUIContent.none, BaseTypeParseHelper.ParseInt(text));
 							}
 							else if (paraType == typeof(float))
 							{
-								inputValue = EditorGUI.FloatField(paraPropRect, GUIContent.none, ParseFloat(text));
+								inputValue = EditorGUI.FloatField(paraPropRect, GUIContent.none, BaseTypeParseHelper.ParseFloat(text));
 							}
 							else if (paraType == typeof(double))
 							{
 								inputValue = EditorGUI.DoubleField(paraPropRect, GUIContent.none,
-									ParseDouble(text));
+									BaseTypeParseHelper.ParseDouble(text));
 							}
 							else if (paraType == typeof(long))
 							{
-								inputValue = EditorGUI.LongField(paraPropRect, GUIContent.none, ParseLong(text));
+								inputValue = EditorGUI.LongField(paraPropRect, GUIContent.none, BaseTypeParseHelper.ParseLong(text));
 							}
 							else
 							{
@@ -673,46 +677,6 @@ namespace UISys.Editor
 					}
 				}
 			}
-		}
-
-		private static long ParseLong(string text)
-		{
-			if (!long.TryParse(text, out var value))
-			{
-				value = 0;
-			}
-
-			return value;
-		}
-
-		private static double ParseDouble(string text)
-		{
-			if (!double.TryParse(text, out var value))
-			{
-				value = 0;
-			}
-
-			return value;
-		}
-
-		private static int ParseInt(string text)
-		{
-			if (!int.TryParse(text, out var value))
-			{
-				value = 0;
-			}
-
-			return value;
-		}
-
-		private static float ParseFloat(string text)
-		{
-			if (!float.TryParse(text, out var value))
-			{
-				value = 0;
-			}
-
-			return value;
 		}
 
 		private static T ParseJson<T>(string text)

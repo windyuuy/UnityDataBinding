@@ -4,9 +4,12 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System;
 using EaseScrollView.EnhanceScrollView.Plugins;
+using UnityEditor;
 
 namespace EnhancedUI.EnhancedScroller
 {
+    #region Public Delegates
+
     /// <summary>
     /// This delegate handles the visibility changes of cell views
     /// </summary>
@@ -62,6 +65,8 @@ namespace EnhancedUI.EnhancedScroller
     /// <param name="scroller">The scroller that reused the cell view</param>
     /// <param name="cellView">The cell view that was resused</param>
     public delegate void CellViewReused(EnhancedScroller scroller, EnhancedScrollerCellView cellView);
+    
+    #endregion
 
     /// <summary>
     /// The EnhancedScroller allows you to easily set up a dynamic scroller that will recycle views for you. This means
@@ -69,6 +74,7 @@ namespace EnhancedUI.EnhancedScroller
     /// power in your application.
     /// </summary>
     [RequireComponent(typeof(ScrollRect))]
+    [ExecuteInEditMode]
     public class EnhancedScroller : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
         #region Public
@@ -330,6 +336,42 @@ namespace EnhancedUI.EnhancedScroller
         /// </summary>
         public IEnhancedScrollerDelegate Delegate { get { return _delegate; } set { _delegate = value; _reloadData = true; } }
 
+        public bool EnablePreview
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (_layoutGroup is MyVerticalLayoutGroup verticalLayoutGroup)
+                {
+                    return verticalLayoutGroup.EnablePreview;
+                }
+                else if (_layoutGroup is MyHorizontalLayoutGroup horizontalLayoutGroup)
+                {
+                    return horizontalLayoutGroup.EnablePreview;
+                }
+#endif
+
+                return false;
+            }
+        }
+        
+        public int PreviewCount
+        {
+            get
+            {
+                if (_layoutGroup is MyVerticalLayoutGroup verticalLayoutGroup)
+                {
+                    return verticalLayoutGroup.PreviewCount;
+                }
+                else if (_layoutGroup is MyHorizontalLayoutGroup horizontalLayoutGroup)
+                {
+                    return horizontalLayoutGroup.PreviewCount;
+                }
+
+                return 0;
+            }
+        }
+        
         /// <summary>
         /// The absolute position in pixels from the start of the scroller
         /// </summary>
@@ -690,11 +732,21 @@ namespace EnhancedUI.EnhancedScroller
             {
                 // no recyleable cell found, so we create a new view
                 // and attach it to our container
-                var go = Instantiate(cellPrefab.gameObject);
+
+                GameObject go;
+                if (EnablePreview)
+                {
+                    go = (GameObject)PrefabUtility.InstantiatePrefab(cellPrefab.gameObject, _container);
+                    go.hideFlags |= HideFlags.DontSave;
+                }
+                else
+                {
+                    go = Instantiate(cellPrefab.gameObject, _container);
+                }
                 cellView = go.GetComponent<EnhancedScrollerCellView>();
-                cellView.transform.SetParent(_container);
-                cellView.transform.localPosition = Vector3.zero;
-                cellView.transform.localRotation = Quaternion.identity;
+                var transform1 = cellView.transform;
+                transform1.localPosition = Vector3.zero;
+                transform1.localRotation = Quaternion.identity;
 
                 // call the instantiated callback
                 if (cellViewInstantiated != null)
@@ -1855,6 +1907,8 @@ namespace EnhancedUI.EnhancedScroller
 
             // recreate the visibile cells
             _ResetVisibleCellViews();
+
+            UpdateHideFlags();
         }
 
         /// <summary>
@@ -2022,6 +2076,8 @@ namespace EnhancedUI.EnhancedScroller
             _recycledCellViewContainer = containerGo.GetComponent<RectTransform>();
             _recycledCellViewContainer.gameObject.SetActive(false);
 
+            UpdateHideFlags();
+            
             // set up the last values for updates
             _lastScrollRectSize = ScrollRectSize;
             _lastLoop = loop;
@@ -2031,6 +2087,16 @@ namespace EnhancedUI.EnhancedScroller
             
             _initialized = true;
             _delegate.OnScrollerInitialized();
+        }
+
+        public void UpdateHideFlags()
+        {
+            if (EnablePreview)
+            {
+                _firstPadder.gameObject.hideFlags |= HideFlags.DontSave;
+                _lastPadder.gameObject.hideFlags |= HideFlags.DontSave;
+                _recycledCellViewContainer.gameObject.hideFlags |= HideFlags.DontSave;
+            }
         }
 
 		protected void InitContainer()

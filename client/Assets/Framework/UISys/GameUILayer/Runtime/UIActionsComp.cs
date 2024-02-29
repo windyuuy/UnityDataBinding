@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Framework.GameLib.MonoUtils;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace UISys.Runtime
@@ -29,13 +31,13 @@ namespace UISys.Runtime
 	[AddComponentMenu("UISys/UIActions")]
 	public class UIActionsComp : MonoBehaviour
 	{
-		public UIAction[] actions;
+		[SerializeField] protected UIAction[] actions;
 
 #if UNITY_EDITOR
-		[NonSerialized] public Action OnReset;
+		[NonSerialized] public bool IsReseted = false;
 		private void Reset()
 		{
-			OnReset?.Invoke();
+			IsReseted = true;
 		}
 #endif
 
@@ -44,10 +46,38 @@ namespace UISys.Runtime
 			_ = RunActions();
 		}
 
+		public void RunWithToggle(Toggle change)
+		{
+			var isOn = change.isOn;
+
+			_ = RunActionsWithFirstPara(isOn);
+		}
+
+		public void RunWithToggle(MyToggle change)
+		{
+			var isOn = change.isOn;
+
+			_ = RunActionsWithFirstPara(isOn);
+		}
+
+		public async Task RunActionsWithFirstPara(bool isOn)
+		{
+			await RunActionsWithFirstPara(true, isOn);
+		}
+
 		public async Task RunActions()
 		{
+			await RunActionsWithFirstPara(false, null);
+		}
+
+		protected async Task RunActionsWithFirstPara(bool usePara, object para)
+		{
+			bool isFirst = true;
 			foreach (var uiAction in actions)
 			{
+				var useFirstPara = isFirst && usePara;
+				isFirst = false;
+
 				Object asset = uiAction.selfObj;
 				AssetReference uiActionSelf = null;
 				if (asset == null)
@@ -69,31 +99,50 @@ namespace UISys.Runtime
 						continue;
 					}
 
-					object ret;
+					object caller;
+					object[] callParas;
+					MethodInfo methodInfo;
 					if (asset is GameObject go && !string.IsNullOrEmpty(uiAction.comp))
 					{
 						var comp = go.GetComponent(uiAction.comp);
-						var methodInfo = comp.GetType()
+						methodInfo = comp.GetType()
 							.GetMethod(uiAction.action, BindingFlags.Instance | BindingFlags.Public);
-						var callParas = GetCallParas(methodInfo, uiAction);
-						ret = methodInfo!.Invoke(comp, callParas);
-
-						if (ret is Task task)
-						{
-							await task;
-						}
+						callParas = GetCallParas(methodInfo, uiAction);
+						caller = comp;
 					}
 					else
 					{
-						var methodInfo = asset.GetType()
+						methodInfo = asset.GetType()
 							.GetMethod(uiAction.action, BindingFlags.Instance | BindingFlags.Public);
-						var callParas = GetCallParas(methodInfo, uiAction);
-						ret = methodInfo!.Invoke(asset, callParas);
+						callParas = GetCallParas(methodInfo, uiAction);
+						caller = asset;
+					}
 
-						if (ret is Task task)
+					if (useFirstPara && para != null && callParas.Length > 0)
+					{
+						var callPara0 = callParas[0];
+						var callPara0Type = callPara0.GetType();
+						var paraType = para.GetType();
+						if (paraType == callPara0Type ||
+						    paraType.IsSubclassOf(callPara0Type))
 						{
-							await task;
+							if (para is bool bPara)
+							{
+								// 特殊规则：当读档参数为 true，则传入参数取反
+								callParas[0] = ((bool)callPara0) ? !bPara : bPara;
+							}
+							else
+							{
+								callParas[0] = para;
+							}
 						}
+					}
+
+					var ret = methodInfo!.Invoke(caller, callParas);
+
+					if (ret is Task task)
+					{
+						await task;
 					}
 				}
 				catch (Exception ex)
@@ -126,8 +175,38 @@ namespace UISys.Runtime
 				}
 				else
 				{
-					var json = uiAction.paras[++paraIndex];
-					var value = JsonUtility.FromJson(json, paraInfo.ParameterType);
+					var text = uiAction.paras[++paraIndex];
+					var paraType = paraInfo.ParameterType;
+					object value;
+					if (paraType == typeof(string))
+					{
+						value = text;
+					}
+					else if (paraType == typeof(bool))
+					{
+						value = BaseTypeParseHelper.ParseBool(text);
+					}
+					else if (paraType == typeof(int))
+					{
+						value = BaseTypeParseHelper.ParseInt(text);
+					}
+					else if (paraType == typeof(float))
+					{
+						value = BaseTypeParseHelper.ParseFloat(text);
+					}
+					else if (paraType == typeof(double))
+					{
+						value = BaseTypeParseHelper.ParseDouble(text);
+					}
+					else if (paraType == typeof(long))
+					{
+						value = BaseTypeParseHelper.ParseLong(text);
+					}
+					else
+					{
+						value = JsonUtility.FromJson(text, paraInfo.ParameterType);
+					}
+
 					return value;
 				}
 			}).ToArray();

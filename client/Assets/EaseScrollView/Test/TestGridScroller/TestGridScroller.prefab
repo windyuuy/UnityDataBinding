@@ -60,6 +60,8 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
+  syncSiblingIndex: 0
+  hideUnused: 0
 --- !u!1 &1757575912282592268
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,7 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e10539146bd7a1e40aa670de00c2d5ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  createCount: 10000
+  createCount: 12
 --- !u!114 &3578688903732428548
 MonoBehaviour:
   m_ObjectHideFlags: 0

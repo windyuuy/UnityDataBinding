@@ -1,14 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using DataBinding.UIBind;
 using EnhancedUI.EnhancedScroller;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace EaseScrollView.EnhanceScrollView.Plugins
 {
+	[ExecuteInEditMode]
 	public class MyGridScrollerController : MonoBehaviour, IGridScrollerDelegate
 	{
 		/// <summary>
@@ -27,11 +26,34 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		/// </summary>
 		[SerializeField] protected GameObject cellViewPrefab;
 
+		protected bool EnablePreview
+		{
+			get
+			{
+#if UNITY_EDITOR
+				if (!Application.isPlaying)
+				{
+					return enhancedScroller != null && enhancedScroller.EnablePreview && cellViewPrefab != null;
+				}
+#endif
+				return false;
+			}
+		}
+
+		protected int PreviewCount => enhancedScroller != null ? enhancedScroller.PreviewCount : 0;
+
 		private bool _isAwaked = false;
 		protected bool IsDirty = false;
 
 		protected virtual void Awake()
 		{
+// #if UNITY_EDITOR
+// 			if (!Application.isPlaying)
+// 			{
+// 				if(container==null)
+// 				return;
+// 			}
+// #endif
 			InitContainer();
 
 			if (cellViewPrefab == null)
@@ -68,8 +90,18 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			if (container == null)
 			{
 				container = scrollRect.content;
+#if UNITY_EDITOR
+				if (container == null && !Application.isPlaying)
+				{
+					container = scrollRect.viewport;
+					if (container.GetComponent<LayoutGroup>() == null)
+					{
+						container = null;
+					}
+				}
+#endif
 			}
-			
+
 			Debug.Assert(scrollRect != null, "scrollRect != null");
 			ScrollRectTransform = (RectTransform)scrollRect.transform;
 			ScrollRectRange = ScrollRectTransform.rect;
@@ -127,6 +159,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		}
 
 		private RectTransform sampleChild;
+
 		private void _ScrollRect_OnValueChanged(Vector2 val)
 		{
 			ScrollRectRange = ScrollRectTransform.rect;
@@ -140,8 +173,8 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			// sampleChild.sizeDelta = ScrollRectRange.size;
 			// sampleChild.localPosition = ScrollRectRange.center;
 			// this.sampleChild.SetParent(this.transform, true);
-			
-			if (!IsContainRectFully(ref _richDelta,ref ScrollRectRange))
+
+			if (!IsContainRectFully(ref _richDelta, ref ScrollRectRange))
 			{
 				LayoutRebuilder.MarkLayoutForRebuild(this.container);
 			}
@@ -155,6 +188,11 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		/// <returns>The number of cells</returns>
 		public virtual int GetNumberOfCells()
 		{
+			if (EnablePreview)
+			{
+				return PreviewCount;
+			}
+
 			// in this example, we just pass the number of our data elements
 			return OldList?.Count ?? 0;
 		}
@@ -192,24 +230,34 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 
 		public virtual RectTransform GetCellView(int dataIndex, int cellIndex)
 		{
-			// first, we get a cell from the scroller by passing a prefab.
-			// if the scroller finds one it can recycle it will do so, otherwise
-			// it will create a new cell.
-			// var cellView = this.enhancedScroller.GetCellView(CellViewPrefabComp);
-			var cellView = GameObject.Instantiate(cellViewPrefab, this.container);
+			GameObject cellView;
+			if (!EnablePreview)
+			{
+				cellView = GameObject.Instantiate(cellViewPrefab, this.container);
 
-			UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
+				UpdateDataBind(cellView.transform, OldList[dataIndex], dataIndex);
+			}
+			else
+			{
+#if UNITY_EDITOR
+				cellView = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(cellViewPrefab, this.container);
+				cellView.hideFlags |= HideFlags.DontSave;
+#else
+				throw new InvalidOperationException("cannot preview at runtime");
+#endif
+			}
 
 			// set the name of the game object to the cell's data index.
 			// this is optional, but it helps up debug the objects in 
 			// the scene hierarchy.
-			cellView.name = "Cell " + dataIndex.ToString();
+			cellView.name = cellViewPrefab.name + "-" + dataIndex.ToString();
 
 			// return the cell to the scroller
 			return (RectTransform)cellView.transform;
 		}
 
 		public static readonly Vector3 InVisiblePos = new Vector3(float.MaxValue * 0.5f, float.MaxValue * 0.5f, 0);
+
 		public virtual void RecycleCellView(RectTransform cellView, int dataIndex)
 		{
 			cellView.localPosition = InVisiblePos;

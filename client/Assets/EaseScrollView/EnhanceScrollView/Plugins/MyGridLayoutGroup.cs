@@ -1,17 +1,36 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using EnhancedUI.EnhancedScroller;
+using UnityEditor;
 using UnityEngine.Pool;
 
 namespace UnityEngine.UI
 {
+    [ExecuteInEditMode]
     [AddComponentMenu("MyLayout/My Grid Layout Group", 152)]
     public class MyGridLayoutGroup : GridLayoutGroup
     {
         public IGridScrollerDelegate Delegate;
 
+        [SerializeField] protected bool enablePreview = true;
+
+        public bool EnablePreview
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return enablePreview;
+#else
+                return false;
+#endif
+            }
+        }
+        
+        [SerializeField] protected int previewCount = 20;
+        public int PreviewCount => previewCount;
+        
         /// <summary>
         /// Gets the number of cells in a list of data
         /// </summary>
@@ -20,10 +39,22 @@ namespace UnityEngine.UI
         {
             if (Delegate == null)
             {
-                return transform.childCount;
+#if UNITY_EDITOR
+                if (EnablePreview)
+                {
+                    return PreviewCount;
+                }
+                else
+                {
+                    return 0;
+                }
+#endif
+                return rectChildren.Count;
             }
             return Delegate.GetNumberOfCells();
         }
+
+        protected bool IsPreviewLoaded = false;
 
         /// <summary>
         /// Gets the cell view that should be used for the data index. Your implementation
@@ -43,9 +74,32 @@ namespace UnityEngine.UI
             {
                 if (rectChildren.Count > 0)
                 {
-                    return GameObject.Instantiate(rectChildren[0], this.transform);
+                    var acc = 0;
+                    for (var i = 0; i < transform.childCount; i++)
+                    {
+                        var child = transform.GetChild(i);
+                        if (child != SharedSampleTransform)
+                        {
+                            if (acc == cellIndex)
+                            {
+                                return child as RectTransform;
+                            }
+                            acc++;
+                        }
+                    }
+
+                    if (rectChildren[0] != SharedSampleTransform)
+                    {
+                        return GameObject.Instantiate(rectChildren[0], this.transform);
+                    }
+                    else if(rectChildren.Count>1)
+                    {
+                        var obj= GameObject.Instantiate(rectChildren[1], this.transform);
+                        return obj;
+                    }
                 }
 
+                Debug.LogError("CellView cannot be null");
                 return null;
             }
         }
@@ -61,6 +115,11 @@ namespace UnityEngine.UI
                     continue;
 
                 rect.GetComponents(typeof(ILayoutIgnorer), toIgnoreList);
+
+                if (rect.name == "$SampleTrans")
+                {
+                    continue;
+                }
 
                 if (toIgnoreList.Count == 0)
                 {
@@ -168,6 +227,7 @@ namespace UnityEngine.UI
         protected override void Awake()
         {
             base.Awake();
+
             IsChildrenDirty = true;
         }
 
@@ -194,10 +254,14 @@ namespace UnityEngine.UI
                 {
                     RectTransform rect = rectChildren[i];
 
-                    m_Tracker.Add(this, rect,
-                        DrivenTransformProperties.Anchors |
-                        DrivenTransformProperties.AnchoredPosition |
-                        DrivenTransformProperties.SizeDelta);
+                    if (!EnablePreview || IsPreviewLoaded)
+                    {
+                        // 禁止显示未保存
+                        m_Tracker.Add(this, rect,
+                            DrivenTransformProperties.Anchors |
+                            DrivenTransformProperties.AnchoredPosition |
+                            DrivenTransformProperties.SizeDelta);
+                    }
 
                     rect.anchorMin = Vector2.up;
                     rect.anchorMax = Vector2.up;
@@ -284,33 +348,43 @@ namespace UnityEngine.UI
                     childrenToMove += 1;
             }
 
-            RectTransform sampleTrans;
+            if (rectChildrenCount == 0)
+            {
+                foreach (var rectChild in rectChildren)
+                {
+                    rectChild.localPosition = InVisiblePos;
+                }
+
+                return;
+            }
+            
+            Transform sampleTrans0;
             {
                 if (rectChildren.Count > 0)
                 {
                     if (SharedSampleTransform == null)
                     {
-                        sampleTrans = rectChildren[0];
+                        sampleTrans0 = rectChildren[0];
                     }
                     else
                     {
-                        sampleTrans = rectChildren.FirstOrDefault(t=>t!=SharedSampleTransform);
-                        if (sampleTrans == null && this.transform.childCount > 0)
+                        sampleTrans0 = rectChildren.FirstOrDefault(t=>t!=SharedSampleTransform);
+                        if (sampleTrans0 == null && this.transform.childCount > 0)
                         {
-                            sampleTrans = (RectTransform)this.transform.GetChild(0);
+                            sampleTrans0 = this.transform.GetChild(0);
                         }
                     }
                 }
                 else if(this.transform.childCount > 0)
                 {
-                    sampleTrans = (RectTransform)this.transform.GetChild(0);
+                    sampleTrans0 = this.transform.GetChild(0);
                 }
                 else
                 {
-                    sampleTrans = SharedSampleTransform;
+                    sampleTrans0 = SharedSampleTransform;
                 }
 
-                if (SharedSampleTransform != null && SharedSampleTransform != sampleTrans)
+                if (SharedSampleTransform != null && SharedSampleTransform != sampleTrans0)
                 {
 #if UNITY_EDITOR
                     if (!Application.isPlaying)
@@ -326,14 +400,23 @@ namespace UnityEngine.UI
                     SharedSampleTransform = null;
                 }
             }
-            
+
+#if UNITY_EDITOR
+            if (sampleTrans0 != null && sampleTrans0 is not RectTransform)
+            {
+                DelayRebuild();
+                return;
+            }
+#endif
+            RectTransform sampleTrans = sampleTrans0 as RectTransform;
             if(sampleTrans == null)
             {
                 if (SharedSampleTransform == null)
                 {
                     sampleTrans =
                         (RectTransform)(new GameObject("$SampleTrans", typeof(RectTransform)).transform);
-                    
+                    sampleTrans.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                
                     sampleTrans.anchorMin = Vector2.up;
                     sampleTrans.anchorMax = Vector2.up;
                     sampleTrans.sizeDelta = cellSize;
@@ -345,7 +428,7 @@ namespace UnityEngine.UI
                     sampleTrans = SharedSampleTransform;
                 }
             }
-
+            
             // Rect clipRect=new();
             ref var clipRect = ref GetClipRect();
 
@@ -511,16 +594,31 @@ namespace UnityEngine.UI
             // collect unalloc children
             if (IsChildrenDirty)
             {
+                var isDirtyMore = false;
                 var childCount = transform.childCount;
                 for (var i = 0; i < childCount; i++)
                 {
-                    var child = (RectTransform)transform.GetChild(i);
-                    if (child!=SharedSampleTransform && !UsingDict.ContainsValue(child))
+                    var child = transform.GetChild(i) as RectTransform;
+                    if (child == null)
+                    {
+                        isDirtyMore = true;
+                    }
+                    else if (child!=SharedSampleTransform && !UsingDict.ContainsValue(child))
                     {
                         UnallocTransforms.Enqueue(child);
                     }
                 }
-                IsChildrenDirty = false;
+
+                if (!isDirtyMore)
+                {
+                    IsChildrenDirty = false;
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    DelayRebuild();
+#endif
+                }
             }
             
             if (iterFunc != null)
@@ -560,7 +658,10 @@ namespace UnityEngine.UI
                         UsingDict.Remove(item.Key);
                         UsedDict.Add(dataIndex, rectTrans);
                     }
-                    else if (Delegate == null && UnallocTransforms.Count>0)
+                    else if (
+                        // Delegate == null && 
+                        UnallocTransforms.Count>0
+                        )
                     {
                         rectTrans = UnallocTransforms.Dequeue();
                         UsedDict.Add(dataIndex, rectTrans);
@@ -568,23 +669,29 @@ namespace UnityEngine.UI
                     else
                     {
                         rectTrans = GetCellView(dataIndex, cellIndex);
-                        UsedDict.Add(dataIndex, rectTrans);
+                        if (rectTrans != null)
+                        {
+                            UsedDict.Add(dataIndex, rectTrans);
+                        }
                     }
                 }
 
-                if (syncSiblingIndex)
+                if (rectTrans != null)
                 {
-                    rectTrans.SetSiblingIndex(cellIndex);
-                }
+                    if (syncSiblingIndex)
+                    {
+                        rectTrans.SetSiblingIndex(cellIndex);
+                    }
 
-                if (hideUnused)
-                {
-                    rectTrans.gameObject.SetActive(true);
-                }
+                    if (hideUnused)
+                    {
+                        rectTrans.gameObject.SetActive(true);
+                    }
 
-                var paras1 = paras;
-                SetChildAlongAxis2(rectTrans, ref paras1);
-                cellIndex++;
+                    var paras1 = paras;
+                    SetChildAlongAxis2(rectTrans, ref paras1);
+                    cellIndex++;
+                }
             }
             
             // merge left
@@ -625,6 +732,7 @@ namespace UnityEngine.UI
                     IEnumerator DelayHide()
                     {
                         yield return new WaitForEndOfFrame();
+                        
                         foreach (var delayHideChild in DelayHideChildren)
                         {
                             delayHideChild.gameObject.SetActive(false);
@@ -651,6 +759,20 @@ namespace UnityEngine.UI
             // sampleChild.localPosition = clipRect.center;
             // sampleChild.gameObject.SetActive(true);
             // return;
+        }
+
+        private void DelayRebuild()
+        {
+            if (!Application.isPlaying)
+            {
+                IEnumerator DelayRebuild1()
+                {
+                    yield return new WaitForEndOfFrame();
+                    LayoutRebuilder.MarkLayoutForRebuild((RectTransform)this.transform);
+                }
+
+                StartCoroutine(DelayRebuild1());
+            }
         }
 
         private bool IsVisibleInternal(RectTransform sampleTrans, ref Rect clipRect, int dataIndex)
