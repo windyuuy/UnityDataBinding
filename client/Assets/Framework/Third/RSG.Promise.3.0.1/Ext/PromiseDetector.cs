@@ -13,7 +13,7 @@ public class PromiseDetector : System.IDisposable
 
     public void Init()
     {
-        LoomMG.sharedLoom.StartCoroutine(Update());
+        LoomMG.SharedLoom.StartCoroutine(Update());
     }
 
 

@@ -18,7 +18,7 @@ public class AsyncUtils
     {
         var t1 = Time.time;
         var ts = new TaskCompletionSource<float>();
-        (comp??LoomMG.sharedLoom).StartCoroutine(_WaitForSeconds(dt, () =>
+        (comp??LoomMG.SharedLoom).StartCoroutine(_WaitForSeconds(dt, () =>
         {
             var t2 = Time.time;
             var dt = t2 - t1;
@@ -55,7 +55,7 @@ public class AsyncUtils
 	protected static Task<int> _WaitForFrames0(int frames, MonoBehaviour comp)
 	{
 		var ts = new TaskCompletionSource<int>();
-		(comp ?? LoomMG.sharedLoom).StartCoroutine(_WaitForFrames(frames, () =>
+		(comp ?? LoomMG.SharedLoom).StartCoroutine(_WaitForFrames(frames, () =>
 		{
 			ts.SetResult(frames);
 		}));
@@ -71,10 +71,29 @@ public class AsyncUtils
 		call();
 	}
 
+	public static Task WaitForEndOfFrame()
+	{
+		return WaitForEndOfFrame(null);
+	}
+	public static Task WaitForEndOfFrame(MonoBehaviour comp)
+	{
+		var ts = new TaskCompletionSource<bool>();
+		(comp ?? LoomMG.SharedLoom).StartCoroutine(_WaitForEndOfFrame(() =>
+		{
+			ts.SetResult(true);
+		}));
+		return ts.Task;
+	}
+	protected static IEnumerator _WaitForEndOfFrame(Action call)
+	{
+			yield return new WaitForEndOfFrame();
+		call();
+	}
+
 	public static Task WaitUntil(Func<bool> predicate)
     {
         var ts = new TaskCompletionSource<bool>();
-        LoomMG.sharedLoom.StartCoroutine(_WaitUntil(predicate, () =>
+        LoomMG.SharedLoom.StartCoroutine(_WaitUntil(predicate, () =>
         {
             ts.SetResult(true);
         }));

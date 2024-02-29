@@ -1,12 +1,14 @@
-
+using UnityEngine;
 
 namespace gcc.layer
 {
 	public interface ILayerRoot
 	{
-		LayerMG LayerManager { get; }
+		TLayerManager LayerManager { get; }
 
 		//#region layer bundle manager
-		LayerBundle LayerBundle { get; }
+		LayerBundleManager LayerBundleManager { get; }
+
+		Transform LayerRoot { get; }
 	}
 }

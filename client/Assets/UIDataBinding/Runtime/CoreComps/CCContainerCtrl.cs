@@ -13,7 +13,7 @@ namespace DataBinding.UIBind
 
 		public virtual void Integrate()
 		{
-			this.SendMessage("InitContainer");
+			this.SendMessage("InitContainer", SendMessageOptions.DontRequireReceiver);
 			// var ccContainerBind = this.GetComponent<CCContainerBind>();
 			// if (ccContainerBind)
 			// {
@@ -44,7 +44,7 @@ namespace DataBinding.UIBind
 				{
 					var dataSources = ((System.Collections.IList)newValue);
 					// OnDataChanged(dataSources);
-					this.SendMessage("OnDataChanged", dataSources);
+					this.SendMessage("OnDataChanged", dataSources, SendMessageOptions.DontRequireReceiver);
 				});
 			}
 		}

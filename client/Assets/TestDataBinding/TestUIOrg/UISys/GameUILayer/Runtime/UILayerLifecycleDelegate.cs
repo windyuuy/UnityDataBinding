@@ -2,97 +2,61 @@ using System;
 using System.Threading.Tasks;
 using gcc.layer;
 
-public class UILayerLifecycleDelegate : ILayerLifecycleInnerCall
+namespace UISys.Runtime
 {
-	public UILayer Layer;
-
-	public void __callOnEnter()
+	public class UILayerLifecycleDelegate : ILayerLifecycleInnerCall
 	{
-		Layer.__callOnEnter();
-	}
+		public UILayer Layer;
 
-	public void __callDoClose(Action resolve, Action<Exception> reject)
-	{
-		Layer.__callDoClose(resolve,reject);
-	}
+		public Task __callOnCreate(object data = null)
+		{
+			return Layer.__callOnCreate();
+		}
 
-	public void __callDoOpen(Action finished, Action<Exception> reject)
-	{
-		Layer.__callDoOpen(finished,reject);
-	}
+		public Task __callOnPrepare()
+		{
+			return Layer.__callOnPrepare();
+		}
 
-	public void __callOnExposed()
-	{
-		Layer.__callOnExposed();
-	}
+		public void __callOnReady()
+		{
+			Layer.__callOnReady();
+		}
 
-	public void __callOnShield()
-	{
-		Layer.__callOnShield();
-	}
+		public Task __callOnOpening()
+		{
+			return Layer.__callOnOpening();
+		}
 
-	public void __callOnCreate(object data = null)
-	{
-		Layer.onCreate(data);
-	}
+		public void __callOnOpened()
+		{
+			Layer.__callOnOpened();
+		}
 
-	public Task __callOnOpening()
-	{
-		return Layer.__callOnOpening();
-	}
+		public void __callOnExpose()
+		{
+			Layer.__callOnExpose();
+		}
 
-	public void __callOnOpened()
-	{
-		Layer.__callOnOpened();
-	}
+		public void __callOnShield()
+		{
+			Layer.__callOnShield();
+		}
 
-	public Task __callOnShow()
-	{
-		return Layer.__callOnShow();
-	}
+		public Task __callOnClosing()
+		{
+			return Layer.__callOnClosing();
+		}
 
-	public Task __callOnOverlapShow(ShowLayerParam paras)
-	{
-		return Layer.__callOnOverlapShow(paras);
-	}
+		public void __callOnDispose()
+		{
+			Layer.__callOnDispose();
+		}
 
-	public Task __callOnHide()
-	{
-		return Layer.__callOnHide();
-	}
-
-	public Task __callOnClosing()
-	{
-		return Layer.__callOnClosing();
-	}
-
-	public void __callOnBeforeClosed()
-	{
-		Layer.__callOnBeforeClosed();
-	}
-
-	public void __callOnClosed()
-	{
-		Layer.__callOnClosed();
-	}
-
-	public void __callOnBeforeDestroy()
-	{
-		Layer.__callOnBeforeDestroy();
-	}
-
-	public void __callOnCoverChanged()
-	{
-		Layer.__callOnCoverChanged();
-	}
-
-	public void __callOnAnyFocusChanged(bool focus)
-	{
-		Layer.__callOnAnyFocusChanged(focus);
-	}
-
-	public void __callOnBeforeRelease()
-	{
-		Layer.__callOnBeforeRelease();
+		public void __callOnClosed()
+		{
+			Layer.__callOnClosed();
+		}
 	}
 }
+

@@ -16,34 +16,34 @@ public class MyLoom : MonoBehaviour
 		return inst;
 	}
 
-	List<Action> taskList = new List<Action>();
+	private readonly List<Action> _taskList = new List<Action>();
 
-	protected Thread mainThread;
+	protected Thread MainThread;
 	void Awake()
 	{
-		mainThread = Thread.CurrentThread;
+		MainThread = Thread.CurrentThread;
 	}
-	protected Queue<Action> taskListCopy = new();
+	protected readonly Queue<Action> TaskListCopy = new();
 	void Update()
 	{
-		if (taskList.Count > 0)
+		if (_taskList.Count > 0)
 		{
-			lock (taskList)
+			lock (_taskList)
 			{
-				if (taskList.Count > 0)
+				if (_taskList.Count > 0)
 				{
-					foreach (var task in taskList)
+					foreach (var task in _taskList)
 					{
-						taskListCopy.Enqueue(task);
+						TaskListCopy.Enqueue(task);
 					}
-					taskList.Clear();
+					_taskList.Clear();
 				}
 			}
 		}
 
-		while (taskListCopy.Count > 0)
+		while (TaskListCopy.Count > 0)
 		{
-			var task = taskListCopy.Dequeue();
+			var task = TaskListCopy.Dequeue();
 			try
 			{
 				task.Invoke();
@@ -57,9 +57,9 @@ public class MyLoom : MonoBehaviour
 
 	public void AddTask(Action task)
 	{
-		lock (taskList)
+		lock (_taskList)
 		{
-			taskList.Add(task);
+			_taskList.Add(task);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class MyLoom : MonoBehaviour
 	{
 		this.AddTask(task);
 
-		if (mainThread == Thread.CurrentThread)
+		if (MainThread == Thread.CurrentThread)
 		{
 			Update();
 		}

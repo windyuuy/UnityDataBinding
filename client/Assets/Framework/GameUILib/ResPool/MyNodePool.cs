@@ -15,18 +15,22 @@ namespace gcc.respool
 
     public class MyNodePool
     {
-        public static TOnProgress onProgress(string url, TOnProgress call)
+        // static MyNodePool()
+        // {
+        //     LoomMG.Init();
+        // }
+        public static TOnProgress OnProgress(string url, TOnProgress call)
         {
             return TCCResLoader.Inst.onLoadResProgress(url, call);
         }
 
-        public static void offProgress(string url, TOnProgress call)
+        public static void OffProgress(string url, TOnProgress call)
         {
             TCCResLoader.Inst.offLoadResProgress(url, call);
         }
 
         // TODO: make sure loading order
-        public static void load(string url,Node parent, System.Action<Node, Error> call)
+        public static void Load(string url,Node parent, System.Action<Node, Error> call)
         {
             var notifier = TCCResLoader.Inst.getNotifier(url);
             // TODO: 支持添加不可用父节点
@@ -47,7 +51,7 @@ namespace gcc.respool
                     }
                     else
                     {
-                        LoomMG.sharedLoom.RunTask(() =>
+                        LoomMG.SharedLoom.RunTask(() =>
                         {
                             var inst = op.Result;
 
@@ -88,22 +92,41 @@ namespace gcc.respool
             // Debug.Log($"load-UI: {url}");
         }
 
-        public static void destroyNode(Node node)
+        // TODO: make sure loading order
+        public static Task<Node> LoadAsync(string url,Node parent)
+        {
+            var ts = new TaskCompletionSource<Node>();
+            Load(url,parent, (node, err) =>
+            {
+                if (err != null)
+                {
+                    ts.SetException(err);
+                }
+                else
+                {
+                    ts.SetResult(node);
+                }
+            });
+
+            return ts.Task;
+        }
+
+        public static void DestroyNode(Node node)
         {
             Addressables.ReleaseInstance(node.gameObject);
         }
 
-        public static void put(Node node, bool close)
+        public static void Put(Node node, bool close)
         {
             Addressables.ReleaseInstance(node.gameObject);
         }
 
-        public static Prefab getPrefab(string url)
+        public static Prefab GetPrefab(string url)
         {
             return TCCResLoader.Inst.getNotifier(url).getRes();
         }
 
-        public static bool tryReleaseAsset(string url)
+        public static bool TryReleaseAsset(string url)
         {
             try
             {

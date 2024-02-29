@@ -1,381 +1,264 @@
-
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RSG;
+using UnityEngine;
 
 namespace gcc.layer
 {
-    using number = System.Double;
+	public class LoadLayerBundleStatus
+	{
+		public Task Task;
+	}
 
-    using TLayerUri = System.String;
-    using Node = UnityEngine.Transform;
-    using boolean = System.Boolean;
-    using Prefab = UnityEngine.GameObject;
-    using TLayerBundleId = System.String;
+	[Serializable]
+	public class OpenLayerInfo
+	{
+		public string uri;
+		public string resUri;
+		public Task<Transform> layerRoot;
 
-    // using LayerBundleInputItem = TLayerUri | LayerBundle | TLayerBundleId;
-    using LayerBundleItem = System.String;
-    using LayerBundleMap = Dictionary<string, List<string>>;
+		public OpenLayerParam ToOpenLayerParam()
+		{
+			return new OpenLayerParam(this.uri, this.resUri,
+				this.layerRoot);
+		}
+	}
 
-    public class LayerBundleInputItem
-    {
-        public LayerBundleInputItem(string uid)
-        {
-            this._uid = uid;
-        }
-        public LayerBundleInputItem(LayerBundle item)
-        {
-            this._item = item;
-            this._uid = item.Uid;
-        }
-        protected LayerBundle _item;
-        protected string _uid;
-        public string Uid
-        {
-            get
-            {
-                return this._uid;
-            }
-        }
+	public class LayerBundle
+	{
+		public class OpenLayerStatus
+		{
+			public OpenLayerParam Config;
+			public string Uri => Config.Uri;
+			public bool IsOpenInBundle;
+		}
 
-        public static implicit operator LayerBundleInputItem(string item)
-        {
-            return new LayerBundleInputItem(item);
-        }
-        public static implicit operator LayerBundleInputItem(LayerBundle item)
-        {
-            return new LayerBundleInputItem(item);
-        }
+		public class SharedLayerStatus
+		{
+			public string Uri;
+			public LayerBundle LayerBundle;
+			public int ReferCount = 0;
 
-        public static implicit operator string(LayerBundleInputItem item)
-        {
-            return item.Uid;
-        }
+			public SharedLayerStatus(string uri)
+			{
+				Uri = uri;
+			}
+		}
 
-    }
+		public string Name { get; set; }
 
+		[NonSerialized] public List<OpenLayerInfo> LayerConfigs = new();
 
-    public class ShowBundleParams
-    {
-        public string Name;
-        public object Data;
-        // public ShowBundleParams(string name)
-        // {
-        // 	this.name = name;
-        // 	this.data = null;
-        // }
-        public ShowBundleParams(string name, object data = null)
-        {
-            this.Name = name;
-            this.Data = data;
-        }
-    }
+		protected Dictionary<string, OpenLayerStatus> LayerStatus = new();
+		private static readonly Dictionary<string, SharedLayerStatus> SharedStatus = new();
 
-    /**
-	 * 管理图层约束
-	 */
-    public class LayerBundle
-    {
-        public const string DefaultBundleName = "default";
+		public LayerRootConfig LayerRoot;
+		public TLayerManager LayerManager => LayerRoot.LayerManager;
 
-        public string Uid = "";
+		private OpenLayerParam WrapOpenParam(OpenLayerInfo config)
+		{
+			return new OpenLayerParam(config.uri, config.resUri,
+				config.layerRoot ?? Task.FromResult(LayerRoot.LayerRoot));
+		}
 
-        public LayerMG LayerMG;
+		private OpenLayerParam WrapOpenParam(OpenLayerParam config)
+		{
+			return new OpenLayerParam(config.Uri, config.ResUri,
+				config.LoadLayerRootTask ?? Task.FromResult(LayerRoot.LayerRoot));
+		}
 
-        protected LayerBundleMap layerBundleMap = new Dictionary<string, List<LayerBundleItem>>();
+		public LoadLayerBundleStatus Preload()
+		{
+			var tasks = LayerConfigs
+				.Select(config =>
+					LayerManager.PreloadLayer(WrapOpenParam(config))
+						.LoadTask);
+			var loadTask = Task.WhenAll(tasks);
+			var result = new LoadLayerBundleStatus
+			{
+				Task = loadTask
+			};
+			return result;
+		}
 
+		public Task Open()
+		{
+			if (IsOpen)
+			{
+				return Task.CompletedTask;
+			}
+			else
+			{
+				IsPaused = false;
+			}
+			IsOpen = true;
+			
+			var tasks = Enumerable.Empty<Task>();
+			foreach (var config in LayerConfigs)
+			{
+				if (!LayerStatus.ContainsKey(config.uri))
+				{
+					var task = OpenLayer(WrapOpenParam(config));
+					tasks = tasks.Append(task);
+				}
+			}
 
-        public LayerBundle Init(LayerMG layerMG)
-        {
-            this.LayerMG = layerMG;
-            return this;
-        }
+			return Task.WhenAll(tasks);
+		}
 
-        /**
-		 * 构建图层束
-		 */
-        public void SetupOneBundle(string name, LayerBundleInputItem[] items)
-        {
-            this.layerBundleMap[name] = items.Select(item => item.Uid).ToList();
-        }
+		public Task Close()
+		{
+			if (!IsOpen)
+			{
+				return Task.CompletedTask;
+			}
+			IsOpen = false;
+			
+			var tasks = Enumerable.Empty<Task>();
+			foreach (var config in LayerStatus.Values.ToArray())
+			{
+				if (IsLayerOpenInBundle(config.Uri))
+				{
+					var task = CloseLayer(config.Uri);
+					tasks = tasks.Append(task);
+				}
+			}
 
-        /**
-		 * 构建图层束
-		 */
-        public void SetupBundles(Dictionary<string, LayerBundleInputItem[]> map)
-        {
-            foreach (var pair in map)
-            {
-                this.SetupOneBundle(pair.Key, pair.Value);
-            }
-        }
+			return Task.WhenAll(tasks);
+		}
 
-        /**
-		 * 获取bundle列表
-		 * @param bundleName 
-		 * @returns 
-		 */
-        public List<TLayerUri> GetBundle(string bundleName = DefaultBundleName)
-        {
-            List<TLayerUri> bundle;
-            if (false == this.layerBundleMap.ContainsKey(bundleName))
-            {
-                bundle = new List<string>();
-                this.layerBundleMap.Add(bundleName, bundle);
-            }
-            else
-            {
-                bundle = this.layerBundleMap[bundleName];
-            }
-            return bundle;
-        }
+		protected void MarkLayerStatus(OpenLayerParam config)
+		{
+			var uri = config.Uri;
+			var isNew = !this.LayerStatus.TryGetValue(uri, out var status);
+			if (isNew)
+			{
+				status = new OpenLayerStatus();
+				this.LayerStatus.Add(uri, status);
+			}
 
-        /// <summary>
-        /// 展开层数
-        /// </summary>
-        /// <param name="bundleName"></param>
-        /// <returns></returns>
-        public TLayerUri[] ExpandBundle(string bundleName = DefaultBundleName)
-        {
-            if (bundleName == null)
-            {
-                bundleName = DefaultBundleName;
-            }
-            var layers = new List<string>();
-            this._foreachLayerBundleItems(bundleName, (layerUri) =>
-            {
-                layers.Add(layerUri);
-            });
-            return layers.Distinct().ToArray();
-        }
+			status.Config = config;
+			status.IsOpenInBundle = true;
 
+			if (!SharedStatus.TryGetValue(uri, out var sharedStatus))
+			{
+				sharedStatus = new(uri);
+				SharedStatus.Add(uri, sharedStatus);
+			}
 
-        protected void _addBundleItem(string item, List<string> bundle)
-        {
-            if (!bundle.Contains(item))
-            {
-                bundle.Add(item);
-            }
-        }
-        public void AddBundleItem(LayerBundleInputItem item, string bundleName = DefaultBundleName)
-        {
-            var bundle = this.GetBundle(bundleName);
+			sharedStatus.LayerBundle = this;
+			if (isNew)
+			{
+				sharedStatus.ReferCount++;
+			}
+		}
 
-            this._addBundleItem(item.Uid, bundle);
-        }
+		public bool IsLayerOpenInBundle(string uri)
+		{
+			if (this.LayerStatus.TryGetValue(uri, out var status))
+			{
+				if (status.IsOpenInBundle)
+				{
+					if (SharedStatus.TryGetValue(uri, out var sharedStatus))
+					{
+						if (sharedStatus.LayerBundle == this)
+						{
+							return true;
+						}
+					}
+				}
+			}
 
-        public void RemoveBundleItem(LayerBundleInputItem item, string bundleName = DefaultBundleName)
-        {
-            var bundle = this.GetBundle(bundleName);
-            bundle.Remove(item.Uid);
-        }
+			return false;
+		}
 
-        /**
-		 * 展开层束
-		 */
-        private void _foreachLayerBundleItems(string name, System.Action<TLayerUri> call)
-        {
-            if (this.layerBundleMap.ContainsKey(name))
-            {
-                var bundle = this.layerBundleMap[name];
-                foreach (var subName in bundle)
-                {
-                    this._foreachLayerBundleItems(subName, call);
-                }
-            }
-            else
-            {
-                call(name);
-            }
-        }
+		protected void RemoveLayerStatus(string uri)
+		{
+			if (this.LayerStatus.ContainsKey(uri))
+			{
+				this.LayerStatus.Remove(uri);
 
-        /**
-		 * 展开层束
-		 */
-        private List<Promise<T>> _foreachLayerBundleItems<T>(string name, System.Func<TLayerUri, Promise<T>> call, List<Promise<T>> ls)
-        {
-            if (this.layerBundleMap.ContainsKey(name))
-            {
-                var bundle = this.layerBundleMap[name];
-                foreach (var subName in bundle.ToArray())
-                {
-                    this._foreachLayerBundleItems(subName, call, ls);
-                }
-            }
-            else
-            {
-                var task = call(name);
-                ls.Add(task);
-            }
-            return ls;
-        }
-        public IPromise<IEnumerable<T>> ForeachLayerBundleItems<T>(string name, System.Func<TLayerUri, Promise<T>> call)
-        {
-            var tasks = this._foreachLayerBundleItems(name, call, new List<Promise<T>>());
-            var tasks1 = tasks as IEnumerable<IPromise<T>>;
-            var task = Promise<T>.All(tasks1);
-            return task;
-        }
+				if (SharedStatus.TryGetValue(uri, out var sharedStatus))
+				{
+					sharedStatus.ReferCount--;
+					if (sharedStatus.ReferCount == 0)
+					{
+						SharedStatus.Remove(uri);
+					}
+				}
+				else
+				{
+					throw new Exception("SharedStatus Incorrect, uri info missing");
+				}
+			}
+		}
 
-        public IPromise<IEnumerable<T>> ShowBundle<T>(string sp) where T : LayerModel
-        {
-            var bsp = new ShowBundleParams(sp);
-            return this.ShowBundle<T>(bsp);
-        }
-        public IPromise<IEnumerable<T>> ShowBundle<T>(ShowBundleParams bsp) where T : LayerModel
-        {
-            return this.ForeachLayerBundleItems<T>(bsp.Name, (item) =>
-            {
-                var dsp = new ShowLayerParam(item, bsp.Data);
-                return LayerMG.ShowLayer(dsp) as Promise<T>;
-            });
-        }
+		protected bool IsOpen = false;
+		protected bool IsPaused = false;
 
-        public IPromise<IEnumerable<T>> CloseBundle<T>(string name) where T : LayerModel
-        {
-            return this.ForeachLayerBundleItems<T>(name, (item) =>
-            {
-                return LayerMG.CloseLayer(item) as Promise<T>;
-            });
-        }
+		public void Shield()
+		{
+			IsPaused = true;
 
-        public IPromise<IEnumerable<LayerModel>> CloseBundle(string name)
-        {
-            return this.ForeachLayerBundleItems<LayerModel>(name, (item) =>
-            {
-                return LayerMG.CloseLayer(item) as Promise<LayerModel>;
-            });
-        }
+			foreach (var item in LayerStatus.Values)
+			{
+				if (IsLayerOpenInBundle(item.Uri))
+				{
+					LayerManager.ShieldLayer(item.Uri);
+				}
+			}
+		}
 
-        public IPromise<IEnumerable<LayerModel>> DestroyBundle(string name)
-        {
-            return this.ForeachLayerBundleItems<LayerModel>(name, (item) =>
-            {
-                return LayerMG.DestroyLayer(item) as Promise<LayerModel>;
-            });
-        }
+		public void Expose()
+		{
+			IsPaused = false;
 
-        public IPromise<IEnumerable<T>> DestroyBundle<T>(string name) where T : LayerModel
-        {
-            return this.ForeachLayerBundleItems<T>(name, (item) =>
-            {
-                return LayerMG.DestroyLayer(item) as Promise<T>;
-            });
-        }
+			foreach (var item in LayerStatus.Values)
+			{
+				var isOpenInBundle = item.IsOpenInBundle;
+				if (isOpenInBundle)
+				{
+					LayerManager.OpenLayer(WrapOpenParam(item.Config));
+					LayerManager.ExposeLayer(item.Uri);
+				}
+			}
+		}
 
-        // public IPromise<IEnumerable<T>> HideBundle<T>(string name) where T : LayerModel
-        // {
-        //     return this.ForeachLayerBundleItems<T>(name, (item) =>
-        //     {
-        //         return LayerMG.HideLayer(item) as Promise<T>;
-        //     });
-        // }
+		public Task<ILayer> OpenLayer(OpenLayerParam config)
+		{
+			MarkLayerStatus(config);
+			if (!IsOpen)
+			{
+				return Task.FromResult<ILayer>(null);
+			}
+			else if (IsPaused)
+			{
+				return Task.FromResult<ILayer>(null);
+			}
+			else
+			{
+				return LayerManager.OpenLayer(WrapOpenParam(config));
+			}
+		}
 
-        public PPromise<IEnumerable<LayerModel>> PreloadBundle(string name)
-        {
-            return PreloadBundle<LayerModel>(name) as PPromise<IEnumerable<LayerModel>>;
-        }
-        number Max(number a, number b)
-        {
-            return a >= b ? a : b;
-        }
-        number Min(number a, number b)
-        {
-            return a <= b ? a : b;
-        }
-        public IPromise<IEnumerable<T>> PreloadBundle<T>(string name) where T : LayerModel
-        {
-            var uris = this.GetBundle(name);
-            var urls = uris.Select(uri => LayerUriUtil.WrapUri(uri));
-            long totalMin = 0;
-            var p0=new Promise(async (resolve,reject)=>{
-                var tasks=urls.ToArray().Select(url=>UnityEngine.AddressableAssets.Addressables.GetDownloadSizeAsync(url).Task);
-                var sizes=await Task.WhenAll(tasks);
-                totalMin=sizes.Aggregate((total,size)=>{
-                    if (size == 0)
-                    {
-                        total += 1;
-                    }
-                    else
-                    {
-                        total += size;
-                    }
-                    return total;
-                });
-                resolve();
-            });
-            // PPromise<LayerModel>[]
-            var ls1 = new List<Promise<LayerModel>>();
-            var ls2 = this._foreachLayerBundleItems<LayerModel>(name, (item) =>
-            {
-                var ppromise = LayerMG.PreloadLayer(item);
-                return ppromise;
-            }, ls1);
-            var ls = ls2;
+		public Task<ILayer> CloseLayer(string uri)
+		{
+			return CloseLayer(new CloseLayerParam(uri));
+		}
 
-            var promise0 = p0.Then(()=>Promise<LayerModel>.All(ls));
-            var promise = PPromise.toPPromise(promise0);
-            number count = 0;
-            number total = 0;
-            foreach (var p in ls)
-            {
-                if (p is IPPromise ppromise)
-                {
-                    ppromise.onProgress((c, t, diff, tdiff, isFirst) =>
-                    {
-                        count += diff;
-                        total += tdiff;
-
-                        promise.notifyProgress(count, Max(count, totalMin));
-                    });
-                }
-            }
-
-            promise.IsWithProgress = true;
-            return promise as IPromise<IEnumerable<T>>;
-        }
-
-        public IPromise<IEnumerable<T>> CreateBundleItems<T>(string name) where T : LayerModel
-        {
-            return this.ForeachLayerBundleItems<T>(name, (item) =>
-            {
-                return LayerMG.CreateLayer(item) as Promise<T>;
-            });
-        }
-
-        /// <summary>
-        /// 当前正在录制的LayerBundle
-        /// </summary>
-        public string RecordBundleName;
-        public void SetRecordBundle(string name)
-        {
-            this.RecordBundleName = name;
-        }
-        public List<TLayerUri> GetRecordBundle()
-        {
-            if (false == string.IsNullOrEmpty(this.RecordBundleName))
-            {
-                return this.GetBundle(this.RecordBundleName);
-            }
-            return null;
-        }
-        public void AddRecordItem(LayerBundleInputItem item)
-        {
-            if (false == string.IsNullOrEmpty(this.RecordBundleName))
-            {
-                this.AddBundleItem(item, this.RecordBundleName);
-            }
-        }
-        public IPromise<IEnumerable<T>> CloseRecordBundle<T>() where T : LayerModel
-        {
-            if (false == string.IsNullOrEmpty(this.RecordBundleName))
-            {
-                return this.CloseBundle<T>(this.RecordBundleName);
-            }
-
-            return Promise<IEnumerable<T>>.Resolved(new T[0]);
-        }
-
-    }
+		public Task<ILayer> CloseLayer(CloseLayerParam closeLayerParam)
+		{
+			var isOpenInBundle = IsLayerOpenInBundle(closeLayerParam.Uri);
+			RemoveLayerStatus(closeLayerParam.Uri);
+			if (isOpenInBundle)
+			{
+				return LayerManager.CloseLayer(closeLayerParam);
+			}
+			else
+			{
+				return Task.FromResult<ILayer>(null);
+			}
+		}
+	}
 }

@@ -1,42 +1,58 @@
-
+using System;
 using gcc.layer;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class UILayerRoot : BLayerRoot
+namespace UISys.Runtime
 {
-	protected LayerMG layerManager;
-
-	protected LayerBundle layerBundle;
-	public override LayerMG LayerManager => layerManager;
-	public override LayerBundle LayerBundle => layerBundle;
-
-	void Awake()
+	public class UILayerRoot : MonoBehaviour
 	{
-		this.Init();
-	}
+		[SerializeField] protected UILayerRootRefer uiLayerRootRefer;
+		[SerializeField] protected CurrentLayerBundleComp currentLayerBundleRefer;
+		[NonSerialized] public LayerRootConfig LayerRootConfig;
 
-	bool inited = false;
-	public UILayerRoot Init()
-	{
-		if (this.inited)
+		void Awake()
 		{
-			return this;
+			this.Init();
 		}
-		this.inited = true;
 
-		this.layerManager = new LayerMG();
-		var config = new LayerMGConfig();
-		config.rootComp = this;
-		this.layerManager.LoadMGConfig(config);
+		private bool _inited = false;
 
-		this.layerBundle = new LayerBundle().Init(this.layerManager);
+		public void Init()
+		{
+			if (this._inited)
+			{
+				return;
+			}
 
-		this.LayerManager.RegisterLayerClass("CCLayerComp", typeof(UILayer));
+			this._inited = true;
 
-		// 注册自身
-		LayerAPI.LayerRoot = this;
+			this.LayerRootConfig = new(this.transform);
+			this.LayerRootConfig.LayerManager.RegisterLayerClass(typeof(UILayer));
 
-		return this;
+			UpdateUILayerRootRefer();
+
+			UpdateLayerBundleRefer();
+		}
+
+		private void UpdateLayerBundleRefer()
+		{
+			if (currentLayerBundleRefer != null)
+			{
+				currentLayerBundleRefer.LayerBundleRefer = this.LayerRootConfig.LayerBundleManager.LayerBundleRefer;
+			}
+		}
+
+		private void UpdateUILayerRootRefer()
+		{
+			if (uiLayerRootRefer != null)
+			{
+				uiLayerRootRefer.Target = this;
+			}
+			else
+			{
+				Debug.LogError("UILayerRoot.uiLayerRootRefer cannot be null");
+			}
+		}
 	}
-
 }

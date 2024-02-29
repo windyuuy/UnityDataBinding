@@ -1,15 +1,13 @@
 
 using System.Collections.Generic;
-using System.Linq;
+using Game.Diagnostics;
 
 namespace lang.libs
 {
 	using boolean = System.Boolean;
-	using number = System.Double;
 	using Error = System.Exception;
 	using JSON = lang.json.JSON;
 	using Object = System.Object;
-	using console = Game.Diagnostics.Debug;
 	using StringBuilder = System.Text.StringBuilder;
 
 	/**
@@ -17,27 +15,27 @@ namespace lang.libs
      */
 	public interface ILogParam
 	{
-		boolean time { get; set; }
-		string[] tags { get; set; }
+		boolean Time { get; set; }
+		string[] Tags { get; set; }
 	}
 
 	public class LogParam : ILogParam
 	{
-		protected bool _time;
-		public bool time
+		private bool _time;
+		public bool Time
 		{
 			get => _time;
 			set => _time = value;
 		}
-		public string[] _tags;
-		public string[] tags
+		private string[] _tags;
+		public string[] Tags
 		{
 			get => _tags;
 			set => _tags = value;
 		}
 	}
 
-	public class Log
+	public class Logger
 	{
 
 		private static boolean _enablePlainLog = false;
@@ -45,15 +43,15 @@ namespace lang.libs
          * 是否启用平铺日志
          * - 如果启用平铺日志, 将会直接序列化日志对象, 转换为字符串打印出来
          */
-		public static boolean enablePlainLog
+		public static boolean EnablePlainLog
 		{
 			get
 			{
-				return Log._enablePlainLog;
+				return Logger._enablePlainLog;
 			}
 			set
 			{
-				Log._enablePlainLog = value;
+				Logger._enablePlainLog = value;
 			}
 		}
 
@@ -61,7 +59,7 @@ namespace lang.libs
 		 * 将对象转换为平铺日志
 		 * - 如果启用平铺日志, 将会直接序列化日志对象, 转换为字符串打印出来
 		 */
-		public static List<string> toPlainLog(object[] args)
+		public static List<string> ToPlainLog(object[] args)
 		{
 			var plainTexts = new List<string>();
 
@@ -100,43 +98,43 @@ namespace lang.libs
 			return plainTexts;
 		}
 
-		protected static Log _instance;
+		private static Logger _instance;
 		/**
          * 可选使用的单例
          */
-		public static Log Inst
+		public static Logger Inst
 		{
 			get
 			{
-				if (Log._instance == null)
+				if (Logger._instance == null)
 				{
-					Log._instance = new Log();
+					Logger._instance = new Logger();
 				}
-				return Log._instance;
+				return Logger._instance;
 			}
 		}
 
 		/**
 		 * 是否打印时间戳
 		 */
-		protected boolean time;
+		protected boolean Time;
 		/**
          * 日志标签
          */
-		protected List<string> tags;
+		protected List<string> Tags;
 		/**
          * 日志选项内容是否需要更新
          */
-		protected boolean dirty = true;
+		protected boolean Dirty = true;
 
 
-		public Log(ILogParam x = null)
+		public Logger(ILogParam x = null)
 		{
 			if (x == null)
 			{
 				x = new LogParam();
 			}
-			this.setLogOptions(x);
+			this.SetLogOptions(x);
 		}
 
 		/**
@@ -144,19 +142,19 @@ namespace lang.libs
 		 * @param tag 
 		 * @returns 
 		 */
-		public Log appendTag(string tag)
+		public Logger AppendTag(string tag)
 		{
-			if (this.tags != null)
+			if (this.Tags != null)
 			{
-				this.tags.Add(tag);
+				this.Tags.Add(tag);
 			}
 			else
 			{
 				// this.tags = new string[] { tag };
-				this.tags = new List<string>(1);
-				this.tags.Add(tag);
+				this.Tags = new List<string>(1);
+				this.Tags.Add(tag);
 			}
-			this.dirty = this.dirty || tag != null;
+			this.Dirty = this.Dirty || tag != null;
 
 			return this;
 		}
@@ -166,13 +164,13 @@ namespace lang.libs
 		 * @param tags 
 		 * @returns 
 		 */
-		public Log appendTags(string[] tags)
+		public Logger AppendTags(string[] tags)
 		{
 			foreach (var tag in tags)
 			{
-				this.appendTag(tag);
+				this.AppendTag(tag);
 			}
-			this.dirty = this.dirty || tags.Length > 0;
+			this.Dirty = this.Dirty || tags.Length > 0;
 			return this;
 		}
 
@@ -181,19 +179,19 @@ namespace lang.libs
 		 * @param param0 
 		 * @returns 
 		 */
-		public Log setLogOptions(ILogParam p = null)
+		public Logger SetLogOptions(ILogParam p = null)
 		{
-			var time = p.time;
-			var tags = p.tags;
+			var time = p.Time;
+			var tags = p.Tags;
 
-			this.time = time;
+			this.Time = time;
 
 			if (tags != null)
 			{
-				this.tags = tags.Clone() as List<string>;
+				this.Tags = tags.Clone() as List<string>;
 
 			}
-			this.dirty = true;
+			this.Dirty = true;
 
 			return this;
 
@@ -202,22 +200,22 @@ namespace lang.libs
 		/**
 		 * 缓存的日志标签戳
 		 */
-		protected string _cachedTagsStamp;
+		protected string CachedTagsStamp;
 		/**
          * 获取日志标签戳
          * @returns 
          */
-		protected string getTagsStamp()
+		protected string GetTagsStamp()
 		{
-			if (!this.dirty)
+			if (!this.Dirty)
 			{
-				return this._cachedTagsStamp;
+				return this.CachedTagsStamp;
 			}
 
 			string tag;
-			if (this.tags != null)
+			if (this.Tags != null)
 			{
-				tag = $"[{ string.Concat(this.tags, "][")}]";
+				tag = $"[{ string.Join("][", this.Tags)}]";
 			}
 			else
 			{
@@ -227,14 +225,14 @@ namespace lang.libs
 
 			}
 
-			if (this.time)
+			if (this.Time)
 			{
 				tag = tag + $"[t/{ System.DateTime.Now}]";
 			}
 
-			this._cachedTagsStamp = tag;
+			this.CachedTagsStamp = tag;
 
-			this.dirty = false;
+			this.Dirty = false;
 
 
 			return tag;
@@ -245,7 +243,7 @@ namespace lang.libs
 		 * log通道打印日志，并储至日志文件
 		 * @param args 
 		 */
-		public void log(params object[] args)
+		public void Log(params object[] args)
 		{
 			// if (this.tags) {
 			//     args = this.tags.concat(args)
@@ -254,15 +252,31 @@ namespace lang.libs
 			//     args.push(new Date().getTime())
 			// }
 
-			console.Log(
-				new StringBuilder(" -", 2 + args.Length).Append(this.getTagsStamp()).Append(args)
-			);
+			Console.Log(ConvParaToString(args));
+		}
+
+		private StringBuilder ConvParaToString(object[] args)
+		{
+			var stringBuilder = new StringBuilder(" -", 2 + args.Length).Append(this.GetTagsStamp());
+			foreach (var arg in args)
+			{
+				stringBuilder.Append(" ");
+				if (arg.GetType().IsPrimitive || arg is string)
+				{
+					stringBuilder.Append(arg);
+				}
+				else
+				{
+					stringBuilder.Append(UnityEngine.JsonUtility.ToJson(arg));
+				}
+			}
+			return stringBuilder;
 		}
 
 		/**
 		 * 将消息打印到控制台，不存储至日志文件
 		 */
-		public void debug(params object[] args)
+		public void Debug(params object[] args)
 		{
 			// if (this.tags) {
 			//     args = this.tags.concat(args)
@@ -270,15 +284,13 @@ namespace lang.libs
 			// if (this.time) {
 			//     args.push(new Date().getTime())
 			// }
-			console.Log(
-				new StringBuilder(" -", 2 + args.Length).Append(this.getTagsStamp()).Append(args)
-			);
+			Console.Log(ConvParaToString(args));
 		}
 
 		/**
 		 * 将消息打印到控制台，不存储至日志文件
 		 */
-		public void info(params object[] args)
+		public void Info(params object[] args)
 		{
 			// if (this.tags) {
 			//     args = this.tags.concat(args)
@@ -286,15 +298,13 @@ namespace lang.libs
 			// if (this.time) {
 			//     args.push(new Date().getTime())
 			// }
-			console.Log(
-				new StringBuilder(" -", 2 + args.Length).Append(this.getTagsStamp()).Append(args)
-			);
+			Console.Log(ConvParaToString(args));
 		}
 
 		/**
 		 * 将消息打印到控制台，并储至日志文件
 		 */
-		public void warn(params object[] args)
+		public void Warn(params object[] args)
 		{
 			// if (this.tags) {
 			//     args = this.tags.concat(args)
@@ -302,15 +312,13 @@ namespace lang.libs
 			// if (this.time) {
 			//     args.push(new Date().getTime())
 			// }
-			console.LogWarning(
-				new StringBuilder(" -", 2 + args.Length).Append(this.getTagsStamp()).Append(args)
-			);
+			Console.LogWarning(ConvParaToString(args));
 		}
 
 		/**
 		 * 将消息打印到控制台，并储至日志文件
 		 */
-		public void error(params object[] args)
+		public void Error(params object[] args)
 		{
 			// if (this.tags) {
 			//     args = this.tags.concat(args)
@@ -318,20 +326,18 @@ namespace lang.libs
 			// if (this.time) {
 			//     args.push(new Date().getTime())
 			// }
-			console.LogError(
-				new StringBuilder(" -", 2 + args.Length).Append(this.getTagsStamp()).Append(args)
-			);
+			Console.LogError(ConvParaToString(args));
 			foreach (var p in args)
 			{
 				if (p is Error)
 				{
 					var e = p as Error;
-					console.Log(e.StackTrace);
+					Console.Log(e.StackTrace);
 				}
 			}
-			console.Log(">>>error");
+			Console.Log(">>>error");
 
-			console.Log(new Error().StackTrace);
+			Console.Log(new Error().StackTrace);
 
 		}
 
@@ -339,35 +345,35 @@ namespace lang.libs
 		 * 从目标覆盖日志选项到自身
 		 * @param source 
 		 */
-		public Log mergeFrom(Log source)
+		public Logger MergeFrom(Logger source)
 		{
-			this.time = source.time;
+			this.Time = source.Time;
 
 
 
-			if (source.tags != null)
+			if (source.Tags != null)
 			{
-				if (this.tags != null)
+				if (this.Tags != null)
 				{
-					for (var i = 0; i < source.tags.Count; i++)
+					for (var i = 0; i < source.Tags.Count; i++)
 					{
-						this.tags[i] = source.tags[i];
+						this.Tags[i] = source.Tags[i];
 					}
 				}
 				else
 				{
-					this.tags = source.tags.Clone();
+					this.Tags = source.Tags.Clone();
 				}
 			}
 			else
 			{
-				if (this.tags != null)
+				if (this.Tags != null)
 				{
-					this.tags.Clear();
+					this.Tags.Clear();
 				}
 			}
-			this.dirty = source.dirty;
-			this._cachedTagsStamp = source._cachedTagsStamp;
+			this.Dirty = source.Dirty;
+			this.CachedTagsStamp = source.CachedTagsStamp;
 			return this;
 		}
 
@@ -375,10 +381,10 @@ namespace lang.libs
 		 * 克隆自己
 		 * @returns 
 		 */
-		public Log clone()
+		public Logger Clone()
 		{
-			var log = new Log();
-			log.mergeFrom(this);
+			var log = new Logger();
+			log.MergeFrom(this);
 			return log;
 		}
 

@@ -26,11 +26,11 @@ namespace gcc.layer
 		/**
 		 * 记录项列表
 		 */
-		protected List<TagRecord> records = new List<TagRecord>();
+		protected List<TagRecord> Records = new List<TagRecord>();
 
-		protected TagRecord getRecord(TagTarget target)
+		protected TagRecord GetRecord(TagTarget target)
 		{
-			var record = this.records.Find(r => r.Target == target);
+			var record = this.Records.Find(r => r.Target == target);
 			return record;
 		}
 
@@ -41,7 +41,7 @@ namespace gcc.layer
 		 */
 		public void UpdateTargetTags(TagTarget target, IEnumerable<string> tags)
 		{
-			var record = this.getRecord(target);
+			var record = this.GetRecord(target);
 			if (record != null)
 			{
 				record.TagsSet.Clear();
@@ -58,8 +58,8 @@ namespace gcc.layer
 		 */
 		public void RemoveTarget(TagTarget target)
 		{
-			var record = this.getRecord(target);
-			this.records.Remove(record);
+			var record = this.GetRecord(target);
+			this.Records.Remove(record);
 		}
 
 		/**
@@ -68,7 +68,7 @@ namespace gcc.layer
 		 */
 		public TagTarget[] FilterTargetsByTags<T>(string[] tags)
 		{
-			var result = this.records.FindAll(r =>
+			var result = this.Records.FindAll(r =>
 			{
 				var matched = true;
 				foreach (var tag in tags)
