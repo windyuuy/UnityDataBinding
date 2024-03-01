@@ -11,6 +11,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
+using Slider = UnityEngine.UI.Slider;
 
 namespace UISys.Editor
 {
@@ -22,6 +23,52 @@ namespace UISys.Editor
 			public string ActionDisplayName;
 			public string CompFullName;
 			public MethodInfo Method;
+		}
+
+		public class AdditionComp
+		{
+			public string CompFullName => CompType.FullName;
+			public Type CompType;
+
+			public string[] MethodNames;
+
+			protected static AdditionComp[] AdditionComps;
+
+			public static AdditionComp[] GetAdditionComps()
+			{
+				if (AdditionComps == null)
+				{
+					AdditionComps = new[]
+					{
+						new AdditionComp()
+						{
+							CompType = null,
+							MethodNames = new[]
+							{
+								"SetActive",
+							}
+						},
+						new AdditionComp()
+						{
+							CompType = typeof(Transform),
+							MethodNames = new[]
+							{
+								"SetPositionAndRotation",
+							}
+						},
+						new AdditionComp
+						{
+							CompType = typeof(Slider),
+							MethodNames = new string[]
+							{
+								"set_value",
+							}
+						}
+					};
+				}
+
+				return AdditionComps;
+			}
 		}
 
 		private int _propCount = 1;
@@ -296,30 +343,36 @@ namespace UISys.Editor
 					compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
 				}
 
-				// add gameobject actions
+				// add additional actions for native objs
 				{
-					var methodNames2 = new string[]
+					var additionComps = AdditionComp.GetAdditionComps();
+					foreach (var additionComp in additionComps)
 					{
-						"SetActive",
-					};
-					var methodInfos2 = methodNames2.Select(name =>
-						assetType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public)).ToArray();
-					var compMethodInfos1 = WrapNativeMethods(methodInfos2, "");
-					compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
-				}
-
-				// add transform actions
-				{
-					var transformType = gameObject.transform.GetType();
-					var methodNames2 = new string[]
-					{
-						"SetPositionAndRotation",
-					};
-					var methodInfos2 = methodNames2.Select(name =>
-						transformType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public)).ToArray();
-					var assetFullName = transformType.FullName;
-					var compMethodInfos1 = WrapNativeMethods(methodInfos2, assetFullName);
-					compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
+						var transformType = additionComp.CompType;
+						if (transformType != null)
+						{
+							var comp = gameObject.GetComponent(transformType);
+							if (comp != null)
+							{
+								transformType = comp != null ? comp.GetType() : null;
+								var methodNames2 = additionComp.MethodNames;
+								var methodInfos2 = methodNames2.Select(name =>
+										transformType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public))
+									.ToArray();
+								var compFullName = transformType.FullName;
+								var compMethodInfos1 = WrapNativeMethods(methodInfos2, compFullName);
+								compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
+							}
+						}
+						else
+						{
+							var methodNames2 = additionComp.MethodNames;
+							var methodInfos2 = methodNames2.Select(name =>
+								assetType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public)).ToArray();
+							var compMethodInfos1 = WrapNativeMethods(methodInfos2, "");
+							compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
+						}
+					}
 				}
 
 				var compMethodInfos = compMethodInfosE.ToArray();
@@ -432,7 +485,7 @@ namespace UISys.Editor
 			return compMethodInfos1;
 		}
 
-		private static IEnumerable<CompMethodInfo> WrapNativeMethods(MethodInfo[] methodInfos, string assetFullName)
+		private static IEnumerable<CompMethodInfo> WrapNativeMethods(MethodInfo[] methodInfos, string compFullName)
 		{
 			var compMethodInfos1 = methodInfos
 				// .Where(m => m.GetCustomAttribute<UIActionAttribute>(true) != null)
@@ -440,7 +493,7 @@ namespace UISys.Editor
 				{
 					// ActionDisplayName = $"{comp.GetType().Name}.{m.Name}",
 					ActionDisplayName = $"{m.Name}",
-					CompFullName = assetFullName,
+					CompFullName = compFullName,
 					Method = m,
 				});
 			return compMethodInfos1;
@@ -531,11 +584,13 @@ namespace UISys.Editor
 							var text = paraProp.stringValue;
 							if (paraType == typeof(int))
 							{
-								inputValue = EditorGUI.IntField(paraPropRect, GUIContent.none, BaseTypeParseHelper.ParseInt(text));
+								inputValue = EditorGUI.IntField(paraPropRect, GUIContent.none,
+									BaseTypeParseHelper.ParseInt(text));
 							}
 							else if (paraType == typeof(float))
 							{
-								inputValue = EditorGUI.FloatField(paraPropRect, GUIContent.none, BaseTypeParseHelper.ParseFloat(text));
+								inputValue = EditorGUI.FloatField(paraPropRect, GUIContent.none,
+									BaseTypeParseHelper.ParseFloat(text));
 							}
 							else if (paraType == typeof(double))
 							{
@@ -544,7 +599,8 @@ namespace UISys.Editor
 							}
 							else if (paraType == typeof(long))
 							{
-								inputValue = EditorGUI.LongField(paraPropRect, GUIContent.none, BaseTypeParseHelper.ParseLong(text));
+								inputValue = EditorGUI.LongField(paraPropRect, GUIContent.none,
+									BaseTypeParseHelper.ParseLong(text));
 							}
 							else
 							{
