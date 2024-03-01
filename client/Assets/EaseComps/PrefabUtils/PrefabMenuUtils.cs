@@ -12,12 +12,41 @@ namespace EaseComps.PrefabUtils
 	public static class PrefabMenuUtils
 	{
 		[Serializable]
-		public class MenuFolderSettings
+		public class MenuItemSettings
 		{
+			public MenuItemSettings()
+			{
+				
+			}
+			
+			public MenuItemSettings(MenuFolderSettings settings)
+			{
+				order = settings.order;
+			}
+			
+			public string name;
+
 			/// <summary>
 			/// 菜单顺序
 			/// </summary>
 			public int order = 10;
+
+		}
+		
+		[Serializable]
+		public class MenuFolderSettings
+		{
+			public MenuFolderSettings()
+			{
+			}
+			
+			/// <summary>
+			/// 菜单顺序
+			/// </summary>
+			public int order = 10;
+
+			public MenuItemSettings[] items = Array.Empty<MenuItemSettings>();
+
 		}
 
 		[MenuItem("Tools/EaseComps/更新资源菜单")]
@@ -47,14 +76,19 @@ namespace EaseComps.PrefabUtils
 						settings = new();
 					}
 
+					var fileRelativePath = Path.GetRelativePath(path, file);
+					var fileName = Path.GetFileNameWithoutExtension(fileRelativePath);
+					var itemSettings = settings.items.FirstOrDefault(item => item.name == fileName) ??
+					                   new MenuItemSettings(settings);
+
 					var menuOrder = settings.order;
-					var fileName = Path.GetRelativePath(path, file);
-					fileName = fileName.Replace('\\', '/');
-					fileName = Path.ChangeExtension(fileName, "");
-					fileName = fileName.Substring(0, fileName.Length - 1);
-					var inlineCode1 = $"\t\t\tvar pName = \"{fileName}.prefab\";\n";
+					var subMenuOrder = itemSettings.order;
+					fileRelativePath = fileRelativePath.Replace('\\', '/');
+					fileRelativePath = Path.ChangeExtension(fileRelativePath, "");
+					fileRelativePath = fileRelativePath.Substring(0, fileRelativePath.Length - 1);
+					var inlineCode1 = $"\t\t\tvar pName = \"{fileRelativePath}.prefab\";\n";
 					return
-						$"		[MenuItem(\"GameObject/{fileName}\", false, {menuOrder})]\n\t\tpublic static void Create{fileName.Replace('\\', '/').Replace('/', '_').Replace(".", "_")}(MenuCommand menuCommand){{\n{inlineCode1}{inlineCode2}\t\t}}";
+						$"		[MenuItem(\"GameObject/{fileRelativePath}\", false, {menuOrder}, secondaryPriority = {subMenuOrder})]\n\t\tpublic static void Create{fileRelativePath.Replace('\\', '/').Replace('/', '_').Replace(".", "_")}(MenuCommand menuCommand){{\n{inlineCode1}{inlineCode2}\t\t}}";
 				}));
 				var code =
 					@"using UnityEditor;
