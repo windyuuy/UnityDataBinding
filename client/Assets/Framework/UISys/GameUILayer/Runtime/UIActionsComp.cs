@@ -16,6 +16,7 @@ namespace UISys.Runtime
 	{
 	}
 
+	// TODO: 支持异步设置
 	[Serializable]
 	public class UIAction
 	{
