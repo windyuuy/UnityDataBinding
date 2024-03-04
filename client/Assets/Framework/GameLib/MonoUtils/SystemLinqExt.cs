@@ -136,5 +136,15 @@ namespace System.Linq.MyExt
 				hashSet.Add(obj);
 		}
 
+		public static IEnumerable<R> MergeGroup<T, R>(this IEnumerable<T> ts, Func<T,IEnumerable<R>> call)
+		{
+			var iter = Enumerable.Empty<R>();
+			foreach (var t in ts)
+			{
+				iter = iter.Concat(call(t));
+			}
+
+			return iter;
+		}
 	}
 }

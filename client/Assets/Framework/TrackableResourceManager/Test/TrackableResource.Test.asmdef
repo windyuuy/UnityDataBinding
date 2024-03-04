@@ -1,0 +1,16 @@
+{
+    "name": "TrackableResource.Test",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4266d356f94f70942a26359637e11890"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -28,11 +28,11 @@ public static class CCXPathExt
 	{
 		return trans.GetChildren().Where(t => t.name == xpath).ToArray();
 	}
+	private static readonly Regex FormatReg = new Regex(@"^(.*?)(?:\[(\d*)((?:\:)?)(\d*)\])?$");
 	public static void CNRS(this Transform trans, string[] xpath, int index, List<Transform> rets)
 	{
 		var curPath = xpath[index];
-		var formatReg = new Regex(@"^(.*?)(?:\[(\d*)((?:\:)?)(\d*)\])?$");
-		var info = formatReg.Match(curPath);
+		var info = FormatReg.Match(curPath);
 		var subMatchRule = info.Groups[1].Value;
 		int matchIndexMin;
 		var minExist = int.TryParse(info.Groups[2].Value, out matchIndexMin);

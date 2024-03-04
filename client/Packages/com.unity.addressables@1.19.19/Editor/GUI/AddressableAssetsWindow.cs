@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 
 namespace UnityEditor.AddressableAssets.GUI
 {
-    class AddressableAssetsWindow : EditorWindow, IHasCustomMenu
+    public class AddressableAssetsWindow : EditorWindow, IHasCustomMenu
     {
         private SearchRequest m_Request;
         private string m_HelpUrl;
@@ -35,7 +35,7 @@ namespace UnityEditor.AddressableAssets.GUI
 
         [MenuItem("Tools/Addressables/Groups", priority = 2050)]
         [MenuItem("Window/Asset Management/Addressables/Groups", priority = 2050)]
-        internal static void Init()
+        public static void Init()
         {
             AddressableAnalytics.ReportUsageEvent(AddressableAnalytics.UsageEventType.OpenGroupsWindow);
             var window = GetWindow<AddressableAssetsWindow>();
