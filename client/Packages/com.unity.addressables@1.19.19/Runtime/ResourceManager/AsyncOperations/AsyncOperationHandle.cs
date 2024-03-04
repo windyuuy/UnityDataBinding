@@ -178,7 +178,7 @@ namespace UnityEngine.ResourceManagement.AsyncOperations
         /// Synchronously complete the async operation.
         /// </summary>
         /// <returns>The result of the operation or null.</returns>
-        public TObject WaitForCompletion()
+        internal TObject WaitForCompletion()
         {
 #if !UNITY_2021_1_OR_NEWER
             AsyncOperationHandle.IsWaitingForCompletion = true;
@@ -582,7 +582,7 @@ namespace UnityEngine.ResourceManagement.AsyncOperations
         /// Synchronously complete the async operation.
         /// </summary>
         /// <returns>The result of the operation or null.</returns>
-        public object WaitForCompletion()
+        internal object WaitForCompletion()
         {
 #if !UNITY_2021_1_OR_NEWER
             IsWaitingForCompletion = true;

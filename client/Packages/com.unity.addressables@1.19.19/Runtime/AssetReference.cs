@@ -42,7 +42,7 @@ namespace UnityEngine.AddressableAssets
         /// <returns>The load operation.</returns>
         //[Obsolete("We have added Async to the name of all asynchronous methods (UnityUpgradable) -> LoadAssetAsync(*)", true)]
         [Obsolete]
-        public AsyncOperationHandle<TObject> LoadAsset()
+        internal AsyncOperationHandle<TObject> LoadAsset()
         {
             return LoadAssetAsync();
         }
@@ -518,7 +518,7 @@ namespace UnityEngine.AddressableAssets
         /// <returns>The load operation.</returns>
         //[Obsolete("We have added Async to the name of all asynchronous methods (UnityUpgradable) -> LoadAssetAsync(*)", true)]
         [Obsolete]
-        public AsyncOperationHandle<TObject> LoadAsset<TObject>()
+        internal AsyncOperationHandle<TObject> LoadAsset<TObject>()
         {
             return LoadAssetAsync<TObject>();
         }
@@ -532,7 +532,7 @@ namespace UnityEngine.AddressableAssets
         /// <returns>The operation handle for the scene load.</returns>
         //[Obsolete("We have added Async to the name of all asynchronous methods (UnityUpgradable) -> LoadSceneAsync(*)", true)]
         [Obsolete]
-        public AsyncOperationHandle<SceneInstance> LoadScene()
+        internal AsyncOperationHandle<SceneInstance> LoadScene()
         {
             return LoadSceneAsync();
         }
@@ -549,7 +549,7 @@ namespace UnityEngine.AddressableAssets
         /// <returns>Returns the instantiation operation.</returns>
         //[Obsolete("We have added Async to the name of all asynchronous methods (UnityUpgradable) -> InstantiateAsync(*)", true)]
         [Obsolete]
-        public AsyncOperationHandle<GameObject> Instantiate(Vector3 position, Quaternion rotation, Transform parent = null)
+        internal AsyncOperationHandle<GameObject> Instantiate(Vector3 position, Quaternion rotation, Transform parent = null)
         {
             return InstantiateAsync(position, rotation, parent);
         }
@@ -565,7 +565,7 @@ namespace UnityEngine.AddressableAssets
         /// <returns>Returns the instantiation operation.</returns>
         //[Obsolete("We have added Async to the name of all asynchronous methods (UnityUpgradable) -> InstantiateAsync(*)", true)]
         [Obsolete]
-        public AsyncOperationHandle<GameObject> Instantiate(Transform parent = null, bool instantiateInWorldSpace = false)
+        internal AsyncOperationHandle<GameObject> Instantiate(Transform parent = null, bool instantiateInWorldSpace = false)
         {
             return InstantiateAsync(parent, instantiateInWorldSpace);
         }
