@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq.MyExt;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using System.Linq.MyExt;
 
 namespace ResourceManager.Trackable.Runtime
 {

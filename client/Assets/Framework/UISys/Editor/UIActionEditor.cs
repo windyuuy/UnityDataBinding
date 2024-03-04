@@ -199,7 +199,7 @@ namespace UISys.Editor
 					objRef = selfProp.boxedValue as AssetReference;
 					if (objRef != null && objRef.RuntimeKeyIsValid())
 					{
-						selfObj0 = objRef.LoadAssetAsync<Object>().WaitForCompletion();
+						selfObj0 = WaitForCompletion(objRef);
 					}
 				}
 
@@ -259,6 +259,15 @@ namespace UISys.Editor
 			}
 		}
 
+		private static Object WaitForCompletion(AssetReference objRef)
+		{
+			Object selfObj0;
+			var op = objRef.LoadAssetAsync<Object>();
+			var ret=op.GetType().GetMethod("WaitForCompletion", BindingFlags.NonPublic| BindingFlags.Instance).Invoke(op, new object[0]);
+			selfObj0 = (Object)ret;
+			return selfObj0;
+		}
+
 		public void DrawProps(Rect position, SerializedProperty property, GUIContent label)
 		{
 			AdaptLayout(position, property, label);
@@ -274,7 +283,8 @@ namespace UISys.Editor
 					objRef = selfProp.boxedValue as AssetReference;
 					if (objRef != null && objRef.RuntimeKeyIsValid())
 					{
-						selfObj0 = objRef.LoadAssetAsync<Object>().WaitForCompletion();
+						// selfObj0 = objRef.LoadAssetAsync<Object>().WaitForCompletion();
+						selfObj0 = WaitForCompletion(objRef);
 					}
 				}
 
