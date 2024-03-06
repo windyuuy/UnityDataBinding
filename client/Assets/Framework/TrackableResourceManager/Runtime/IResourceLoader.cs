@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.ResourceManagement.ResourceProviders;
-using UnityEngine.SceneManagement;
 
 namespace ResourceManager.Trackable.Runtime
 {

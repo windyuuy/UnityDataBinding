@@ -5,10 +5,26 @@ using UnityEngine;
 
 namespace ResourceManager.Trackable.Test
 {
-	public class TestResourceManager: MonoBehaviour
+	public abstract class A<T>
+	{
+		public static int i = 0;
+		public int id = i++;
+	}
+
+	public class AA:A<int>
+	{
+	}
+	
+	public class AB:A<float>
+	{
+	}
+
+	public class TestResourceManager : MonoBehaviour
 	{
 		private void Start()
 		{
+			var c = new AA().id;
+			var d = new AB().id;
 			Debug.Log("lkwjef");
 			{
 				using var rr = ResourceScope.New;
@@ -20,7 +36,6 @@ namespace ResourceManager.Trackable.Test
 		IEnumerator DelayTest()
 		{
 			yield return new WaitForEndOfFrame();
-			
 			{
 				using var rr = ResourceScope.New;
 			}
