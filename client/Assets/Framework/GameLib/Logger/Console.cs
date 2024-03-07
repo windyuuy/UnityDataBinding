@@ -35,7 +35,7 @@ namespace Game.Diagnostics
             {
                 try
                 {
-                    UConsole.Log("test UConsole");
+                    UConsole.Log("Detect UnityEnv");
                     isUnityEnv = true;
                 }
                 catch (System.Exception)

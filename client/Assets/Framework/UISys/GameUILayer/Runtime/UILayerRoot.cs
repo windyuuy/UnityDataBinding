@@ -1,13 +1,14 @@
 using System;
+using System.Threading.Tasks;
 using gcc.layer;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.AddressableAssets;
 
 namespace UISys.Runtime
 {
 	public class UILayerRoot : MonoBehaviour
 	{
-		[SerializeField] protected UILayerRootRefer uiLayerRootRefer;
+		[SerializeField] protected AssetReferenceT<UILayerRootRefer> layerRootRefer;
 		[SerializeField] protected CurrentLayerBundleComp currentLayerBundleRefer;
 		[NonSerialized] public LayerRootConfig LayerRootConfig;
 
@@ -43,15 +44,24 @@ namespace UISys.Runtime
 			}
 		}
 
-		private void UpdateUILayerRootRefer()
+		private async Task UpdateUILayerRootRefer()
 		{
-			if (uiLayerRootRefer != null)
+			if (layerRootRefer != null)
 			{
-				uiLayerRootRefer.Target = this;
+				var layerRoot = await layerRootRefer.LoadAssetAsync().Task;
+				layerRoot.Target = this;
 			}
 			else
 			{
 				Debug.LogError("UILayerRoot.uiLayerRootRefer cannot be null");
+			}
+		}
+
+		private void OnDestroy()
+		{
+			if (layerRootRefer.IsValid())
+			{
+				layerRootRefer.ReleaseAsset();
 			}
 		}
 	}

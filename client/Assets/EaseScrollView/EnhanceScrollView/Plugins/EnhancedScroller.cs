@@ -734,12 +734,14 @@ namespace EnhancedUI.EnhancedScroller
                 // and attach it to our container
 
                 GameObject go;
+                #if UNITY_EDITOR
                 if (EnablePreview)
                 {
                     go = (GameObject)PrefabUtility.InstantiatePrefab(cellPrefab.gameObject, _container);
-                    go.hideFlags |= HideFlags.DontSave;
+                    go.hideFlags |= HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
                 }
                 else
+                #endif
                 {
                     go = Instantiate(cellPrefab.gameObject, _container);
                 }
@@ -2093,9 +2095,9 @@ namespace EnhancedUI.EnhancedScroller
         {
             if (EnablePreview)
             {
-                _firstPadder.gameObject.hideFlags |= HideFlags.DontSave;
-                _lastPadder.gameObject.hideFlags |= HideFlags.DontSave;
-                _recycledCellViewContainer.gameObject.hideFlags |= HideFlags.DontSave;
+                _firstPadder.gameObject.hideFlags |= HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
+                _lastPadder.gameObject.hideFlags |= HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
+                _recycledCellViewContainer.gameObject.hideFlags |= HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
             }
         }
 

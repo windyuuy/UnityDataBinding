@@ -158,7 +158,7 @@ namespace UISys.Editor
 			}
 		}
 
-		public void DrawParaTitle(ref Rect rect, string title)
+		public bool DrawParaTitle(ref Rect rect, string title)
 		{
 			var labelWidth = Mathf.Min(rect.width - MinWidth, title.Length * 6f + (title.Length - 1) * 0.15f + 1.5f);
 			var offset = DivWidth - 4;
@@ -175,7 +175,10 @@ namespace UISys.Editor
 					stretchWidth = true,
 				});
 				rect.xMin += (labelWidth - offset);
+				return true;
 			}
+
+			return false;
 		}
 
 		protected void UpdateEleCount(SerializedProperty property)
@@ -200,49 +203,52 @@ namespace UISys.Editor
 					}
 				}
 
-				_propCount++;
-				var compProp = property.FindPropertyRelative("comp");
-				if (selfObj0 is GameObject gameObject && !string.IsNullOrEmpty(compProp.stringValue))
+				if (selfObj0 != null)
 				{
-					var actionProp = property.FindPropertyRelative("action");
-					if (!string.IsNullOrEmpty(actionProp.stringValue))
+					_propCount++;
+					var compProp = property.FindPropertyRelative("comp");
+					if (selfObj0 is GameObject gameObject && !string.IsNullOrEmpty(compProp.stringValue))
 					{
-						var comp = gameObject.GetComponent(compProp.stringValue);
-						if (comp == null)
+						var actionProp = property.FindPropertyRelative("action");
+						if (!string.IsNullOrEmpty(actionProp.stringValue))
 						{
-							var type = Assembly.GetAssembly(typeof(UnityEngine.Transform))
-								.GetType(compProp.stringValue);
-							if (type != null)
+							var comp = gameObject.GetComponent(compProp.stringValue);
+							if (comp == null)
 							{
-								comp = gameObject.GetComponent(type);
+								var type = Assembly.GetAssembly(typeof(UnityEngine.Transform))
+									.GetType(compProp.stringValue);
+								if (type != null)
+								{
+									comp = gameObject.GetComponent(type);
+								}
+							}
+
+							if (comp != null)
+							{
+								var methodField = comp.GetType()
+									.GetMethod(actionProp.stringValue, BindingFlags.Instance | BindingFlags.Public);
+								Debug.Assert(methodField != null);
+
+								var paraInfos = methodField.GetParameters();
+
+								_propCount += paraInfos.Length;
 							}
 						}
-
-						if (comp != null)
-						{
-							var methodField = comp.GetType()
-								.GetMethod(actionProp.stringValue, BindingFlags.Instance | BindingFlags.Public);
-							Debug.Assert(methodField != null);
-
-							var paraInfos = methodField.GetParameters();
-
-							_propCount += paraInfos.Length;
-						}
 					}
-				}
-				else
-				{
-					var actionProp = property.FindPropertyRelative("action");
-					if (!string.IsNullOrEmpty(actionProp.stringValue))
+					else
 					{
-						var methodField = selfObj0.GetType()
-							.GetMethod(actionProp.stringValue, BindingFlags.Instance | BindingFlags.Public);
-						// Debug.Assert(methodField != null);
-						if (methodField != null)
+						var actionProp = property.FindPropertyRelative("action");
+						if (!string.IsNullOrEmpty(actionProp.stringValue))
 						{
-							var paraInfos = methodField.GetParameters();
+							var methodField = selfObj0.GetType()
+								.GetMethod(actionProp.stringValue, BindingFlags.Instance | BindingFlags.Public);
+							// Debug.Assert(methodField != null);
+							if (methodField != null)
+							{
+								var paraInfos = methodField.GetParameters();
 
-							_propCount += paraInfos.Length;
+								_propCount += paraInfos.Length;
+							}
 						}
 					}
 				}
@@ -260,7 +266,8 @@ namespace UISys.Editor
 		{
 			Object selfObj0;
 			var op = objRef.LoadAssetAsync<Object>();
-			var ret=op.GetType().GetMethod("WaitForCompletion", BindingFlags.NonPublic| BindingFlags.Instance).Invoke(op, new object[0]);
+			var ret = op.GetType().GetMethod("WaitForCompletion", BindingFlags.NonPublic | BindingFlags.Instance)
+				.Invoke(op, new object[0]);
 			selfObj0 = (Object)ret;
 			return selfObj0;
 		}
@@ -535,7 +542,7 @@ namespace UISys.Editor
 					var paraInfo = paraInfos[i];
 					// paraPropRect = new Rect(paraPropRect.xMax + 20, position.y, 150, position.height);
 					paraPropRect = CalculcateRect(paraPropRect);
-					DrawParaTitle(ref paraPropRect, paraInfo.Name);
+					var isTitleDraw = DrawParaTitle(ref paraPropRect, paraInfo.Name);
 
 					var paraType = paraInfo.ParameterType;
 					if (paraType.IsSubclassOf(typeof(UnityEngine.Object)))
@@ -570,8 +577,9 @@ namespace UISys.Editor
 
 							var boolOptions = new string[] { false.ToString(), true.ToString() };
 							var index = Array.IndexOf(boolOptions, paraProp.stringValue);
+							var toggleRect = WrapToggleRect(paraPropRect, isTitleDraw);
 							EditorGUI.BeginChangeCheck();
-							var check = EditorGUI.Toggle(paraPropRect, GUIContent.none, index == 1);
+							var check = EditorGUI.Toggle(toggleRect, GUIContent.none, index == 1);
 							if (EditorGUI.EndChangeCheck())
 							{
 								paraProp.stringValue = boolOptions[check ? 1 : 0];
@@ -588,26 +596,27 @@ namespace UISys.Editor
 
 							EditorGUI.BeginChangeCheck();
 							object inputValue;
+							var isParseFailed = false;
 							var text = paraProp.stringValue;
 							if (paraType == typeof(int))
 							{
 								inputValue = EditorGUI.IntField(paraPropRect, GUIContent.none,
-									BaseTypeParseHelper.ParseInt(text));
+									BaseTypeParseHelper.ParseInt(text, ref isParseFailed));
 							}
 							else if (paraType == typeof(float))
 							{
 								inputValue = EditorGUI.FloatField(paraPropRect, GUIContent.none,
-									BaseTypeParseHelper.ParseFloat(text));
+									BaseTypeParseHelper.ParseFloat(text, ref isParseFailed));
 							}
 							else if (paraType == typeof(double))
 							{
 								inputValue = EditorGUI.DoubleField(paraPropRect, GUIContent.none,
-									BaseTypeParseHelper.ParseDouble(text));
+									BaseTypeParseHelper.ParseDouble(text, ref isParseFailed));
 							}
 							else if (paraType == typeof(long))
 							{
 								inputValue = EditorGUI.LongField(paraPropRect, GUIContent.none,
-									BaseTypeParseHelper.ParseLong(text));
+									BaseTypeParseHelper.ParseLong(text, ref isParseFailed));
 							}
 							else
 							{
@@ -629,25 +638,26 @@ namespace UISys.Editor
 
 							EditorGUI.BeginChangeCheck();
 							object inputValue;
+							var isParseFailed = false;
 							var text = paraProp.stringValue;
 							if (paraType == typeof(Vector2))
 							{
 								inputValue = EditorGUI.Vector2Field(paraPropRect, GUIContent.none,
-									ParseJson<Vector2>(text));
+									ParseJson<Vector2>(text, ref isParseFailed));
 							}
 							else if (paraType == typeof(Vector3))
 							{
 								inputValue = EditorGUI.Vector3Field(paraPropRect, GUIContent.none,
-									ParseJson<Vector3>(text));
+									ParseJson<Vector3>(text, ref isParseFailed));
 							}
 							else if (paraType == typeof(Vector4))
 							{
 								inputValue = EditorGUI.Vector4Field(paraPropRect, GUIContent.none,
-									ParseJson<Vector4>(text));
+									ParseJson<Vector4>(text, ref isParseFailed));
 							}
 							else if (paraType == typeof(Quaternion))
 							{
-								var qt0 = ParseJson<Quaternion>(text);
+								var qt0 = ParseJson<Quaternion>(text, ref isParseFailed);
 								var rt0 = qt0.eulerAngles;
 								var rt1 = EditorGUI.Vector3Field(paraPropRect, GUIContent.none,
 									rt0);
@@ -659,7 +669,7 @@ namespace UISys.Editor
 								throw new NotImplementedException();
 							}
 
-							if (EditorGUI.EndChangeCheck())
+							if (EditorGUI.EndChangeCheck() || isParseFailed)
 							{
 								paraProp.stringValue = JsonUtility.ToJson(inputValue);
 							}
@@ -691,6 +701,7 @@ namespace UISys.Editor
 
 							var paraProp = paraArrayProp.GetArrayElementAtIndex(paraCount++);
 							AssetReference value1;
+							var isParseFailed = false;
 							if (string.IsNullOrEmpty(paraProp.stringValue))
 							{
 								value1 = null;
@@ -705,6 +716,7 @@ namespace UISys.Editor
 								}
 								catch
 								{
+									isParseFailed = true;
 									value1 = null;
 								}
 							}
@@ -722,7 +734,7 @@ namespace UISys.Editor
 							EditorGUI.BeginChangeCheck();
 							var value3 = EditorGUI.ObjectField(paraPropRect, GUIContent.none, value2,
 								filterType, true);
-							if (EditorGUI.EndChangeCheck())
+							if (EditorGUI.EndChangeCheck() || isParseFailed)
 							{
 								if (gType.IsSubclassOf(typeof(Component)) && value3 is GameObject gameObject)
 								{
@@ -742,7 +754,19 @@ namespace UISys.Editor
 			}
 		}
 
-		private static T ParseJson<T>(string text)
+		private Rect WrapToggleRect(Rect paraPropRect, bool isTitleDrawed)
+		{
+			if (isTitleDrawed)
+			{
+				float offset = 10;
+				return new Rect(paraPropRect.x + offset, paraPropRect.y, paraPropRect.width - offset,
+					paraPropRect.height);
+			}
+
+			return paraPropRect;
+		}
+
+		private static T ParseJson<T>(string text, ref bool isParseFailed)
 		{
 			if (string.IsNullOrEmpty(text))
 			{
@@ -756,6 +780,7 @@ namespace UISys.Editor
 				}
 				catch
 				{
+					isParseFailed = true;
 					return default;
 				}
 			}

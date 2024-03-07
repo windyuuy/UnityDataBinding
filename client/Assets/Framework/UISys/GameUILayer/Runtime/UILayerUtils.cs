@@ -14,7 +14,7 @@ namespace UISys.Runtime
 		public static OpenLayerParam ToOpenLayerParam(AssetReferenceT<UILayer> layer,
 			AssetReferenceT<UILayerRootRefer> layerRootRef, string uri, Transform layerRootDefault = null)
 		{
-			if (layer.RuntimeKeyIsValid())
+			if (layer != null && layer.RuntimeKeyIsValid())
 			{
 				var resUri = layer.RuntimeKey.ToString();
 				uri = ToLayerUri(layer, uri);
@@ -25,7 +25,7 @@ namespace UISys.Runtime
 			}
 			else
 			{
-				throw new ArgumentException("layer asset cannot be null");
+				throw new ArgumentException("layer asset refer cannot be null or invalid");
 			}
 		}
 
@@ -33,13 +33,33 @@ namespace UISys.Runtime
 			Transform layerRootDefault)
 		{
 			Task<Transform> loadLayerRootTask;
-			if (layerRootRef != null)
+			if (layerRootRef != null && layerRootRef.RuntimeKeyIsValid())
 			{
 				loadLayerRootTask = ToLayerRootTask(layerRootRef);
 			}
 			else if (layerRootDefault != null)
 			{
 				loadLayerRootTask = Task.FromResult(layerRootDefault);
+			}
+			else
+			{
+				loadLayerRootTask = null;
+			}
+
+			return loadLayerRootTask;
+		}
+
+		public static Task<LayerRootConfig> ToLayerRootConfigTask(AssetReferenceT<UILayerRootRefer> layerRootRef,
+			Task<LayerRootConfig> layerRootDefault)
+		{
+			Task<LayerRootConfig> loadLayerRootTask;
+			if (layerRootRef != null && layerRootRef.RuntimeKeyIsValid())
+			{
+				loadLayerRootTask = ToLayerRootConfigTask(layerRootRef);
+			}
+			else if (layerRootDefault != null)
+			{
+				loadLayerRootTask = layerRootDefault;
 			}
 			else
 			{
@@ -63,8 +83,25 @@ namespace UISys.Runtime
 		{
 			var layerRootAsset0 = await Addressables.LoadAssetAsync<Object>(layerRootRef).Task;
 			var layerRootAsset = (UILayerRootRefer)layerRootAsset0;
-			var layerRoot = layerRootAsset.LayerRootConfig.LayerRoot;
-			return layerRoot;
+			return layerRootAsset.LayerRootConfig.LayerRoot;
+		}
+
+		public static Task<LayerRootConfig> ToLayerRootConfigTask(AssetReferenceT<UILayerRootRefer> layerRootRef)
+		{
+			if (layerRootRef != null && layerRootRef.RuntimeKeyIsValid())
+			{
+				return ToLayerRootConfigTaskInternal(layerRootRef);
+			}
+
+			return null;
+		}
+
+		private static async Task<LayerRootConfig> ToLayerRootConfigTaskInternal(
+			AssetReferenceT<UILayerRootRefer> layerRootRef)
+		{
+			var layerRootAsset0 = await Addressables.LoadAssetAsync<Object>(layerRootRef).Task;
+			var layerRootAsset = (UILayerRootRefer)layerRootAsset0;
+			return layerRootAsset.LayerRootConfig;
 		}
 
 		public static CloseLayerParam ToCloseLayerParam(AssetReferenceT<UILayer> layer, string uri)
@@ -147,14 +184,18 @@ namespace UISys.Runtime
 
 		public static async Task<LayerBundleComp> ToLayerBundleComp(AssetReferenceT<LayerBundleComp> layerBundleRefer)
 		{
-			var go = await Addressables.LoadAssetAsync<GameObject>(layerBundleRefer).Task;
+			Debug.Assert(layerBundleRefer != null && layerBundleRefer.RuntimeKeyIsValid(),
+				"layerBundleRefer != null && layerBundleRefer.RuntimeKeyIsValid()");
+			var go = layerBundleRefer.IsValid()
+				? (GameObject)layerBundleRefer.Asset
+				: await layerBundleRefer.LoadAssetAsync<GameObject>().Task;
 			return go.GetComponent<LayerBundleComp>();
 		}
 
 		public static async Task<LayerBundle> ToLayerBundle(AssetReferenceT<LayerBundleComp> layerBundleRefer)
 		{
 			var layerBundleComp = await ToLayerBundleComp(layerBundleRefer);
-			return layerBundleComp.LayerBundle;
+			return layerBundleComp.LoadLayerBundle();
 		}
 
 		/// <summary>
@@ -169,7 +210,7 @@ namespace UISys.Runtime
 				uiActionSelf.ReleaseAsset();
 			}
 		}
-		
+
 		public static async Task<Object> LoadAsset(AssetReference uiActionSelf)
 		{
 			return uiActionSelf.Asset != null

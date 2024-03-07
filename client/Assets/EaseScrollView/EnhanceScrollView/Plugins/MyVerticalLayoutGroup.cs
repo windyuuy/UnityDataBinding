@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace UnityEngine.UI
 {
 	[ExecuteInEditMode]
-	public class MyVerticalLayoutGroup: VerticalLayoutGroup
+	public class MyVerticalLayoutGroup : VerticalLayoutGroup
 	{
 		[SerializeField] protected bool enablePreview = true;
 
@@ -19,7 +19,7 @@ namespace UnityEngine.UI
 #endif
 			}
 		}
-        
+
 		[SerializeField] protected int previewCount = 20;
 		public int PreviewCount => previewCount;
 
@@ -28,10 +28,14 @@ namespace UnityEngine.UI
 		/// </summary>
 		public override void SetLayoutHorizontal()
 		{
-			DrivenRectTransformTracker.StopRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StopRecordingUndo();
+#endif
 			base.SetLayoutHorizontal();
 			m_Tracker.Clear();
-			DrivenRectTransformTracker.StartRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StartRecordingUndo();
+#endif
 		}
 
 		/// <summary>
@@ -39,10 +43,14 @@ namespace UnityEngine.UI
 		/// </summary>
 		public override void SetLayoutVertical()
 		{
-			DrivenRectTransformTracker.StopRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StopRecordingUndo();
+#endif
 			base.SetLayoutVertical();
 			m_Tracker.Clear();
-			DrivenRectTransformTracker.StartRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StartRecordingUndo();
+#endif
 		}
 	}
 }

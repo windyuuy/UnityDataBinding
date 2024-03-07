@@ -119,6 +119,20 @@
       },
       "url": "https://packages.unity.com"
     },
+    "coverservice": {
+      "version": "file:../Test/TestModules/CoverService/Src",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "coverservice.sample": {
+      "version": "file:../Test/TestModules/CoverService.Sample/Src",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "coverservice": "1.0.0"
+      }
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

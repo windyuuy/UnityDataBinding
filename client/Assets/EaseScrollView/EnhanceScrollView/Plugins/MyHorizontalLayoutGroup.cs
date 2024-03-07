@@ -27,10 +27,14 @@ namespace UnityEngine.UI
 		/// </summary>
 		public override void SetLayoutHorizontal()
 		{
-			DrivenRectTransformTracker.StopRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StopRecordingUndo();
+#endif
 			base.SetLayoutHorizontal();
 			m_Tracker.Clear();
-			DrivenRectTransformTracker.StartRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StartRecordingUndo();
+#endif
 		}
 
 		/// <summary>
@@ -38,10 +42,14 @@ namespace UnityEngine.UI
 		/// </summary>
 		public override void SetLayoutVertical()
 		{
-			DrivenRectTransformTracker.StopRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StopRecordingUndo();
+#endif
 			base.SetLayoutVertical();
 			m_Tracker.Clear();
-			DrivenRectTransformTracker.StartRecordingUndo	();
+#if UNITY_EDITOR
+			DrivenRectTransformTracker.StartRecordingUndo();
+#endif
 		}
 	}
 }

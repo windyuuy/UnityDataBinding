@@ -20,6 +20,7 @@ namespace UISys.Runtime
 	[Serializable]
 	public class UIAction
 	{
+		// public string run;
 		public AssetReference self;
 		public Object selfObj;
 		public string comp;
@@ -33,6 +34,8 @@ namespace UISys.Runtime
 	public class UIActionsComp : MonoBehaviour
 	{
 		[SerializeField] protected UIAction[] actions;
+
+		public UIAction[] Actions => actions;
 
 #if UNITY_EDITOR
 		[NonSerialized] public bool IsReseted = false;
@@ -71,11 +74,24 @@ namespace UISys.Runtime
 			await RunActionsWithFirstPara(false, null);
 		}
 
+		public class RunContext
+		{
+			public bool Exit = false;
+		}
+
+		protected RunContext CurContext;
 		protected async Task RunActionsWithFirstPara(bool usePara, object para)
 		{
+			var runContext = new RunContext();
+			
 			bool isFirst = true;
 			foreach (var uiAction in actions)
 			{
+				if (runContext.Exit)
+				{
+					break;
+				}
+				
 				var useFirstPara = isFirst && usePara;
 				isFirst = false;
 
@@ -139,6 +155,7 @@ namespace UISys.Runtime
 						}
 					}
 
+					CurContext = runContext;
 					var ret = methodInfo!.Invoke(caller, callParas);
 
 					if (ret is Task task)
@@ -217,6 +234,17 @@ namespace UISys.Runtime
 		protected void Run(BaseEventData eventData)
 		{
 			Run();
+		}
+
+		/// <summary>
+		/// 是否终止执行
+		/// </summary>
+		/// <param name="exit"></param>
+		[UIAction]
+		public void ExitIfBool(bool exit)
+		{
+			var runContext = this.CurContext;
+			runContext.Exit = exit;
 		}
 	}
 }

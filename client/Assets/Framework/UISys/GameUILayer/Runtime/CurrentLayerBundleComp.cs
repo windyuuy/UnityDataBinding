@@ -1,13 +1,17 @@
-﻿using gcc.layer;
-using UISys.Runtime;
+﻿using System.Threading.Tasks;
+using gcc.layer;
 using UnityEngine;
 
 namespace UISys.Runtime
 {
 	[AddComponentMenu("UISys/CurrentLayerBundle")]
-	public class CurrentLayerBundleComp: LayerBundleCompBase
+	public class CurrentLayerBundleComp : LayerBundleCompBase
 	{
 		public LayerBundleManager.TLayerBundleRefer LayerBundleRefer;
-		public override LayerBundle LayerBundle => LayerBundleRefer.GetLayerBundle();
+
+		public override LayerBundle LoadLayerBundle()
+		{
+			return LayerBundleRefer.GetLayerBundle();
+		}
 	}
 }

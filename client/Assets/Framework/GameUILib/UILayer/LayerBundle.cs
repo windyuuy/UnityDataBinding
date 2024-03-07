@@ -16,12 +16,28 @@ namespace gcc.layer
 	{
 		public string uri;
 		public string resUri;
-		public Task<Transform> layerRoot;
+		public Task<LayerRootConfig> layerRoot;
+
+		public Task<Transform> LoadLayerRoot()
+		{
+			if (this.layerRoot != null)
+			{
+				return LoadLayerRootInternal();
+			}
+
+			return null;
+		}
+
+		protected async Task<Transform> LoadLayerRootInternal()
+		{
+			var r = await this.layerRoot;
+			return r.LayerRoot;
+		}
 
 		public OpenLayerParam ToOpenLayerParam()
 		{
 			return new OpenLayerParam(this.uri, this.resUri,
-				this.layerRoot);
+				LoadLayerRoot());
 		}
 	}
 
@@ -53,31 +69,52 @@ namespace gcc.layer
 		protected Dictionary<string, OpenLayerStatus> LayerStatus = new();
 		private static readonly Dictionary<string, SharedLayerStatus> SharedStatus = new();
 
-		public LayerRootConfig LayerRoot;
-		public TLayerManager LayerManager => LayerRoot.LayerManager;
+		public Task<LayerRootConfig> LayerRootConfig;
+
+		public static Task<Transform> ToLayerRootTask(Task<LayerRootConfig> layerRootRef)
+		{
+			if (layerRootRef != null)
+			{
+				async Task<Transform> Load()
+				{
+					var r = await layerRootRef;
+					return r.LayerRoot;
+				}
+
+				return Load();
+			}
+
+			return null;
+		}
 
 		private OpenLayerParam WrapOpenParam(OpenLayerInfo config)
 		{
 			return new OpenLayerParam(config.uri, config.resUri,
-				config.layerRoot ?? Task.FromResult(LayerRoot.LayerRoot));
+				config.LoadLayerRoot() ?? ToLayerRootTask(LayerRootConfig));
 		}
 
 		private OpenLayerParam WrapOpenParam(OpenLayerParam config)
 		{
 			return new OpenLayerParam(config.Uri, config.ResUri,
-				config.LoadLayerRootTask ?? Task.FromResult(LayerRoot.LayerRoot));
+				config.LoadLayerRootTask ?? ToLayerRootTask(LayerRootConfig));
 		}
 
 		public LoadLayerBundleStatus Preload()
 		{
-			var tasks = LayerConfigs
-				.Select(config =>
-					LayerManager.PreloadLayer(WrapOpenParam(config))
-						.LoadTask);
-			var loadTask = Task.WhenAll(tasks);
+			async Task Load()
+			{
+				var layerManager = (await LayerRootConfig).LayerManager;
+				var tasks = LayerConfigs
+					.Select(config =>
+						layerManager.PreloadLayer(WrapOpenParam(config))
+							.LoadTask);
+				var loadTask = Task.WhenAll(tasks);
+				await loadTask;
+			}
+
 			var result = new LoadLayerBundleStatus
 			{
-				Task = loadTask
+				Task = Load()
 			};
 			return result;
 		}
@@ -92,8 +129,9 @@ namespace gcc.layer
 			{
 				IsPaused = false;
 			}
+
 			IsOpen = true;
-			
+
 			var tasks = Enumerable.Empty<Task>();
 			foreach (var config in LayerConfigs)
 			{
@@ -113,8 +151,9 @@ namespace gcc.layer
 			{
 				return Task.CompletedTask;
 			}
+
 			IsOpen = false;
-			
+
 			var tasks = Enumerable.Empty<Task>();
 			foreach (var config in LayerStatus.Values.ToArray())
 			{
@@ -197,48 +236,51 @@ namespace gcc.layer
 		protected bool IsOpen = false;
 		protected bool IsPaused = false;
 
-		public void Shield()
+		public async void Shield()
 		{
 			IsPaused = true;
 
+			var layerManager = (await LayerRootConfig).LayerManager;
 			foreach (var item in LayerStatus.Values)
 			{
 				if (IsLayerOpenInBundle(item.Uri))
 				{
-					LayerManager.ShieldLayer(item.Uri);
+					layerManager.ShieldLayer(item.Uri);
 				}
 			}
 		}
 
-		public void Expose()
+		public async void Expose()
 		{
 			IsPaused = false;
 
+			var layerManager = (await LayerRootConfig).LayerManager;
 			foreach (var item in LayerStatus.Values)
 			{
 				var isOpenInBundle = item.IsOpenInBundle;
 				if (isOpenInBundle)
 				{
-					LayerManager.OpenLayer(WrapOpenParam(item.Config));
-					LayerManager.ExposeLayer(item.Uri);
+					layerManager.OpenLayer(WrapOpenParam(item.Config));
+					layerManager.ExposeLayer(item.Uri);
 				}
 			}
 		}
 
-		public Task<ILayer> OpenLayer(OpenLayerParam config)
+		public async Task<ILayer> OpenLayer(OpenLayerParam config)
 		{
 			MarkLayerStatus(config);
 			if (!IsOpen)
 			{
-				return Task.FromResult<ILayer>(null);
+				return null;
 			}
 			else if (IsPaused)
 			{
-				return Task.FromResult<ILayer>(null);
+				return null;
 			}
 			else
 			{
-				return LayerManager.OpenLayer(WrapOpenParam(config));
+				var layerManager = (await LayerRootConfig).LayerManager;
+				return await layerManager.OpenLayer(WrapOpenParam(config));
 			}
 		}
 
@@ -247,17 +289,18 @@ namespace gcc.layer
 			return CloseLayer(new CloseLayerParam(uri));
 		}
 
-		public Task<ILayer> CloseLayer(CloseLayerParam closeLayerParam)
+		public async Task<ILayer> CloseLayer(CloseLayerParam closeLayerParam)
 		{
 			var isOpenInBundle = IsLayerOpenInBundle(closeLayerParam.Uri);
 			RemoveLayerStatus(closeLayerParam.Uri);
 			if (isOpenInBundle)
 			{
-				return LayerManager.CloseLayer(closeLayerParam);
+				var layerManager = (await LayerRootConfig).LayerManager;
+				return await layerManager.CloseLayer(closeLayerParam);
 			}
 			else
 			{
-				return Task.FromResult<ILayer>(null);
+				return null;
 			}
 		}
 	}

@@ -1,4 +1,18 @@
 {
-	"name": "EnhancedScroller.Editor",
-	"references":[ "GUID:02c11f442ffc148a9b44d2aa0618ec34" ]
+    "name": "EnhancedScroller.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:02c11f442ffc148a9b44d2aa0618ec34"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

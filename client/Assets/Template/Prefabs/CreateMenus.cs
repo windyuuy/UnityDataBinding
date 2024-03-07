@@ -50,16 +50,6 @@ namespace EaseComps.PrefabUtils
 			var pName = "UIEase/HorizontalListView.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
-		[MenuItem("GameObject/UIEase/PagesToggle", false, 7, secondaryPriority = 7)]
-		public static void CreateUIEase_PagesToggle(MenuCommand menuCommand){
-			var pName = "UIEase/PagesToggle.prefab";
-			CreatePrefabInstanceAtMenu(menuCommand, pName);
-		}
-		[MenuItem("GameObject/UIEase/PagesToggle.unpack", false, 7, secondaryPriority = 7)]
-		public static void CreateUIEase_PagesToggle_unpack(MenuCommand menuCommand){
-			var pName = "UIEase/PagesToggle.unpack.prefab";
-			CreatePrefabInstanceAtMenu(menuCommand, pName);
-		}
 		[MenuItem("GameObject/UIEase/ProgressBar", false, 7, secondaryPriority = 7)]
 		public static void CreateUIEase_ProgressBar(MenuCommand menuCommand){
 			var pName = "UIEase/ProgressBar.prefab";
@@ -68,6 +58,21 @@ namespace EaseComps.PrefabUtils
 		[MenuItem("GameObject/UIEase/VerticleListView", false, 7, secondaryPriority = 20)]
 		public static void CreateUIEase_VerticleListView(MenuCommand menuCommand){
 			var pName = "UIEase/VerticleListView.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/内嵌分页", false, 7, secondaryPriority = 22)]
+		public static void CreateUIEase_内嵌分页(MenuCommand menuCommand){
+			var pName = "UIEase/内嵌分页.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/内嵌分页.unpack", false, 7, secondaryPriority = 22)]
+		public static void CreateUIEase_内嵌分页_unpack(MenuCommand menuCommand){
+			var pName = "UIEase/内嵌分页.unpack.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/分页", false, 7, secondaryPriority = 21)]
+		public static void CreateUIEase_分页(MenuCommand menuCommand){
+			var pName = "UIEase/分页.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
 	}

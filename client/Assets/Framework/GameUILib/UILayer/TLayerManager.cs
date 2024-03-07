@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using Node = UnityEngine.Transform;
@@ -155,7 +156,7 @@ namespace gcc.layer
 			}
 			else
 			{
-				return null;
+				return Task.FromResult<ILayer>(null);
 			}
 		}
 
@@ -245,7 +246,7 @@ namespace gcc.layer
 			}
 			else
 			{
-				return null;
+				return Task.CompletedTask;
 			}
 		}
 

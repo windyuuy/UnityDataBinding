@@ -62,6 +62,11 @@ namespace gcc.layer
 
 		private void SetDirty()
 		{
+			if (!this.enabled)
+			{
+				return;
+			}
+			
 			if (!_dirty)
 			{
 				_dirty = true;
@@ -95,6 +100,11 @@ namespace gcc.layer
 
 		public void ReSortOrder()
 		{
+			if (!this.enabled)
+			{
+				return;
+			}
+			
 			if (_dirty)
 			{
 				if (Nodes.Count > 0)

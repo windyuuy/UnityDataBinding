@@ -8,7 +8,7 @@ namespace System.Runtime.CompilerServices
 	}
 }
 
-#if !UNITY_EDITOR
+#if !(UNITY_EDITOR || UNITY_2017_1_OR_NEWER)
 namespace UnityEngine
 {
 	public class JsonUtility

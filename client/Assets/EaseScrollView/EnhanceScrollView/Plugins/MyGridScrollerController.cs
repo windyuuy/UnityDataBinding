@@ -241,7 +241,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			{
 #if UNITY_EDITOR
 				cellView = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(cellViewPrefab, this.container);
-				cellView.hideFlags |= HideFlags.DontSave;
+				cellView.hideFlags |= HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
 #else
 				throw new InvalidOperationException("cannot preview at runtime");
 #endif

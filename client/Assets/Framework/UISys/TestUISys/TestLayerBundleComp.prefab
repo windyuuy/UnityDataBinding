@@ -44,7 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe934c30c3794feaa166dfb6ef78485f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layerRoot: {fileID: 11400000, guid: 8cb9be59520186140a1740eef26f4e8d, type: 2}
+  layerRootRefer:
+    m_AssetGUID: 8cb9be59520186140a1740eef26f4e8d
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   initLayers:
   - layer:
       m_AssetGUID: 7dc20c3ee4c212147816476dfa4889f2

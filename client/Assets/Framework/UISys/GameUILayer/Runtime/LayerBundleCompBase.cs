@@ -16,56 +16,64 @@ namespace UISys.Runtime
 
 	public abstract class LayerBundleCompBase : MonoBehaviour
 	{
-		public abstract LayerBundle LayerBundle { get; }
+		public abstract LayerBundle LoadLayerBundle();
 
 		[UIAction]
 		public LoadLayerBundleStatus Preload()
 		{
-			return LayerBundle.Preload();
+			var layerBundle = LoadLayerBundle();
+			return layerBundle.Preload();
 		}
 
 		[UIAction]
 		public Task Open()
 		{
-			return LayerBundle.Open();
+			var layerBundle = LoadLayerBundle();
+			return layerBundle.Open();
 		}
 
 		[UIAction]
 		public Task Close()
 		{
-			return LayerBundle.Close();
+			var layerBundle = LoadLayerBundle();
+			return layerBundle.Close();
 		}
 
 		[UIAction]
 		public void Shield()
 		{
-			LayerBundle.Shield();
+			var layerBundle = LoadLayerBundle();
+			layerBundle.Shield();
 		}
 
 		[UIAction]
 		public void Expose()
 		{
-			LayerBundle.Expose();
+			var layerBundle = LoadLayerBundle();
+			layerBundle.Expose();
 		}
 
 		[UIAction]
 		public Task<ILayer> OpenLayer(AssetReferenceT<UILayer> layer,
 			AssetReferenceT<UILayerRootRefer> layerRootRef, string uri)
 		{
-			return LayerBundle.OpenLayer(UILayerUtils.ToOpenLayerParam(layer, layerRootRef, uri));
+			var layerBundle = LoadLayerBundle();
+			return layerBundle.OpenLayer(UILayerUtils.ToOpenLayerParam(layer, layerRootRef, uri));
 		}
 
 		[UIAction]
 		public Task<ILayer> CloseLayer(AssetReferenceT<UILayer> layer, string uri)
 		{
-			return LayerBundle.CloseLayer(UILayerUtils.ToCloseLayerParam(layer, uri));
+			var layerBundle = LoadLayerBundle();
+			return layerBundle.CloseLayer(UILayerUtils.ToCloseLayerParam(layer, uri));
 		}
 
 		[UIAction]
 		public async Task PushAndOpen(AssetReferenceT<UILayerRootRefer> layerRootRef)
 		{
+			var layerBundle = LoadLayerBundle();
 			var layerRoot = await layerRootRef.LoadAssetAsync<UILayerRootRefer>().Task;
-			await layerRoot.LayerBundleManager.PushAndOpen(this.LayerBundle);
+			await layerRoot.LayerBundleManager.PushAndOpen(layerBundle);
 		}
 
 		[UIAction]

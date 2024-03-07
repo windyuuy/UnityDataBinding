@@ -1,30 +1,20 @@
 using System;
 using System.Collections;
 using ResourceManager.Trackable.Runtime;
+using UISys.Runtime;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace ResourceManager.Trackable.Test
 {
-	public abstract class A<T>
-	{
-		public static int i = 0;
-		public int id = i++;
-	}
-
-	public class AA:A<int>
-	{
-	}
-	
-	public class AB:A<float>
-	{
-	}
-
 	public class TestResourceManager : MonoBehaviour
 	{
-		private void Start()
+		[SerializeField] protected AssetReferenceT<UILayerRootRefer> layerRootRefer1;
+		[SerializeField] protected AssetReferenceT<UILayerRootRefer> layerRootRefer2;
+		private async void Start()
 		{
-			var c = new AA().id;
-			var d = new AB().id;
+			// var wfe=await layerRootRefer1.LoadAssetAsync().Task;
+			// var wfe2=await layerRootRefer2.LoadAssetAsync().Task;
 			Debug.Log("lkwjef");
 			{
 				using var rr = ResourceScope.New;

@@ -9,6 +9,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace UISys.Editor
 {
@@ -73,16 +74,20 @@ namespace UISys.Editor
 			{
 				Debug.LogException(ex);
 
-				var actionArrayProp = serializedObject.FindProperty("actions");
+				// var actionArrayProp = serializedObject.FindProperty("actions");
 				// for (var i = 0; i < actionArrayProp.arraySize; i++)
 				// {
 				// 	var actionProp=actionArrayProp.GetArrayElementAtIndex(i);
 				// 	var selfProp = actionProp.FindPropertyRelative("self");
 				// 	var selfObjProp = actionProp.FindPropertyRelative("selfObj");
-				// 	selfProp.boxedValue = new AssetReference(null);
-				// 	selfObjProp.objectReferenceValue = null;
+				// 	if (
+				// 		(selfProp.boxedValue == null || ((AssetReference)selfProp.boxedValue).IsValid() == false)
+				// 		&& selfObjProp.objectReferenceValue == null
+				// 	)
+				// 	{
+				// 		actionProp.boxedValue = new UIAction();
+				// 	}
 				// }
-				// actionArrayProp.arraySize = 0;
 				//
 				// serializedObject.ApplyModifiedProperties();
 			}

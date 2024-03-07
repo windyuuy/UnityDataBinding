@@ -6,7 +6,7 @@ using UnityEngine;
 namespace UISys.Runtime
 {
 	[CustomEditor(typeof(LayerBundleComp), false)]
-	public class LayerBundleCompEditor : Editor
+	public class LayerBundleCompEditor : UnityEditor.Editor
 	{
 		private class NodeInfo
 		{
@@ -52,7 +52,7 @@ namespace UISys.Runtime
 				var comp = (LayerBundleComp)this.target;
 				var transform = comp.transform;
 
-				transform.gameObject.hideFlags = HideFlags.DontSave | HideFlags.NotEditable;
+				transform.gameObject.hideFlags = HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor | HideFlags.NotEditable;
 
 				var nodes = new List<NodeInfo>();
 				for (var i = 0; i < transform.childCount; i++)
@@ -84,7 +84,7 @@ namespace UISys.Runtime
 							if (layer != null)
 							{
 								var copyLayer = PrefabUtility.InstantiatePrefab(layer, comp.transform);
-								copyLayer.hideFlags |= HideFlags.DontSave;
+								copyLayer.hideFlags |= HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
 							}
 						}
 					}

@@ -16,37 +16,35 @@ namespace EaseComps.PrefabUtils
 		{
 			public MenuItemSettings()
 			{
-				
 			}
-			
+
 			public MenuItemSettings(MenuFolderSettings settings)
 			{
 				order = settings.order;
 			}
-			
+
 			public string name;
+			public string guid;
 
 			/// <summary>
 			/// 菜单顺序
 			/// </summary>
 			public int order = 10;
-
 		}
-		
+
 		[Serializable]
 		public class MenuFolderSettings
 		{
 			public MenuFolderSettings()
 			{
 			}
-			
+
 			/// <summary>
 			/// 菜单顺序
 			/// </summary>
 			public int order = 10;
 
 			public MenuItemSettings[] items = Array.Empty<MenuItemSettings>();
-
 		}
 
 		[MenuItem("Tools/EaseComps/更新资源菜单")]
@@ -77,8 +75,10 @@ namespace EaseComps.PrefabUtils
 					}
 
 					var fileRelativePath = Path.GetRelativePath(path, file);
-					var fileName = Path.GetFileNameWithoutExtension(fileRelativePath);
-					var itemSettings = settings.items.FirstOrDefault(item => item.name == fileName) ??
+					var assetPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file);
+					// var fileName = Path.GetFileNameWithoutExtension(fileRelativePath);
+					var guid = AssetDatabase.AssetPathToGUID(assetPath);
+					var itemSettings = settings.items.FirstOrDefault(item => item.guid == guid) ??
 					                   new MenuItemSettings(settings);
 
 					var menuOrder = settings.order;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ResourceManager.Trackable.Runtime;
 using UnityEditor;
@@ -33,16 +34,39 @@ namespace ResourceManager.Trackable.Editor
 			CopyResourceItemUKey(guid);
 		}
 
+		[MenuItem("Assets/CopyGUID", priority = 5)]
+		public static void CopyResourceItemGUID()
+		{
+			if (Selection.assetGUIDs.Length == 1)
+			{
+				GUIUtility.systemCopyBuffer = Selection.assetGUIDs[0];
+			}
+			else if (Selection.assetGUIDs.Length > 1)
+			{
+				var items = Selection.assetGUIDs.Select(guid =>
+					$"{guid}|{Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(guid))}");
+				var guids = string.Join(",", items);
+				GUIUtility.systemCopyBuffer = guids;
+			}
+		}
+
 		public static void CopyResourceItemUKey(string guid)
 		{
-			if (GroupConfig.GetEntryUKey(new(guid), out var uKey))
+			if (!Directory.Exists(AssetDatabase.GUIDToAssetPath(guid)))
 			{
-				GUIUtility.systemCopyBuffer = uKey;
-				Debug.Log($"复制uKey for {guid}: {uKey}");
+				if (GroupConfig.GetEntryUKey(new(guid), out var uKey))
+				{
+					GUIUtility.systemCopyBuffer = uKey;
+					Debug.Log($"复制uKey for {guid}: {uKey}");
+				}
+				else
+				{
+					Debug.LogError($"复制uKey失败 for {guid}");
+				}
 			}
 			else
 			{
-				Debug.LogError($"复制uKey失败 for {guid}");
+				Debug.Log($"目录无法复制uKey for {guid}");
 			}
 		}
 	}

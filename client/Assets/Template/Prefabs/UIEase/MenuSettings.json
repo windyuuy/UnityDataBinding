@@ -3,15 +3,33 @@
 	"items": [
 		{
 			"name":"GridScrollView",
+			"guid": "d487138f888f52f4c958eb0fedabeb69",
 			"order":20
 		},
 		{
 			"name":"HorizontalListView",
+			"guid": "d8bc37d9c92667348b4a43edde282eec",
 			"order":20
 		},
 		{
 			"name":"VerticleListView",
+			"guid": "8fbbbcb00fca0ed459179e5e8e7a87f9",
 			"order":20
+		},
+		{
+			"name": "分页",
+			"guid": "3881a7a72205b134c84ecb7dfa3c97b7",
+			"order":21
+		},
+		{
+			"name": "内嵌分页",
+			"guid": "9a1edf519b5e74743aee54b3e9dbd1ec",
+			"order":22
+		},
+		{
+			"name": "内嵌分页.unpack",
+			"guid": "23c70c097813cf140beb52745e3c9eba",
+			"order":22
 		}
 	]
 }

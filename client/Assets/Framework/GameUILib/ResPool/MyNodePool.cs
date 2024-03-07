@@ -35,8 +35,8 @@ namespace gcc.respool
             var notifier = TCCResLoader.Inst.getNotifier(url);
             // TODO: 支持添加不可用父节点
             var loading = Addressables.InstantiateAsync(url,parent);
-           Action<AsyncOperationHandle<Prefab>> MyCompleted=null;
-           MyCompleted= (op) =>
+            Action<AsyncOperationHandle<Prefab>> MyCompleted=null;
+            MyCompleted= (op) =>
             {
                 // Debug.Log($"load-UI-Then: {url}");
                 loading.Completed-=MyCompleted;
