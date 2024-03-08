@@ -1,4 +1,5 @@
 
+#if SUPPORT_RSGPROMISE
 using System;
 using System.Threading.Tasks;
 using RSG;
@@ -52,3 +53,4 @@ public class RPromise{
 		return this.promise.GetTask();
 	}
 }
+#endif

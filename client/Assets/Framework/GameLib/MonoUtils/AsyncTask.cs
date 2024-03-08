@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+#if SUPPORT_RSGPROMISE
 using RSG;
+#endif
 using UnityEngine;
 
 public class TaskEnumerator : IEnumerator
@@ -126,6 +128,7 @@ delegate void Reject(Exception e);
 
 public static class AsyncTaskExt
 {
+	#if SUPPORT_RSGPROMISE
 	public static Task<T> GetTask<T>(this IPromise<T> promise)
 	{
 		return AsyncTask.Async(promise);
@@ -142,6 +145,28 @@ public static class AsyncTaskExt
 	{
 		return AsyncTask.Async(promise, cancellationToken);
 	}
+	/// <summary>
+	/// 支持异步转协程
+	/// </summary>
+	/// <param name="task"></param>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	public static TaskEnumerator<T> ToEnumerable<T>(this IPromise<T> promise)
+	{
+		// TODO: 优化实现
+		return AsyncTaskExt.ToEnumerable(AsyncTask.Async(promise));
+	}
+	/// <summary>
+	/// 支持异步转协程
+	/// </summary>
+	/// <param name="task"></param>
+	/// <returns></returns>
+	public static TaskEnumerator ToEnumerable(this IPromise promise)
+	{
+		// TODO: 优化实现
+		return AsyncTaskExt.ToEnumerable(AsyncTask.Async(promise));
+	}
+#endif
 	private static IEnumerator runTaskIter(YieldInstruction iter, TaskCompletionSource<bool> taskSource)
 	{
 		yield return iter;
@@ -185,27 +210,6 @@ public static class AsyncTaskExt
 		}
 		return taskSource.Task;
 	}
-	/// <summary>
-	/// 支持异步转协程
-	/// </summary>
-	/// <param name="task"></param>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
-	public static TaskEnumerator<T> ToEnumerable<T>(this IPromise<T> promise)
-	{
-		// TODO: 优化实现
-		return AsyncTaskExt.ToEnumerable(AsyncTask.Async(promise));
-	}
-	/// <summary>
-	/// 支持异步转协程
-	/// </summary>
-	/// <param name="task"></param>
-	/// <returns></returns>
-	public static TaskEnumerator ToEnumerable(this IPromise promise)
-	{
-		// TODO: 优化实现
-		return AsyncTaskExt.ToEnumerable(AsyncTask.Async(promise));
-	}
 
 	/// <summary>
 	/// 支持异步转协程
@@ -232,6 +236,7 @@ public static class AsyncTaskExt
 		return new TaskYield(task);
 	}
 
+	#if SUPPORT_RSGPROMISE
 	public static IPromise ToPromise(this Task task)
 	{
 		return new Promise(async (resolve, reject) =>
@@ -277,6 +282,7 @@ public static class AsyncTaskExt
 			}
 		});
 	}
+#endif
 
 	/// <summary>
 	/// 串联任务
@@ -294,6 +300,7 @@ public static class AsyncTaskExt
 
 public class AsyncTask
 {
+	#if SUPPORT_RSGPROMISE
 	public Promise<T> ToPromise<T>(Task<T> task)
 	{
 		return new Promise<T>(async (resolve, reject) =>
@@ -428,6 +435,7 @@ public class AsyncTask
 
 		return taskSource.Task;
 	}
+#endif
 
 	public static async Task<T> LoomTask<T>(Task<T> task)
 	{
