@@ -188,7 +188,7 @@ namespace UISys.Runtime
 				"layerBundleRefer != null && layerBundleRefer.RuntimeKeyIsValid()");
 			var go = layerBundleRefer.IsValid()
 				? (GameObject)layerBundleRefer.Asset
-				: await layerBundleRefer.LoadAssetAsync<GameObject>().Task;
+				: await layerBundleRefer.LoadAssetFast<GameObject>();
 			return go.GetComponent<LayerBundleComp>();
 		}
 
@@ -211,11 +211,25 @@ namespace UISys.Runtime
 			}
 		}
 
-		public static async Task<Object> LoadAsset(AssetReference uiActionSelf)
+		public static async Task<Object> LoadAssetFast(this AssetReference uiActionSelf)
 		{
 			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
 				? uiActionSelf.Asset
 				: await uiActionSelf.LoadAssetAsync<Object>().Task;
+		}
+		
+		public static async Task<T> LoadAssetFast<T>(this AssetReference uiActionSelf) where T: Object
+		{
+			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
+				? (T)(uiActionSelf.Asset)
+				: await uiActionSelf.LoadAssetAsync<T>().Task;
+		}
+
+		public static async Task<T> LoadAssetFast<T>(this AssetReferenceT<T> uiActionSelf) where T: Object
+		{
+			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
+				? (T)(uiActionSelf.Asset)
+				: await uiActionSelf.LoadAssetAsync<T>().Task;
 		}
 	}
 }

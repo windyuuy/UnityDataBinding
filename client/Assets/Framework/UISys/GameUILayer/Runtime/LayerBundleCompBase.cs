@@ -72,7 +72,7 @@ namespace UISys.Runtime
 		public async Task PushAndOpen(AssetReferenceT<UILayerRootRefer> layerRootRef)
 		{
 			var layerBundle = LoadLayerBundle();
-			var layerRoot = await layerRootRef.LoadAssetAsync<UILayerRootRefer>().Task;
+			var layerRoot = await layerRootRef.LoadAssetFast();
 			await layerRoot.LayerBundleManager.PushAndOpen(layerBundle);
 		}
 
@@ -81,7 +81,7 @@ namespace UISys.Runtime
 		{
 			if (layerRootRef != null)
 			{
-				var layerRoot = await layerRootRef.LoadAssetAsync<UILayerRootRefer>().Task;
+				var layerRoot = await layerRootRef.LoadAssetFast();
 				await layerRoot.LayerBundleManager.PopAndClose();
 			}
 			else

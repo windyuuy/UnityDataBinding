@@ -116,7 +116,7 @@ namespace UISys.Runtime
 					}
 
 					// var asset = await LoadActionAsset(uiActionSelf);
-					asset = await UILayerUtils.LoadAsset(uiActionSelf);
+					asset = await uiActionSelf.LoadAssetFast();
 				}
 
 				try
@@ -183,12 +183,6 @@ namespace UISys.Runtime
 					_ = UILayerUtils.DelayRelease(uiActionSelf);
 				}
 			}
-		}
-
-		private static async Task<Object> LoadActionAsset(AssetReference self)
-		{
-			var asset = await self.LoadAssetAsync<UnityEngine.Object>().Task;
-			return asset;
 		}
 
 		private static object[] GetCallParas(MethodInfo methodInfo, UIAction uiAction)
