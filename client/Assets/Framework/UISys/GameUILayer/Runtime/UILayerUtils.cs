@@ -213,7 +213,7 @@ namespace UISys.Runtime
 
 		public static async Task<Object> LoadAsset(AssetReference uiActionSelf)
 		{
-			return uiActionSelf.Asset != null
+			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
 				? uiActionSelf.Asset
 				: await uiActionSelf.LoadAssetAsync<Object>().Task;
 		}
