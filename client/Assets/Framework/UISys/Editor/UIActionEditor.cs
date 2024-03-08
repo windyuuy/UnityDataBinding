@@ -26,6 +26,7 @@ namespace UISys.Editor
 		{
 			public string CompFullName => CompType.FullName;
 			public Type CompType;
+			public string CompTypeName;
 
 			public string[] MethodNames;
 
@@ -60,8 +61,40 @@ namespace UISys.Editor
 							{
 								"set_value",
 							}
+						},
+						new AdditionComp
+						{
+							CompTypeName = "DG.Tweening.DOTweenAnimation",
+							CompType = null,
+							MethodNames = null,
 						}
 					};
+				}
+
+				if (AdditionComps.Any(additionComp =>
+					    !string.IsNullOrEmpty(additionComp.CompTypeName) && additionComp.CompType == null))
+				{
+					var ass = AppDomain.CurrentDomain.GetAssemblies();
+					foreach (var additionComp in AdditionComps)
+					{
+						if (!string.IsNullOrEmpty(additionComp.CompTypeName) && additionComp.CompType == null)
+						{
+							var typeName = additionComp.CompTypeName;
+							Type type = null;
+							foreach (var assembly in ass)
+							{
+								type = assembly.GetType(typeName);
+								if (type != null)
+								{
+									break;
+								}
+							}
+
+							Debug.Assert(type != null);
+
+							additionComp.CompType = type;
+						}
+					}
 				}
 
 				return AdditionComps;
@@ -227,11 +260,15 @@ namespace UISys.Editor
 							{
 								var methodField = comp.GetType()
 									.GetMethod(actionProp.stringValue, BindingFlags.Instance | BindingFlags.Public);
+
+								if (methodField != null)
+								{
+									var paraInfos = methodField.GetParameters();
+
+									_propCount += paraInfos.Length;
+								}
+
 								Debug.Assert(methodField != null);
-
-								var paraInfos = methodField.GetParameters();
-
-								_propCount += paraInfos.Length;
 							}
 						}
 					}
@@ -342,18 +379,7 @@ namespace UISys.Editor
 				{
 					var compFullName = comp.GetType().FullName;
 					var methodInfos = comp.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
-					var compMethodInfos1 = methodInfos
-						.Where(m => m.GetCustomAttribute<UIActionAttribute>(true) != null)
-						.Select(m =>
-						{
-							return new CompMethodInfo
-							{
-								// ActionDisplayName = $"{comp.GetType().Name}.{m.Name}",
-								ActionDisplayName = $"{m.Name}",
-								CompFullName = compFullName,
-								Method = m,
-							};
-						});
+					var compMethodInfos1 = WrapMethods(methodInfos, compFullName);
 					compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
 				}
 
@@ -362,27 +388,52 @@ namespace UISys.Editor
 					var additionComps = AdditionComp.GetAdditionComps();
 					foreach (var additionComp in additionComps)
 					{
-						var transformType = additionComp.CompType;
-						if (transformType != null)
+						var baseType = additionComp.CompType;
+						if (baseType != null)
 						{
-							var comp = gameObject.GetComponent(transformType);
+							var comp = gameObject.GetComponent(baseType);
 							if (comp != null)
 							{
-								transformType = comp != null ? comp.GetType() : null;
+								var directType = comp != null ? comp.GetType() : additionComp.CompType;
 								var methodNames2 = additionComp.MethodNames;
-								var methodInfos2 = methodNames2.Select(name =>
-										transformType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public))
-									.ToArray();
-								var compFullName = transformType.FullName;
+								MethodInfo[] methodInfos2;
+								if (additionComp.MethodNames == null)
+								{
+									methodInfos2 = directType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+										.Where(m =>
+											m.DeclaringType == directType ||
+											m.DeclaringType.IsSubclassOf(directType))
+										.ToArray();
+								}
+								else
+								{
+									methodInfos2 = methodNames2.Select(name =>
+											directType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public))
+										.ToArray();
+								}
+
+								var compFullName = directType.FullName;
 								var compMethodInfos1 = WrapNativeMethods(methodInfos2, compFullName);
 								compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
 							}
 						}
-						else
+						else if (string.IsNullOrEmpty(additionComp.CompTypeName))
 						{
 							var methodNames2 = additionComp.MethodNames;
-							var methodInfos2 = methodNames2.Select(name =>
-								assetType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public)).ToArray();
+							MethodInfo[] methodInfos2;
+							if (additionComp.MethodNames == null)
+							{
+								methodInfos2 = assetType.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(
+									m =>
+										m.DeclaringType == assetType ||
+										m.DeclaringType.IsSubclassOf(assetType)).ToArray();
+							}
+							else
+							{
+								methodInfos2 = methodNames2.Select(name =>
+									assetType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public)).ToArray();
+							}
+
 							var compMethodInfos1 = WrapNativeMethods(methodInfos2, "");
 							compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
 						}
@@ -485,18 +536,46 @@ namespace UISys.Editor
 			}
 		}
 
+		public class MethodInfoCompare : IEqualityComparer<MethodInfo>
+		{
+			public bool Equals(MethodInfo x, MethodInfo y)
+			{
+				return x.Name == y.Name;
+			}
+
+			public int GetHashCode(MethodInfo obj)
+			{
+				return obj.GetHashCode();
+			}
+		}
+
 		private static IEnumerable<CompMethodInfo> WrapMethods(MethodInfo[] methodInfos, string assetFullName)
 		{
 			var compMethodInfos1 = methodInfos
 				.Where(m => m.GetCustomAttribute<UIActionAttribute>(true) != null)
+				.Distinct(new MethodInfoCompare())
 				.Select(m => new CompMethodInfo
 				{
-					// ActionDisplayName = $"{comp.GetType().Name}.{m.Name}",
-					ActionDisplayName = $"{m.Name}",
+					ActionDisplayName =
+						ToActionDisplayName(assetFullName, m),
+					// ActionDisplayName = $"{m.Name}",
 					CompFullName = assetFullName,
 					Method = m,
 				});
 			return compMethodInfos1;
+		}
+
+		private static string ToActionDisplayName(string assetFullName, MethodInfo m)
+		{
+			var head = string.IsNullOrEmpty(assetFullName) ? m.Name : $"{assetFullName}/{m.Name}";
+			var divCount = 4 - (head.Length % 4);
+			var end = "";
+			if (m.GetParameters().Length > 0)
+			{
+				end = $"({string.Join(", ", m.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"))})";
+			}
+
+			return $"{head} {new string(' ', divCount)}{end}";
 		}
 
 		private static IEnumerable<CompMethodInfo> WrapNativeMethods(MethodInfo[] methodInfos, string compFullName)
@@ -505,8 +584,8 @@ namespace UISys.Editor
 				// .Where(m => m.GetCustomAttribute<UIActionAttribute>(true) != null)
 				.Select(m => new CompMethodInfo
 				{
-					// ActionDisplayName = $"{comp.GetType().Name}.{m.Name}",
-					ActionDisplayName = $"{m.Name}",
+					ActionDisplayName = ToActionDisplayName(compFullName, m),
+					// ActionDisplayName = $"{m.Name}",
 					CompFullName = compFullName,
 					Method = m,
 				});
