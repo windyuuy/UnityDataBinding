@@ -97,6 +97,11 @@ namespace UISys.Editor
 
 		void OnDisable()
 		{
+			if (!Application.isPlaying)
+			{
+				return;
+			}
+			
 			try
 			{
 				if (target == null && _gameObject != null)

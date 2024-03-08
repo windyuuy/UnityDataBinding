@@ -40,6 +40,11 @@ namespace EaseComps.PrefabUtils
 			}
 		}
 
+		[MenuItem("GameObject/UIEase/Button", false, 7, secondaryPriority = 7)]
+		public static void CreateUIEase_Button(MenuCommand menuCommand){
+			var pName = "UIEase/Button.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
 		[MenuItem("GameObject/UIEase/GridScrollView", false, 7, secondaryPriority = 20)]
 		public static void CreateUIEase_GridScrollView(MenuCommand menuCommand){
 			var pName = "UIEase/GridScrollView.prefab";

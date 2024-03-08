@@ -45,6 +45,11 @@ namespace UISys.Runtime
 		}
 #endif
 
+		protected void OnEnable()
+		{
+			
+		}
+
 		public void Run()
 		{
 			_ = RunActions();
@@ -82,6 +87,11 @@ namespace UISys.Runtime
 		protected RunContext CurContext;
 		protected async Task RunActionsWithFirstPara(bool usePara, object para)
 		{
+			if (!enabled)
+			{
+				return;
+			}
+			
 			var runContext = new RunContext();
 			
 			bool isFirst = true;
