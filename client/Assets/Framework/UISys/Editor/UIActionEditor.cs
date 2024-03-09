@@ -20,6 +20,7 @@ namespace UISys.Editor
 			public string ActionDisplayName;
 			public string CompFullName;
 			public MethodInfo Method;
+			public Component Comp;
 		}
 
 		public class AdditionComp
@@ -90,7 +91,7 @@ namespace UISys.Editor
 								}
 							}
 
-							Debug.Assert(type != null);
+							// Debug.Assert(type != null);
 
 							additionComp.CompType = type;
 						}
@@ -373,128 +374,44 @@ namespace UISys.Editor
 			var assetType = asset.GetType();
 			if (asset is GameObject gameObject)
 			{
-				var comps = gameObject.GetComponents<Component>();
+				// draw gameobject methods
+
 				var compMethodInfosE = Enumerable.Empty<CompMethodInfo>();
-				foreach (var comp in comps)
-				{
-					var compFullName = comp.GetType().FullName;
-					var methodInfos = comp.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
-					var compMethodInfos1 = WrapMethods(methodInfos, compFullName);
-					compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
-				}
+				var comps = gameObject.GetComponents<Component>();
+				var excludeComps = Array.Empty<Component>();
+				DrawGameObjectAndComps(property, selfPropRect, comps, excludeComps, gameObject, assetType,
+					compMethodInfosE);
+			}
+			else if (asset is Component comp0)
+			{
+				// draw comp and gameobject methods
 
-				// add additional actions for native objs
-				{
-					var additionComps = AdditionComp.GetAdditionComps();
-					foreach (var additionComp in additionComps)
-					{
-						var baseType = additionComp.CompType;
-						if (baseType != null)
-						{
-							var comp = gameObject.GetComponent(baseType);
-							if (comp != null)
-							{
-								var directType = comp != null ? comp.GetType() : additionComp.CompType;
-								var methodNames2 = additionComp.MethodNames;
-								MethodInfo[] methodInfos2;
-								if (additionComp.MethodNames == null)
-								{
-									methodInfos2 = directType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-										.Where(m =>
-											m.DeclaringType == directType ||
-											m.DeclaringType.IsSubclassOf(directType))
-										.ToArray();
-								}
-								else
-								{
-									methodInfos2 = methodNames2.Select(name =>
-											directType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public))
-										.ToArray();
-								}
+				var compMethodInfosE = Enumerable.Empty<CompMethodInfo>();
 
-								var compFullName = directType.FullName;
-								var compMethodInfos1 = WrapNativeMethods(methodInfos2, compFullName);
-								compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
-							}
-						}
-						else if (string.IsNullOrEmpty(additionComp.CompTypeName))
-						{
-							var methodNames2 = additionComp.MethodNames;
-							MethodInfo[] methodInfos2;
-							if (additionComp.MethodNames == null)
-							{
-								methodInfos2 = assetType.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(
-									m =>
-										m.DeclaringType == assetType ||
-										m.DeclaringType.IsSubclassOf(assetType)).ToArray();
-							}
-							else
-							{
-								methodInfos2 = methodNames2.Select(name =>
-									assetType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public)).ToArray();
-							}
+				gameObject = comp0.gameObject;
+				var comps = gameObject.GetComponents<Component>();
 
-							var compMethodInfos1 = WrapNativeMethods(methodInfos2, "");
-							compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
-						}
-					}
-				}
+				var execludeIndex = Array.IndexOf(comps, comp0);
+				compMethodInfosE = CollectCompMethods(compMethodInfosE, comp0, null, execludeIndex);
 
-				var compMethodInfos = compMethodInfosE.ToArray();
-
-				var compProp = property.FindPropertyRelative("comp");
-				var actionProp = property.FindPropertyRelative("action");
-				// var actionPropRect = new Rect(selfPropRect.xMax + 20, position.y, 150, position.height);
-				var actionIndex = -1;
-				for (var index = 0; index < compMethodInfos.Length; index++)
-				{
-					var compMethodInfo = compMethodInfos[index];
-					if (compMethodInfo.Method.Name == actionProp.stringValue &&
-					    compMethodInfo.CompFullName == compProp.stringValue)
-					{
-						actionIndex = index;
-						break;
-					}
-				}
-
-				// if (actionIndex == -1)
-				// {
-				// 	actionIndex = 0;
-				// }
-
-				var actionPropRect = CalculcateRect(selfPropRect);
-				var methodNames = compMethodInfos.Select(info => info.ActionDisplayName).ToArray();
-				DrawParaTitle(ref actionPropRect, "action");
-				EditorGUI.BeginChangeCheck();
-				var selectIndex = EditorGUI.Popup(actionPropRect, actionIndex, methodNames);
-				if (EditorGUI.EndChangeCheck())
-				{
-					var compMethodInfo = compMethodInfos[selectIndex];
-					compProp.stringValue = compMethodInfo.CompFullName;
-					actionProp.stringValue = compMethodInfo.Method.Name;
-
-					ClearParas(property);
-				}
-
-				if (0 <= selectIndex && selectIndex < compMethodInfos.Length)
-				{
-					var selectCompMethodInfo = compMethodInfos[selectIndex];
-
-					DrawActionParas(property, selectCompMethodInfo, actionPropRect, actionProp);
-				}
+				var excludeComps = new Component[] { comp0 };
+				var mainType = comp0.GetType();
+				DrawGameObjectAndComps(property, selfPropRect, comps, excludeComps, gameObject, mainType,
+					compMethodInfosE);
 			}
 			else
 			{
+				// draw object methods
 				var compMethodInfosE = Enumerable.Empty<CompMethodInfo>();
+
 				var methodInfos = assetType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 				var assetFullName = assetType.FullName;
-				var compMethodInfos1 = WrapMethods(methodInfos, assetFullName);
+				var compMethodInfos1 = WrapMarkedMethods(methodInfos, null, assetFullName);
 				compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
 
 				var compMethodInfos = compMethodInfosE.ToArray();
 
 				var actionProp = property.FindPropertyRelative("action");
-				// var actionPropRect = new Rect(selfPropRect.xMax + 20, position.y, 150, position.height);
 				var actionIndex = -1;
 				for (var index = 0; index < compMethodInfos.Length; index++)
 				{
@@ -505,11 +422,6 @@ namespace UISys.Editor
 						break;
 					}
 				}
-
-				// if (actionIndex == -1)
-				// {
-				// 	actionIndex = 0;
-				// }
 
 				var actionPropRect = CalculcateRect(selfPropRect);
 				var methodNames = compMethodInfos.Select(info => info.ActionDisplayName).ToArray();
@@ -536,6 +448,165 @@ namespace UISys.Editor
 			}
 		}
 
+		private void DrawGameObjectAndComps(SerializedProperty property, Rect selfPropRect, Component[] comps,
+			Component[] excludeComps,
+			GameObject gameObject, Type assetType, IEnumerable<CompMethodInfo> compMethodInfosE)
+		{
+			// foreach (var comp in comps)
+			for (var i = 0; i < comps.Length; i++)
+			{
+				var comp = comps[i];
+				if (comp == null)
+				{
+					continue;
+				}
+
+				if (!excludeComps.Contains(comp))
+				{
+					var compFullName = comp.GetType().FullName;
+					compMethodInfosE = CollectCompMethods(compMethodInfosE, comp, compFullName, i);
+				}
+			}
+
+			// add additional actions for native objs
+			{
+				compMethodInfosE = AddAdditionComps(gameObject, assetType, compMethodInfosE);
+			}
+
+			var compMethodInfos = compMethodInfosE.ToArray();
+
+			var compProp = property.FindPropertyRelative("comp");
+			var actionProp = property.FindPropertyRelative("action");
+			var actionIndex = -1;
+			for (var index = 0; index < compMethodInfos.Length; index++)
+			{
+				var compMethodInfo = compMethodInfos[index];
+				if (compMethodInfo.Method.Name == actionProp.stringValue &&
+				    (
+					    assetType.IsSubclassOf(typeof(Component))
+					    || compMethodInfo.CompFullName == compProp.stringValue
+				    ))
+				{
+					actionIndex = index;
+					break;
+				}
+			}
+
+			var actionPropRect = CalculcateRect(selfPropRect);
+			var methodNames = compMethodInfos.Select(info => info.ActionDisplayName).ToArray();
+			DrawParaTitle(ref actionPropRect, "action");
+			EditorGUI.BeginChangeCheck();
+			var selectIndex = EditorGUI.Popup(actionPropRect, actionIndex, methodNames);
+			if (EditorGUI.EndChangeCheck())
+			{
+				var compMethodInfo = compMethodInfos[selectIndex];
+				actionProp.stringValue = compMethodInfo.Method.Name;
+
+				var selfObjProp = property.FindPropertyRelative("selfObj");
+				if (selfObjProp.objectReferenceValue != null)
+				{
+					compProp.stringValue = "";
+					if (compMethodInfo.Comp != null)
+					{
+						// if is selfObj
+						selfObjProp.objectReferenceValue = compMethodInfo.Comp;
+					}
+					else
+					{
+						selfObjProp.objectReferenceValue = gameObject;
+					}
+				}
+				else
+				{
+					compProp.stringValue = compMethodInfo.CompFullName;
+				}
+
+				ClearParas(property);
+			}
+
+			if (0 <= selectIndex && selectIndex < compMethodInfos.Length)
+			{
+				var selectCompMethodInfo = compMethodInfos[selectIndex];
+
+				DrawActionParas(property, selectCompMethodInfo, actionPropRect, actionProp);
+			}
+		}
+
+		private static IEnumerable<CompMethodInfo> CollectCompMethods(IEnumerable<CompMethodInfo> compMethodInfosE,
+			Component comp, string compFullName, int index)
+		{
+			var methodInfos = comp.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+			var compMethodInfos1 = WrapMarkedMethods(methodInfos, comp, compFullName, index);
+			compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
+			return compMethodInfosE;
+		}
+
+		private static IEnumerable<CompMethodInfo> AddAdditionComps(GameObject gameObject, Type assetType,
+			IEnumerable<CompMethodInfo> compMethodInfosE)
+		{
+			var additionComps = AdditionComp.GetAdditionComps();
+			foreach (var additionComp in additionComps)
+			{
+				var compBaseType = additionComp.CompType;
+				if (compBaseType != null && !assetType.IsSubclassOf(compBaseType))
+				{
+					var comp = gameObject.GetComponent(compBaseType);
+					if (comp != null)
+					{
+						var directType = comp != null ? comp.GetType() : additionComp.CompType;
+						var methodNames2 = additionComp.MethodNames;
+						MethodInfo[] methodInfos2;
+						if (additionComp.MethodNames == null)
+						{
+							methodInfos2 = directType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+								.Where(m =>
+									m.DeclaringType == directType ||
+									m.DeclaringType.IsSubclassOf(directType))
+								.ToArray();
+						}
+						else
+						{
+							methodInfos2 = methodNames2.Select(name =>
+									directType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public))
+								.ToArray();
+						}
+
+						var compFullName = directType.FullName;
+						var compMethodInfos1 = WrapNativeMethods(methodInfos2, compFullName, comp);
+						compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
+					}
+				}
+				else if (string.IsNullOrEmpty(additionComp.CompTypeName))
+				{
+					// CompTypeName == null && CompType == null, 那么即为普通object
+					var isGameObject = assetType == typeof(GameObject);
+					assetType = typeof(GameObject);
+					var methodNames2 = additionComp.MethodNames;
+					MethodInfo[] methodInfos2;
+					if (additionComp.MethodNames == null)
+					{
+						methodInfos2 = assetType.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(
+								m =>
+									m.DeclaringType == assetType ||
+									m.DeclaringType.IsSubclassOf(assetType))
+							.ToArray();
+					}
+					else
+					{
+						methodInfos2 = methodNames2.Select(name =>
+								assetType.GetMethod(name, BindingFlags.Instance | BindingFlags.Public))
+							.Where(m => m != null)
+							.ToArray();
+					}
+
+					var compMethodInfos1 = WrapNativeMethods(methodInfos2, isGameObject ? "" : nameof(GameObject), null);
+					compMethodInfosE = compMethodInfosE.Concat(compMethodInfos1);
+				}
+			}
+
+			return compMethodInfosE;
+		}
+
 		public class MethodInfoCompare : IEqualityComparer<MethodInfo>
 		{
 			public bool Equals(MethodInfo x, MethodInfo y)
@@ -549,7 +620,9 @@ namespace UISys.Editor
 			}
 		}
 
-		private static IEnumerable<CompMethodInfo> WrapMethods(MethodInfo[] methodInfos, string assetFullName)
+		private static IEnumerable<CompMethodInfo> WrapMarkedMethods(MethodInfo[] methodInfos, Component comp,
+			string assetFullName,
+			int index = -1)
 		{
 			var compMethodInfos1 = methodInfos
 				.Where(m => m.GetCustomAttribute<UIActionAttribute>(true) != null)
@@ -557,17 +630,20 @@ namespace UISys.Editor
 				.Select(m => new CompMethodInfo
 				{
 					ActionDisplayName =
-						ToActionDisplayName(assetFullName, m),
+						ToActionDisplayName(assetFullName, m, index),
 					// ActionDisplayName = $"{m.Name}",
 					CompFullName = assetFullName,
 					Method = m,
+					Comp = comp,
 				});
 			return compMethodInfos1;
 		}
 
-		private static string ToActionDisplayName(string assetFullName, MethodInfo m)
+		private static string ToActionDisplayName(string selfName, MethodInfo m, int index)
 		{
-			var head = string.IsNullOrEmpty(assetFullName) ? m.Name : $"{assetFullName}/{m.Name}";
+			var head = string.IsNullOrEmpty(selfName)
+				? (index >= 0 ? $"{index}. {m.Name}" : m.Name)
+				: (index >= 0 ? $"{index}. {selfName}/{m.Name}" : $"{selfName}/{m.Name}");
 			var divCount = 4 - (head.Length % 4);
 			var end = "";
 			if (m.GetParameters().Length > 0)
@@ -578,16 +654,18 @@ namespace UISys.Editor
 			return $"{head} {new string(' ', divCount)}{end}";
 		}
 
-		private static IEnumerable<CompMethodInfo> WrapNativeMethods(MethodInfo[] methodInfos, string compFullName)
+		private static IEnumerable<CompMethodInfo> WrapNativeMethods(MethodInfo[] methodInfos, string compFullName,
+			Component comp)
 		{
 			var compMethodInfos1 = methodInfos
 				// .Where(m => m.GetCustomAttribute<UIActionAttribute>(true) != null)
 				.Select(m => new CompMethodInfo
 				{
-					ActionDisplayName = ToActionDisplayName(compFullName, m),
+					ActionDisplayName = ToActionDisplayName(compFullName, m, -1),
 					// ActionDisplayName = $"{m.Name}",
 					CompFullName = compFullName,
 					Method = m,
+					Comp = comp,
 				});
 			return compMethodInfos1;
 		}
