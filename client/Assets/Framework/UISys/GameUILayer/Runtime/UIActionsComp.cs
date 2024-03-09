@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -20,7 +21,8 @@ namespace UISys.Runtime
 	[Serializable]
 	public class UIAction
 	{
-		// public string run;
+		// continue next without wait this async func
+		public bool wait;
 		public AssetReference self;
 		public Object selfObj;
 		public string comp;
@@ -47,7 +49,6 @@ namespace UISys.Runtime
 
 		protected void OnEnable()
 		{
-			
 		}
 
 		public void Run()
@@ -82,26 +83,39 @@ namespace UISys.Runtime
 		public class RunContext
 		{
 			public bool Exit = false;
+			public List<Task> PendingTasks;
+
+			internal void AddPendingTask(Task pendingTask)
+			{
+				if (PendingTasks == null)
+				{
+					PendingTasks = new();
+				}
+
+				PendingTasks.Add(pendingTask);
+			}
 		}
 
 		protected RunContext CurContext;
+
 		protected async Task RunActionsWithFirstPara(bool usePara, object para)
 		{
 			if (!enabled)
 			{
 				return;
 			}
-			
+
 			var runContext = new RunContext();
-			
+
 			bool isFirst = true;
+			Task PendingTask = null;
 			foreach (var uiAction in actions)
 			{
 				if (runContext.Exit)
 				{
 					break;
 				}
-				
+
 				var useFirstPara = isFirst && usePara;
 				isFirst = false;
 
@@ -170,7 +184,16 @@ namespace UISys.Runtime
 
 					if (ret is Task task)
 					{
-						await task;
+						if (uiAction.wait)
+						{
+							PendingTask = task;
+							await task;
+						}
+						else
+						{
+							runContext.AddPendingTask(task);
+							PendingTask = null;
+						}
 					}
 				}
 				catch (Exception ex)
@@ -182,6 +205,17 @@ namespace UISys.Runtime
 					// uiActionSelf.ReleaseAsset();
 					_ = UILayerUtils.DelayRelease(uiActionSelf);
 				}
+			}
+
+			if (PendingTask != null)
+			{
+				runContext.AddPendingTask(PendingTask);
+				PendingTask = null;
+			}
+
+			if (runContext.PendingTasks != null)
+			{
+				await Task.WhenAll(runContext.PendingTasks);
 			}
 		}
 

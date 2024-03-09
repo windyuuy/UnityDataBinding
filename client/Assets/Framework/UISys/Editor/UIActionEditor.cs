@@ -314,6 +314,9 @@ namespace UISys.Editor
 		{
 			AdaptLayout(position, property, label);
 
+			var waitProp = property.FindPropertyRelative("wait");
+			EditorGUI.PropertyField(new Rect(StartX - 17, position.y, 14, PropHeight), waitProp, GUIContent.none);
+            
 			var selfProp = property.FindPropertyRelative("self");
 			var selfObjProp = property.FindPropertyRelative("selfObj");
 			Object selfObj0 = selfObjProp.objectReferenceValue;
