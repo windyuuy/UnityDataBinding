@@ -29,11 +29,16 @@ namespace DataBinding.UIBind
 		}
 		protected override void OnEnable()
 		{
+			// TODO: 解决加载时机问题
+			// isAttachCalled = true;
+			// this.gameObject.SendMessage("OnNotifyAttachedAlready", true);
+			base.OnEnable();
 			this.DataHub.Running = true;
 		}
 		protected override void OnDisable()
 		{
 			this.DataHub.Running = false;
+			base.OnDisable();
 		}
 
 		public virtual void ObserveData(object data)

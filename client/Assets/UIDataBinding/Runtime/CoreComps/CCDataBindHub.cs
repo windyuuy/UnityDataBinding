@@ -12,7 +12,15 @@ namespace DataBinding.UIBind
 
 		protected override bool NeedAttach()
 		{
-			return this.isAttachCalled && this.enabled && this.transform.parent.IsActiveInHierarchy();
+			if (this.isAttachCalled && this.enabled)
+			{
+				var parent = this.transform.parent;
+				return  parent!=null && parent.IsActiveInHierarchy();
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		public virtual void Integrate()

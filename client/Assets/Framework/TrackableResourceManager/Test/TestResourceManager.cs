@@ -15,7 +15,7 @@ namespace ResourceManager.Trackable.Test
 		{
 			// var wfe=await layerRootRefer1.LoadAssetAsync().Task;
 			// var wfe2=await layerRootRefer2.LoadAssetAsync().Task;
-			Debug.Log("lkwjef");
+			Debug.Log("TestResourceManager");
 			{
 				using var rr = ResourceScope.New;
 			}

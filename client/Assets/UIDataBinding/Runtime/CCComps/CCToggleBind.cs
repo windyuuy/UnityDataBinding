@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,11 +8,9 @@ namespace DataBinding.UIBind
 	[AddComponentMenu("DataDrive/CCToggleBind")]
 	public class CCToggleBind : CCDataBindBase
 	{
-		[Rename("是否选中")]
-		public string kIsChecked = "";
+		[Rename("是否选中")] [SerializeField] public string kIsChecked = "";
 
-		[HideInInspector]
-		public object target;
+		[SerializeField] public Toggle target;
 
 		/**
 		 * 更新显示状态
@@ -29,11 +26,13 @@ namespace DataBinding.UIBind
 			{
 				return false;
 			}
+
 			var node = this.transform;
 			if (node == null)
 			{
 				return false;
 			}
+
 			this.WatchValueChange<bool>(this.kIsChecked, (newValue, oldValue) =>
 			{
 				if (Utils.IsValid(node, true)) this.SetIsChecked((bool)newValue);
@@ -43,13 +42,15 @@ namespace DataBinding.UIBind
 
 		public virtual void SetIsChecked(bool newValue)
 		{
-			var toggle = this.GetComponent<Toggle>();
-			if (toggle != null)
+			if (target == null)
 			{
-				this.target = toggle;
-				toggle.isOn = newValue;
+				target = this.GetComponent<Toggle>();
+			}
+
+			if (target != null)
+			{
+				target.isOn = newValue;
 			}
 		}
-
 	}
 }

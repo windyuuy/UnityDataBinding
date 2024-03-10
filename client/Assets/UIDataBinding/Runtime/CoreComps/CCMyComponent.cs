@@ -159,6 +159,11 @@ namespace DataBinding.UIBind
 			// && this.node.parent?.activeInHierarchy
 		}
 		protected bool isAttachCalled = false;
+
+		protected virtual void OnNotifyAttachedAlready()
+		{
+			isAttachCalled = true;
+		}
 		protected bool isAttached = false;
 		protected virtual void OnEnable()
 		{

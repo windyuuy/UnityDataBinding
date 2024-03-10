@@ -35,21 +35,34 @@ namespace UISys.Runtime
 	[AddComponentMenu("UISys/UIActions")]
 	public class UIActionsComp : MonoBehaviour
 	{
+		/// <summary>
+		/// 参数传递方式
+		/// </summary>
+		public enum ParaPassType
+		{
+			None,
+			PassFirstOnly,
+			PassOneByOne,
+			PassEvery,
+		}
+
+		[SerializeField] protected ParaPassType paraPassType;
 		[SerializeField] protected UIAction[] actions;
 
 		public UIAction[] Actions => actions;
 
 #if UNITY_EDITOR
 		[NonSerialized] public bool IsReseted = false;
+
 		private void Reset()
 		{
 			IsReseted = true;
 		}
-#endif
 
 		protected void OnEnable()
 		{
 		}
+#endif
 
 		public void Run()
 		{
@@ -60,29 +73,30 @@ namespace UISys.Runtime
 		{
 			var isOn = change.isOn;
 
-			_ = RunActionsWithFirstPara(isOn);
+			_ = RunActionsWithOnePara(isOn);
 		}
 
 		public void RunWithToggle(MyToggle change)
 		{
 			var isOn = change.isOn;
 
-			_ = RunActionsWithFirstPara(isOn);
+			_ = RunActionsWithOnePara(isOn);
 		}
 
-		public async Task RunActionsWithFirstPara(bool isOn)
+		public async Task RunActionsWithOnePara(bool isOn)
 		{
-			await RunActionsWithFirstPara(true, isOn);
+			await RunActionsWithOnePara(this.paraPassType, isOn);
 		}
 
 		public async Task RunActions()
 		{
-			await RunActionsWithFirstPara(false, null);
+			await RunActionsWithOnePara(this.paraPassType, null);
 		}
 
 		public class RunContext
 		{
 			public bool Exit = false;
+			public ParaPassType ParaPassType;
 			public List<Task> PendingTasks;
 
 			internal void AddPendingTask(Task pendingTask)
@@ -98,17 +112,26 @@ namespace UISys.Runtime
 
 		protected RunContext CurContext;
 
-		protected async Task RunActionsWithFirstPara(bool usePara, object para)
+		public Task RunActionsWithOnePara(object para)
+		{
+			return RunActionsWithOnePara(this.paraPassType, para);
+		}
+
+		protected async Task RunActionsWithOnePara(ParaPassType paraPassType0, object para)
 		{
 			if (!enabled)
 			{
 				return;
 			}
 
-			var runContext = new RunContext();
+			var runContext = new RunContext()
+			{
+				ParaPassType = paraPassType0,
+			};
 
 			bool isFirst = true;
-			Task PendingTask = null;
+			Task pendingTask = null;
+			object nextPara = para;
 			foreach (var uiAction in actions)
 			{
 				if (runContext.Exit)
@@ -116,7 +139,15 @@ namespace UISys.Runtime
 					break;
 				}
 
-				var useFirstPara = isFirst && usePara;
+				paraPassType0 = runContext.ParaPassType;
+				var usePara = paraPassType0 switch
+				{
+					ParaPassType.PassFirstOnly => isFirst,
+					ParaPassType.None => false,
+					ParaPassType.PassOneByOne => true,
+					ParaPassType.PassEvery => true,
+					_ => throw new ArgumentOutOfRangeException(nameof(paraPassType0), paraPassType0, null)
+				};
 				isFirst = false;
 
 				Object asset = uiAction.selfObj;
@@ -159,22 +190,22 @@ namespace UISys.Runtime
 						caller = asset;
 					}
 
-					if (useFirstPara && para != null && callParas.Length > 0)
+					if (usePara && nextPara != null && callParas.Length > 0)
 					{
 						var callPara0 = callParas[0];
 						var callPara0Type = callPara0.GetType();
-						var paraType = para.GetType();
+						var paraType = nextPara.GetType();
 						if (paraType == callPara0Type ||
 						    paraType.IsSubclassOf(callPara0Type))
 						{
-							if (para is bool bPara)
+							if (nextPara is bool bPara)
 							{
 								// 特殊规则：当读档参数为 true，则传入参数取反
 								callParas[0] = ((bool)callPara0) ? !bPara : bPara;
 							}
 							else
 							{
-								callParas[0] = para;
+								callParas[0] = nextPara;
 							}
 						}
 					}
@@ -182,23 +213,59 @@ namespace UISys.Runtime
 					CurContext = runContext;
 					var ret = methodInfo!.Invoke(caller, callParas);
 
-					if (ret is Task task)
+					if (paraPassType0 == ParaPassType.PassOneByOne)
 					{
-						if (uiAction.wait)
+						object result;
+						if (ret is Task task)
 						{
-							PendingTask = task;
-							await task;
+							if (uiAction.wait)
+							{
+								pendingTask = task;
+
+								await task;
+								var resultProp = task.GetType().GetProperty("Result");
+								result = resultProp?.GetValue(task);
+							}
+							else
+							{
+								runContext.AddPendingTask(task);
+								pendingTask = null;
+
+								result = ret;
+							}
 						}
 						else
 						{
-							runContext.AddPendingTask(task);
-							PendingTask = null;
+							result = ret;
+						}
+
+						nextPara = result;
+					}
+					else
+					{
+						if (ret is Task task)
+						{
+							if (uiAction.wait)
+							{
+								pendingTask = task;
+
+								await task;
+							}
+							else
+							{
+								runContext.AddPendingTask(task);
+								pendingTask = null;
+							}
 						}
 					}
 				}
 				catch (Exception ex)
 				{
 					Debug.LogException(ex);
+					if (paraPassType0 == ParaPassType.PassOneByOne)
+					{
+						runContext.Exit = true;
+					}
 				}
 				finally
 				{
@@ -207,10 +274,10 @@ namespace UISys.Runtime
 				}
 			}
 
-			if (PendingTask != null)
+			if (pendingTask != null)
 			{
-				runContext.AddPendingTask(PendingTask);
-				PendingTask = null;
+				runContext.AddPendingTask(pendingTask);
+				pendingTask = null;
 			}
 
 			if (runContext.PendingTasks != null)

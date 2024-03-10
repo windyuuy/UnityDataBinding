@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DataBinding.UIBind
 {
-	public class CCDataBindBase : CCMyComponent, ICCDataBindBase
+	public abstract class CCDataBindBase : CCMyComponent, ICCDataBindBase
 	{
 		// constructor(...args: any[]) {
 		// 	super(...args)
@@ -25,10 +25,8 @@ namespace DataBinding.UIBind
 		{
 			this.OnBindItems();
 		}
-		protected virtual void OnBindItems()
-		{
 
-		}
+		protected abstract void OnBindItems();
 
 		public virtual void DoUnBindItems()
 		{
