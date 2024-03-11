@@ -7,8 +7,6 @@ using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
 {
-	using number = System.Double;
-
 	using TExprCall = EventHandlerMV2<object, object>;
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;
 
@@ -138,8 +136,6 @@ namespace DataBinding.UIBind
 							this._doWatchNewExpr(expr, (value, oldValue) =>
 							{
 								this.EmitValueChangedEvent(expr, value, oldValue);
-
-
 							});
 						}
 						catch (Exception e)
@@ -248,7 +244,7 @@ namespace DataBinding.UIBind
 			this.ValueChangedEvent.Off(call);
 		}
 
-		protected readonly Dictionary<string, number> watchingExprs = new Dictionary<string, number>();
+		protected readonly Dictionary<string, long> watchingExprs = new Dictionary<string, long>();
 
 		protected readonly Dictionary<string, VM.Watcher> watcherList = new Dictionary<string, VM.Watcher>();
 		protected readonly Dictionary<string, TPendingInfo> pendingInfoMergedCache = new Dictionary<string, TPendingInfo>();

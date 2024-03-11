@@ -6,8 +6,6 @@ using Console = Game.Diagnostics.IO.Console;
 
 namespace DataBinding.UIBind
 {
-	using number = System.Double;
-
 	using TButtonBindCallback=System.Object;
 
 	[AddComponentMenu("DataDrive/ButtonBind")]

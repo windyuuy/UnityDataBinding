@@ -2,12 +2,10 @@ using System;
 
 namespace DataBinding.UIBind
 {
-	using number = System.Double;
-
 	public interface ISubDataHub
 	{
 
-		number Oid { get; set; }
+		long Oid { get; set; }
 
 		void SetRealDataHub(DataSourceHub realDataHub);
 		Object RawObj { get; set; }

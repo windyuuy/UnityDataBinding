@@ -1,5 +1,4 @@
 ﻿using DataBinding.CollectionExt;
-using number = System.Single;
 using Action = System.Action;
 
 namespace TestingCode

@@ -5,20 +5,18 @@ using System.Collections.Generic;
 
 namespace DataBinding.UIBind
 {
-	using number = System.Double;
-
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;
 	using TExprCall = EventHandlerMV2<object, object>;
 
 	public class DataBindHub : IDataBindHub, IDataBindHubTree
 	{
 
-		protected static number oidAcc = 0;
-		public number Oid = ++DataBindHub.oidAcc;
+		protected static long oidAcc = 0;
+		public long Oid = ++DataBindHub.oidAcc;
 
 		public Object RawObj;
 
-		public readonly Dictionary<string, number> watchingExprs = new Dictionary<string, number>();
+		public readonly Dictionary<string, long> watchingExprs = new Dictionary<string, long>();
 
 		public List<IDataBindHubTree> Parents { get; set; } = new List<IDataBindHubTree>();
 		public IDataBindHubTree Parent

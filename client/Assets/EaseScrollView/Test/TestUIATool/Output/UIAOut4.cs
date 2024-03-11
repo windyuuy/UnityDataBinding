@@ -1,5 +1,4 @@
-﻿using number = System.Single;
-using Action = System.Action;
+﻿using Action = System.Action;
 
 namespace TestingCode
 {

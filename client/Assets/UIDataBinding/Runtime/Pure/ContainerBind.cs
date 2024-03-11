@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 namespace DataBinding.UIBind
 {
-	using number = System.Double;
-
 	public class ContainerBind
 	{
 		public DataBindHub bindHub;
@@ -49,7 +47,7 @@ namespace DataBinding.UIBind
 					{
 						 this.onDataChangedEvent.emit(v1, v2);
 
-						 var bindList1 = this.bindList;
+						 var bindList1 = this.BindList;
 						 foreach (var oid in bindList1.Keys)
 						 {
 							 var item = bindList1[oid];
@@ -86,21 +84,21 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected readonly Dictionary<number, ContainerItem> bindList = new Dictionary<number, ContainerItem>();
+		protected readonly Dictionary<long, ContainerItem> BindList = new Dictionary<long, ContainerItem>();
 		public void BindItem(ContainerItem item)
 		{
-			this.bindList[item.Oid] = item;
+			this.BindList[item.Oid] = item;
 		}
 
 		public void UnbindItem(ContainerItem item)
 		{
-			if (this.bindList.ContainsKey(item.Oid))
+			if (this.BindList.ContainsKey(item.Oid))
 			{
 				if (item.RealDataHub != null)
 				{
 					item.RealDataHub.UnsetDataHost();
 				}
-				this.bindList.Remove(item.Oid);
+				this.BindList.Remove(item.Oid);
 			}
 		}
 

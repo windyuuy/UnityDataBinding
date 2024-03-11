@@ -8,7 +8,6 @@ using System;
 
 namespace gcc.respool
 {
-    using number = System.Double;
     using Node = UnityEngine.Transform;
     using Prefab = UnityEngine.GameObject;
     using Error = System.Exception;

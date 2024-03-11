@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace DataBinding.UIBind
 {
-	using number = System.Double;
-
 	public class SubDataHub : ISubDataHub
 	{
-		static number _oidAcc = 0;
-		public number Oid { get; set; } = SubDataHub._oidAcc++;
-		public number Index = 0;
+		static long _oidAcc = 0;
+		public long Oid { get; set; } = SubDataHub._oidAcc++;
+		public long Index = 0;
 
 		public DataSourceHub RealDataHub { get; set; }
 		public Object RawObj { get; set; }

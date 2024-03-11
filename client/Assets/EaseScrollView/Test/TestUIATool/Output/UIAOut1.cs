@@ -1,5 +1,4 @@
-﻿using number = System.Single;
-using Action = System.Action;
+﻿using Action = System.Action;
 
 namespace TestingCode
 {
@@ -32,7 +31,7 @@ namespace TestingCode
 		/// <note>
 		/// env::progress
 		/// </note>
-		public number progress {get;set;}
+		public float progress {get;set;}
 		/// <note>
 		/// env::isToggleCheck
 		/// </note>

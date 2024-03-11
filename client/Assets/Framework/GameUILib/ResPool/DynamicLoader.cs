@@ -8,7 +8,6 @@
 namespace gcc.resloader
 {
     using System.Linq.MyExt;
-    using number = System.Double;
     using Error = System.Exception;
     using System.Collections.Generic;
 
@@ -26,7 +25,7 @@ namespace gcc.resloader
 
     public delegate void ResCallback<T>(T res);
     public delegate void ErrorCallback(Error res);
-    public delegate void TOnProgress(number count, number total);
+    public delegate void TOnProgress(float count, float total);
 
     /**
 	 * 资源加载通知
@@ -166,11 +165,11 @@ namespace gcc.resloader
             });
         }
 
-        protected number count = 0;
-        protected number total = 0.1;
+        protected float count = 0;
+        protected float total = 0.1f;
         protected bool isProgressChanged = false;
         protected List<TOnProgress> onProgressList = new List<TOnProgress>();
-        public void notifyOnPrgress(number count, number total)
+        public void notifyOnPrgress(float count, float total)
         {
             this.isProgressChanged = true;
             this.onProgressList.ToArray().ForEach((call) =>

@@ -8,7 +8,6 @@ using UnityEngine.UI;
 namespace TestDataBinding.Tests.TestCompBinds
 {
 	using TButtonBindCallback = System.Action<DataBinding.UIBind.ButtonBindComp, double>;
-	using number = System.Double;
 
 	public class TRawData:IStdHost
 	{
@@ -21,7 +20,7 @@ namespace TestDataBinding.Tests.TestCompBinds
 		public string label { get; set; } = "hello";
 		public string spriteUrl { get; set; } = "doge_cartoon";
 		public bool visible { get; set; } = false;
-		public number progress { get; set; } = 0;
+		public float progress { get; set; } = 0;
 		public bool isToggleCheck { get; set; } = false;
 	}
 

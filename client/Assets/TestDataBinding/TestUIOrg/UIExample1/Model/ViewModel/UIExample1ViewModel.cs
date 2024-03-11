@@ -1,7 +1,5 @@
 ﻿using DataBinding;
 using UnityEngine;
-using number = System.Single;
-using Action = System.Action;
 
 namespace TestingCode
 {

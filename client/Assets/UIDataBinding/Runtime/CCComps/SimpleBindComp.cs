@@ -18,7 +18,7 @@ namespace DataBinding.UIBind
 		[HideInInspector]
 		public object target;
 
-		public virtual ISEventCleanInfo2<object, object> WatchValueChange<T>(string key0, Action<T, T> call)
+		public virtual ISEventCleanInfo2<object, object> WatchValueChange2<T>(string key0, Action<T, T> call)
 		{
 			return base.WatchValueChange<T>(key0, (value, old) =>
 			{
@@ -26,12 +26,12 @@ namespace DataBinding.UIBind
 				{
 					if (value != null)
 					{
-						call((T)value, (T)old);
+						call((T)value, (T)(old ?? default(T)));
 					}
 				}
 				else
 				{
-					call((T)value, (T)old);
+					call((T)(value ?? default(T)), (T)(old ?? default(T)));
 				}
 			});
 		}
@@ -59,7 +59,7 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = label;
-			this.WatchValueChange<string>(this.key, (newValue, oldValue) =>
+			this.WatchValueChange2<string>(this.key, (newValue, oldValue) =>
 			{
 				if (label) label.text = $"{newValue}";
 			});
@@ -75,9 +75,9 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = progressComponent;
-			this.WatchValueChange<double?>(this.key, (newValue, oldValue) =>
+			this.WatchValueChange2<float>(this.key, (newValue, oldValue) =>
 			{
-				if (progressComponent) progressComponent.value = (float)newValue;
+				if (progressComponent) progressComponent.value = newValue;
 			});
 			return true;
 		}
@@ -92,7 +92,7 @@ namespace DataBinding.UIBind
 				return false;
 			}
 			this.target = sprite;
-			this.WatchValueChange<string>(this.key, (newValue, oldValue) =>
+			this.WatchValueChange2<string>(this.key, (newValue, oldValue) =>
 			{
 				if (sprite != null && this.spriteTextureUrl != newValue)
 				{

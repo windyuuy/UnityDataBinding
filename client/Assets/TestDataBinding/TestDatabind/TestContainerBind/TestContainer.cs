@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 namespace TestDataBinding.Tests.TestContainer
 {
-	using number = System.Double;
-
 	class TC2Item : IStdHost
 	{
 		public string pp { get; set; } = "PP";
