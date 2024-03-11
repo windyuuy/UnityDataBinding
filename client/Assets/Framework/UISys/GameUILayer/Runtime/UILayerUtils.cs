@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine.AddressableAssets.MyExt;
 using gcc.layer;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -198,38 +199,5 @@ namespace UISys.Runtime
 			return layerBundleComp.LoadLayerBundle();
 		}
 
-		/// <summary>
-		/// delay release to improve performance
-		/// </summary>
-		/// <param name="uiActionSelf"></param>
-		public static async ValueTask DelayRelease(AssetReference uiActionSelf)
-		{
-			if (uiActionSelf != null && uiActionSelf.IsValid())
-			{
-				await AsyncUtils.WaitForEndOfFrame();
-				uiActionSelf.ReleaseAsset();
-			}
-		}
-
-		public static async Task<Object> LoadAssetFast(this AssetReference uiActionSelf)
-		{
-			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
-				? uiActionSelf.Asset
-				: await uiActionSelf.LoadAssetAsync<Object>().Task;
-		}
-		
-		public static async Task<T> LoadAssetFast<T>(this AssetReference uiActionSelf) where T: Object
-		{
-			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
-				? (T)(uiActionSelf.Asset)
-				: await uiActionSelf.LoadAssetAsync<T>().Task;
-		}
-
-		public static async Task<T> LoadAssetFast<T>(this AssetReferenceT<T> uiActionSelf) where T: Object
-		{
-			return uiActionSelf.Asset != null && uiActionSelf.IsValid()
-				? (T)(uiActionSelf.Asset)
-				: await uiActionSelf.LoadAssetAsync<T>().Task;
-		}
 	}
 }

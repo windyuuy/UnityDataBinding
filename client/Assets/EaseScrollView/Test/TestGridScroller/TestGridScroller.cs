@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Linq;
 using System.Linq.Ext;
+using DataBinding;
 using DataBinding.CollectionExt;
+using TestDataBinding.TestBasic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind.Tests.TestGridScroller
+namespace TestDataBinding.Tests.TestGridScroller
 {
 	class TC1Item : IStdHost
 	{

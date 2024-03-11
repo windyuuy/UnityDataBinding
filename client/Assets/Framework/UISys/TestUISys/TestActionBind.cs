@@ -21,7 +21,7 @@ public class TestActionBind : MonoBehaviour
 	private void Awake()
 	{
 		Data = new TestActionBindData();
-		var host = this.GetComponentInParent<CCDataHost>();
+		var host = this.GetComponentInParent<DataHostComp>();
 		host.ObserveData(Data);
 	}
 

@@ -7,7 +7,7 @@ using UnityEngine.Profiling;
 
 namespace DataBinding.UIBind
 {
-	[RequireComponent(typeof(CCContainerBind))]
+	[RequireComponent(typeof(ContainerBindComp))]
 	public class FlatContainerCtrl : MonoBehaviour
 	{
 		/**
@@ -75,7 +75,7 @@ namespace DataBinding.UIBind
 				{
 					this.container.ForEachChildren(child =>
 					{
-						var ccDataHost = child.GetOrAddComponent<CCDataHost>();
+						var ccDataHost = child.GetOrAddComponent<DataHostComp>();
 						ccDataHost.Integrate();
 					});
 				}
@@ -323,7 +323,7 @@ namespace DataBinding.UIBind
 		}
 
 		protected Transform TemplateNode;
-		protected IEnumerable<CCContainerItem> ItemHubIter;
+		protected IEnumerable<ContainerItemComp> ItemHubIter;
 
 		public virtual Transform CreateNewNode(int index)
 		{
@@ -345,20 +345,20 @@ namespace DataBinding.UIBind
 
 		protected virtual void PrepareDataBind(Transform child)
 		{
-			var ccItem = child.GetComponent<CCContainerItem>();
+			var ccItem = child.GetComponent<ContainerItemComp>();
 			if (ccItem == null)
 			{
-				ccItem = child.gameObject.AddComponent<CCContainerItem>();
+				ccItem = child.gameObject.AddComponent<ContainerItemComp>();
 				ccItem.Integrate();
 			}
 		}
 
 		protected virtual void UpdateDataBind(Transform child, object dataSource, int index)
 		{
-			var ccItem = child.GetComponent<CCContainerItem>();
+			var ccItem = child.GetComponent<ContainerItemComp>();
 			if (ccItem == null)
 			{
-				ccItem = child.gameObject.AddComponent<CCContainerItem>();
+				ccItem = child.gameObject.AddComponent<ContainerItemComp>();
 				ccItem.Integrate();
 			}
 
@@ -426,7 +426,7 @@ namespace DataBinding.UIBind
 			Debug.Assert(childCount > i);
 			var child = container.GetChild(i);
 
-			var ccItem = child.GetComponent<CCContainerItem>();
+			var ccItem = child.GetComponent<ContainerItemComp>();
 			if (ccItem != null)
 			{
 				ccItem.UnsetDataHost();

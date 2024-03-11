@@ -43,19 +43,19 @@ namespace DataBinding.UIATool
 			
 			public DataHostHandler Parent;
 			public DataHostHandler ParentContainer;
-			public CCDataHost DataHost;
-			public CCSubDataHub SubDataHost;
-			public CCContainerBind ContainerBind;
+			public DataHostComp DataHost;
+			public SubDataHubComp SubDataHost;
+			public ContainerBindComp ContainerBind;
 
 			public string HostKey = "";
-			public DataHostHandler(DataHostHandler parent, CCDataHost dataHost)
+			public DataHostHandler(DataHostHandler parent, DataHostComp dataHostComp)
 			{
 				this.Parent = parent;
-				this.DataHost = dataHost;
+				this.DataHost = dataHostComp;
 
 				this.HostKey = "";
 			}
-			public DataHostHandler(DataHostHandler parent, DataHostHandler containerHandler, CCContainerItem dataHost)
+			public DataHostHandler(DataHostHandler parent, DataHostHandler containerHandler, ContainerItemComp dataHost)
 			{
 				this.Parent = parent;
 				this.SubDataHost = dataHost;
@@ -64,7 +64,7 @@ namespace DataBinding.UIATool
 				var index = dataHost.ContainerItem.Index;
 				HostKey = Utils.CombineKeys(subExp,index.ToString());
 			}
-			public DataHostHandler(DataHostHandler parent, CCDialogChild dataHost)
+			public DataHostHandler(DataHostHandler parent, DialogChildComp dataHost)
 			{
 				this.Parent = parent;
 				this.SubDataHost = dataHost;
@@ -78,7 +78,7 @@ namespace DataBinding.UIATool
 					HostKey = "";
 				}
 			}
-			public DataHostHandler(DataHostHandler parent, CCContainerBind dataHost)
+			public DataHostHandler(DataHostHandler parent, ContainerBindComp dataHost)
 			{
 				this.Parent = parent;
 				this.ContainerBind = dataHost;
@@ -91,15 +91,15 @@ namespace DataBinding.UIATool
 		{
 			var hostKey = dataHostHandler?.HostKey ?? "";
 			// handle ui bind comps
-			var bindComps = node.GetComponents<CCDataBindBase>();
+			var bindComps = node.GetComponents<DataBindCompBase>();
 			for (var i = 0; i < bindComps.Length; i++)
 			{
 				var bindComp = bindComps[i];
-				if (bindComp is CCSimpleBind ccSimpleBind)
+				if (bindComp is SimpleBindComp ccSimpleBind)
 				{
 					hostKeys.Add(Utils.CombineKeys(hostKey,ccSimpleBind.key));
 				}
-				else if (bindComp is CCButtonBind ccButtonBind)
+				else if (bindComp is ButtonBindComp ccButtonBind)
 				{
 					hostKeys.Add(Utils.CombineKeys(hostKey,ccButtonBind.kInteractive));
 					hostKeys.Add(Utils.CombineKeys(hostKey,ccButtonBind.kToGray));
@@ -108,11 +108,11 @@ namespace DataBinding.UIATool
 						hostKeys.Add(Utils.CombineKeys(hostKey,ccSimpleBindClickFuncInfo.callExpr));
 					}
 				}
-				else if (bindComp is CCActiveBind ccActiveBind)
+				else if (bindComp is ActiveBindComp ccActiveBind)
 				{
 					hostKeys.Add(Utils.CombineKeys(hostKey,ccActiveBind.visible));
 				}
-				else if (bindComp is CCToggleBind ccToggleBind)
+				else if (bindComp is ToggleBindComp ccToggleBind)
 				{
 					hostKeys.Add(Utils.CombineKeys(hostKey,ccToggleBind.kIsChecked));
 				}
@@ -129,12 +129,12 @@ namespace DataBinding.UIATool
 			var hostKeys = new List<string>();
 			
 			DataHostHandler curContainer = null;
-			var dataHost0 = root.GetComponent<CCDataHost>();
+			var dataHost0 = root.GetComponent<DataHostComp>();
 			DataHostHandler curDataHost = new DataHostHandler(null, dataHost0);
 			ForeachNodes(root, (node) =>
 			{
 				var newHostGened = false;
-				var containerBind = node.GetComponent<CCContainerBind>();
+				var containerBind = node.GetComponent<ContainerBindComp>();
 				if (containerBind != null)
 				{
 					curDataHost = new DataHostHandler(curContainer, containerBind);
@@ -145,7 +145,7 @@ namespace DataBinding.UIATool
 				}
 				else
 				{
-					var containerItem = node.GetComponent<CCContainerItem>();
+					var containerItem = node.GetComponent<ContainerItemComp>();
 					if (containerItem != null)
 					{
 						curDataHost = new DataHostHandler(curDataHost, curContainer, containerItem);
@@ -153,7 +153,7 @@ namespace DataBinding.UIATool
 					}
 					else
 					{
-						var childDialog = node.GetComponent<CCDialogChild>();
+						var childDialog = node.GetComponent<DialogChildComp>();
 						if (childDialog != null)
 						{
 							curDataHost = new DataHostHandler(curDataHost, childDialog);
@@ -161,7 +161,7 @@ namespace DataBinding.UIATool
 						}
 						else
 						{
-							var subDataHub = node.GetComponent<CCSubDataHub>();
+							var subDataHub = node.GetComponent<SubDataHubComp>();
 							if (subDataHub != null)
 							{
 								// curDataHost = new DataHostHandler(curDataHost, subDataHub);

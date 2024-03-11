@@ -17,7 +17,7 @@ namespace TestRandom
 		// Start is called before the first frame update
 		void Awake()
 		{
-			var ccDataHost = this.GetOrAddComponent<CCDataHost>();
+			var ccDataHost = this.GetOrAddComponent<DataHostComp>();
 			ccDataHost.ObserveData(this.testData);
 
 			this.testData.hello = "hello2";

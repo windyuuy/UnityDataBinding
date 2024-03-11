@@ -1,7 +1,10 @@
+using DataBinding;
+using DataBinding.UIBind;
+using TestDataBinding.TestBasic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind
+namespace TestDataBinding.Tests.TestDialogChild
 {
 	class C1Item : IStdHost
 	{
@@ -52,7 +55,7 @@ namespace DataBinding.UIBind
 		{
 			var CustomDataNode = this.CN("CustomData")!;
 			var label = CustomDataNode.CN("Label")?.GetComponent<Text>()!;
-			var ccDialogChild = CustomDataNode.GetComponent<CCDialogChild>()!;
+			var ccDialogChild = CustomDataNode.GetComponent<DialogChildComp>()!;
 			Assert(label.text == "label");
 			this.Tick();
 			Assert(label.text == "label");
@@ -76,7 +79,7 @@ namespace DataBinding.UIBind
 		{
 			var AutoBindNode = this.CN("AutoBind")!;
 			var label = AutoBindNode.CN("Label")?.GetComponent<Text>()!;
-			var ccDialogChild = AutoBindNode.GetComponent<CCDialogChild>()!;
+			var ccDialogChild = AutoBindNode.GetComponent<DialogChildComp>()!;
 			this.Tick();
 			Assert(label.text == this.RawData.C1.AV2);
 			ccDialogChild.ObserveData(this.rawData3);

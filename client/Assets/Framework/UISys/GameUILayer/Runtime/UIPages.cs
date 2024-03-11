@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UISys.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityVisualize.Runtime;
 
 namespace Framework.UISys.GameUILayer.Runtime
 {
@@ -27,7 +27,7 @@ namespace Framework.UISys.GameUILayer.Runtime
 			{
 				foreach (var activeToggle in toggles)
 				{
-					var actionsComps = activeToggle.GetComponents<UIActionsComp>();
+					var actionsComps = activeToggle.GetComponents<EaseActionsComp>();
 					var ac1 = actionsComps[0];
 					var ac2 = actionsComps[1];
 					var j = 0;

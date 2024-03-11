@@ -16,7 +16,7 @@ namespace DataBinding.UIBind
 			{
 				this.ForEachChildren(child =>
 				{
-					var ccDataHost = child.GetOrAddComponent<CCDataHost>();
+					var ccDataHost = child.GetOrAddComponent<DataHostComp>();
 					ccDataHost.Integrate();
 				});
 			}
@@ -67,12 +67,12 @@ namespace DataBinding.UIBind
 					lastI = i;
 					if (this.bindChildren)
 					{
-						var ccContainerItem = child.GetOrAddComponent<CCContainerItem>();
+						var ccContainerItem = child.GetOrAddComponent<ContainerItemComp>();
 						ccContainerItem.Integrate();
 					}
 
 					// child为节点（不是数据源），需要遍历更新节点上表层数据源
-					DataBindHubUtils.ForeachSurf<CCContainerItem>(child, (ccItem) =>
+					DataBindHubUtils.ForeachSurf<ContainerItemComp>(child, (ccItem) =>
 					{
 						ccItem.ContainerItem.Index = i++;
 						var itemHost = dataSources[(int)ccItem.ContainerItem.Index];

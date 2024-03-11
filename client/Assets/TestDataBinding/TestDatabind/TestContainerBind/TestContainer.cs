@@ -1,9 +1,11 @@
 using System.Linq;
 using System.Linq.Ext;
+using DataBinding;
 using DataBinding.CollectionExt;
+using TestDataBinding.TestBasic;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind.Tests.TestContainer
+namespace TestDataBinding.Tests.TestContainer
 {
 	using number = System.Double;
 

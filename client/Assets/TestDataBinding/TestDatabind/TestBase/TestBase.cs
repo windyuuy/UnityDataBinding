@@ -1,6 +1,7 @@
+using DataBinding.UIBind;
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace TestDataBinding.TestBasic
 {
 	public class TestBase : MonoBehaviour
 	{
@@ -19,16 +20,16 @@ namespace DataBinding.UIBind
 		{
 			if (this._dataHost == null)
 			{
-				var ccDataHost = this.GetComponent<CCDataHost>();
+				var ccDataHost = this.GetComponent<DataHostComp>();
 				if (ccDataHost == null && this.autoAddDataHost)
 				{
-					ccDataHost = this.gameObject.AddComponent<CCDataHost>();
+					ccDataHost = this.gameObject.AddComponent<DataHostComp>();
 				}
 				this._dataHost = ccDataHost;
 			}
 		}
-		private CCDataHost _dataHost;
-		public CCDataHost DataHost
+		private DataHostComp _dataHost;
+		public DataHostComp DataHost
 		{
 			get
 			{
@@ -87,7 +88,7 @@ namespace DataBinding.UIBind
 
 
 
-			if (CCMyComponent.EnableLazyAttach)
+			if (MyComponent.EnableLazyAttach)
 			{
 				this.TestLazy();
 			}

@@ -1,17 +1,20 @@
+using DataBinding;
+using DataBinding.UIBind;
 using Game.Diagnostics.IO;
+using TestDataBinding.TestBasic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind.Tests.TestCompBinds
+namespace TestDataBinding.Tests.TestCompBinds
 {
-	using TButtonBindCallback = System.Action<DataBinding.UIBind.CCButtonBind, double>;
+	using TButtonBindCallback = System.Action<DataBinding.UIBind.ButtonBindComp, double>;
 	using number = System.Double;
 
 	public class TRawData:IStdHost
 	{
 		public bool enabled { get; set; } = false;
 		public bool gray { get; set; } = false;
-		public TButtonBindCallback doClick { get; set; } = (CCButtonBind binder, double index) =>
+		public TButtonBindCallback doClick { get; set; } = (ButtonBindComp binder, double index) =>
 		{
 			Console.Log("click", binder.name);
 		};
@@ -33,7 +36,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			{
 				enabled = false,
 				gray = false,
-				doClick = (CCButtonBind binder, double index) =>
+				doClick = (ButtonBindComp binder, double index) =>
 				{
 					Console.Log("click0", binder.name);
 				},
@@ -51,9 +54,9 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			// var label1 = "hello";
 
 
-			var BtnBind = this.CN("Button")!.GetComponent<CCButtonBind>();
+			var BtnBind = this.CN("Button")!.GetComponent<ButtonBindComp>();
 			var Btn = BtnBind.target!;
-			this.RawData.doClick = (CCButtonBind binder, double index) =>
+			this.RawData.doClick = (ButtonBindComp binder, double index) =>
 			{
 				Console.Log("click2", binder.name);
 			}; ;
@@ -65,7 +68,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			Assert(BtnBind.isGray == this.RawData.gray);
 
 
-			var LabelBind = this.CN("Label")!.GetComponent<CCSimpleBind>();
+			var LabelBind = this.CN("Label")!.GetComponent<SimpleBindComp>();
 			var Label0 = LabelBind.target as Text;
 			Assert(Label0.text == this.RawData.label);
 			this.RawData.label = "jkkjkfje";
@@ -76,7 +79,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			Assert(Label0.text == this.RawData.label);
 
 
-			var SpriteBind = this.CN("Sprite")!.GetComponent<CCSimpleBind>();
+			var SpriteBind = this.CN("Sprite")!.GetComponent<SimpleBindComp>();
 			var Sprite0 = SpriteBind.target as Image;
 			Assert(SpriteBind.spriteTextureUrl == this.RawData.spriteUrl);
 			this.RawData.spriteUrl = "doge_cartoon";
@@ -91,7 +94,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 
 
 			this.Tick();
-			var VisibleBind = this.CN("Visible")!.GetComponent<CCActiveBind>();
+			var VisibleBind = this.CN("Visible")!.GetComponent<ActiveBindComp>();
 			var Visible0 = VisibleBind.gameObject;
 			Assert(Visible0.activeSelf == this.RawData.visible);
 			this.RawData.visible = true;
@@ -109,7 +112,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			Assert(Visible0.activeSelf == this.RawData.visible);
 
 
-			var ProgressBind = this.CN("ProgressBar")!.GetComponent<CCSimpleBind>();
+			var ProgressBind = this.CN("ProgressBar")!.GetComponent<SimpleBindComp>();
 			var Progress0 = ProgressBind.target as Slider;
 			Assert(Progress0.value == this.RawData.progress);
 			this.RawData.progress = 1;
@@ -117,7 +120,7 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			Assert(Progress0.value == this.RawData.progress);
 
 
-			var ToggleBind = this.CN("Toggle")!.GetComponent<CCToggleBind>();
+			var ToggleBind = this.CN("Toggle")!.GetComponent<ToggleBindComp>();
 			var Toggle0 = ToggleBind.target as Toggle;
 			Assert(Toggle0.isOn == this.RawData.isToggleCheck);
 			this.RawData.isToggleCheck = !this.RawData.isToggleCheck;
@@ -132,9 +135,9 @@ namespace DataBinding.UIBind.Tests.TestCompBinds
 			this.RawData.label = label1;
 
 			this.Tick();
-			var VisibleBind = this.CN("Visible")!.GetComponent<CCActiveBind>();
+			var VisibleBind = this.CN("Visible")!.GetComponent<ActiveBindComp>();
 			var VisibleLable = VisibleBind.GetComponent<Text>();
-			var VisibleSubBind = this.CN("Visible")!.CN("Label")!.GetComponent<CCSimpleBind>();
+			var VisibleSubBind = this.CN("Visible")!.CN("Label")!.GetComponent<SimpleBindComp>();
 			var VisibleSubLabel = VisibleSubBind.GetComponent<Text>();
 			var Visible0 = VisibleBind.gameObject;
 			Assert(Visible0.activeSelf == this.RawData.visible);

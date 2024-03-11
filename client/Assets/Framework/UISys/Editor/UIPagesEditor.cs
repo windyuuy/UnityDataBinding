@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Framework.UISys.GameUILayer.Runtime;
-using UISys.Runtime;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using UnityVisualize.Runtime;
 
 namespace Framework.UISys.Editor
 {
@@ -96,7 +96,7 @@ namespace Framework.UISys.Editor
 						var showCount = 0;
 						foreach (var activeToggle in toggles)
 						{
-							var actionsComps = activeToggle.GetComponents<UIActionsComp>();
+							var actionsComps = activeToggle.GetComponents<EaseActionsComp>();
 							foreach (var uiActionsComp in actionsComps)
 							{
 								foreach (var uiAction in uiActionsComp.Actions)

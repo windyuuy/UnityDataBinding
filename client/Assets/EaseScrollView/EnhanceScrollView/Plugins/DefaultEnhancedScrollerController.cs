@@ -192,10 +192,10 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 
 		protected virtual void UpdateDataBind(Transform child, object dataSource,int index)
 		{
-			var ccItem = child.GetComponent<CCContainerItem>();
+			var ccItem = child.GetComponent<ContainerItemComp>();
 			if (ccItem == null)
 			{
-				ccItem = child.gameObject.AddComponent<CCContainerItem>();
+				ccItem = child.gameObject.AddComponent<ContainerItemComp>();
 				ccItem.Integrate();
 			}
 

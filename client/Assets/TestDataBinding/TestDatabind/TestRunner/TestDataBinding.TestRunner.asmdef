@@ -1,0 +1,6 @@
+{
+	"name": "TestDataBinding.TestRunner",
+	"optionalUnityReferences": [
+		"TestAssemblies"
+	]
+}
