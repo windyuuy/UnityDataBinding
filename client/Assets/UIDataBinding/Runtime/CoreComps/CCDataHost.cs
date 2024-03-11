@@ -1,9 +1,3 @@
-
-using UnityEngine;
-using System;
-using System.Collections.Generic;
-using DataBinding;
-
 namespace DataBinding.UIBind
 {
 	public class CCDataHost : CCMyComponent, ICCDataHost
@@ -29,9 +23,7 @@ namespace DataBinding.UIBind
 		}
 		protected override void OnEnable()
 		{
-			// TODO: 解决加载时机问题
-			// isAttachCalled = true;
-			// this.gameObject.SendMessage("OnNotifyAttachedAlready", true);
+			// isAttachCalled 如果为false，则可能因为没有设置父节点
 			base.OnEnable();
 			this.DataHub.Running = true;
 		}

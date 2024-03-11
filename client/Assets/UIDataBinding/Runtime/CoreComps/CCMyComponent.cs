@@ -102,7 +102,7 @@ namespace DataBinding.UIBind
 		}
 		protected virtual void AfterPreload()
 		{
-			CCNodeLife.HandleHierachyChanging();
+			CCNodeLife.HandleHierarchyChanging();
 		}
 
 		protected virtual void OnAttach()

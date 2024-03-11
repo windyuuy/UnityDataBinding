@@ -5,7 +5,7 @@ namespace DataBinding.UIBind
 {
 	public class CCSubDataHub : CCMyComponent, ICCSubDataHub
 	{
-		protected virtual ISubDataHub subDataHub { get; set; }
+		protected virtual ISubDataHub SubDataHub { get; set; }
 		public virtual string SubKey { get; set; }
 
 		// ccDataHost!: CCDataHost
@@ -15,7 +15,7 @@ namespace DataBinding.UIBind
 			get
 			{
 				// return this.ccDataHost.dataHost
-				return this.subDataHub.RealDataHub?.DataHost;
+				return this.SubDataHub.RealDataHub?.DataHost;
 			}
 		}
 
@@ -23,7 +23,7 @@ namespace DataBinding.UIBind
 		{
 			get
 			{
-				return this.subDataHub;
+				return this.SubDataHub;
 			}
 		}
 
@@ -71,12 +71,12 @@ namespace DataBinding.UIBind
 		public virtual void BindDataHost(object data, string subKey)
 		{
 			 this.SubKey = subKey;
-			this.subDataHub.BindDataHost(data);
+			this.SubDataHub.BindDataHost(data);
 		}
 
 		public virtual void UnsetDataHost()
 		{
-			this.subDataHub.UnsetDataHost();
+			this.SubDataHub.UnsetDataHost();
 		}
 
 	}

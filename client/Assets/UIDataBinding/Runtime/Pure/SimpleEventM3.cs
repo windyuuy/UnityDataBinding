@@ -53,8 +53,8 @@ namespace DataBinding.UIBind
 
 	public class ISEventCleanInfo3<T1, T2, T3>
 	{
-		public string key;
-		public EventHandlerMV3<T1, T2, T3> callback;
+		public string Key;
+		public EventHandlerMV3<T1, T2, T3> Callback;
 	}
 
 	public interface ISEventOutputMV3<T1, T2, T3>

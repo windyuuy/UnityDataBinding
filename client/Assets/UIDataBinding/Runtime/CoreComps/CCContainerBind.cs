@@ -23,7 +23,7 @@ namespace DataBinding.UIBind
 		 */
 		public virtual void Integrate()
 		{
-			this.ContainerBind.rawObj = this;
+			this.ContainerBind.RawObj = this;
 			DataBindHubHelper.OnAddContainerBind(this);
 		}
 

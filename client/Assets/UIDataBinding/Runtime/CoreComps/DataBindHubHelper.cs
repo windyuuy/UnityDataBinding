@@ -73,7 +73,7 @@ namespace DataBinding.UIBind
 		public static void OnAddDataBindHub(ICCDataBindHub self)
 		{
 			var comp = self as Component;
-			self.DataBindHub.rawObj = self;
+			self.DataBindHub.RawObj = self;
 			var lifeComp = comp.GetOrAddComponent<CCNodeLife>();
 			// lifeComp.integrate()
 		}
@@ -160,7 +160,7 @@ namespace DataBinding.UIBind
 		public static void OnAddDataBind(ICCDataBindBase self)
 		{
 			var selfComp = self as Component;
-			self.DataBind.rawObj = self;
+			self.DataBind.RawObj = self;
 			var lifeComp = selfComp.GetOrAddComponent<CCNodeLife>();
 			// lifeComp.integrate()
 		}
@@ -180,7 +180,7 @@ namespace DataBinding.UIBind
 		public static void OnDerelateDataBind(ICCDataBindBase self)
 		{
 			self.DoUnBindItems();
-			var parent = self.DataBind.bindHub;
+			var parent = self.DataBind.BindHub;
 			if (parent != null)
 			{
 				self.DataBind.RemoveBindHub(parent);

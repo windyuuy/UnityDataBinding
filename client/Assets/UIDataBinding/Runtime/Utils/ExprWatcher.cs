@@ -13,7 +13,7 @@ namespace DataBinding.UIBind
 		/**
 		 * 检测的数据
 		 */
-		protected IStdHost host;
+		private IStdHost _host;
 		/**
 		 * 检测数据对象
 		 * @param data
@@ -22,7 +22,7 @@ namespace DataBinding.UIBind
 		{
 			get
 			{
-				return this.host;
+				return this._host;
 			}
 		}
 
@@ -30,7 +30,7 @@ namespace DataBinding.UIBind
 
 		public virtual void ObserveData(T2 data)
 		{
-			this.host = VM.Utils.ImplementStdHost(data);
+			this._host = VM.Utils.ImplementStdHost(data);
 		}
 
 		/**

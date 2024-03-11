@@ -4,16 +4,16 @@ namespace DataBinding.UIBind
 {
 	public class CCContainerItem : CCSubDataHub
 	{
-		protected override ISubDataHub subDataHub { get; set; } = new ContainerItem();
+		protected override ISubDataHub SubDataHub { get; set; } = new ContainerItem();
 		public ContainerItem ContainerItem
 		{
 			get
 			{
-				return (ContainerItem)this.subDataHub;
+				return (ContainerItem)this.SubDataHub;
 			}
 			set
 			{
-				this.subDataHub = value;
+				this.SubDataHub = value;
 			}
 		}
 

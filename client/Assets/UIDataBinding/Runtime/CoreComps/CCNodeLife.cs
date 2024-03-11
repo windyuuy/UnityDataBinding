@@ -8,8 +8,8 @@ namespace DataBinding.UIBind
 {
 	public class CCNodeLife : CCMyComponent
 	{
-		protected Transform lastParent = null;
-		protected static CCNodeLife alteringComp = null;
+		protected Transform LastParent = null;
+		protected static CCNodeLife AlteringComp = null;
 		private const bool IsLogEnabled = false;
 		protected virtual void OnBeforeTransformParentChanged()
 		{
@@ -17,12 +17,12 @@ namespace DataBinding.UIBind
 			{
 				Debug.Log("OnBeforeTransformParentChanged:" + this.name);
 			}
-			if (alteringComp != null)
+			if (AlteringComp != null)
 			{
 				return;
 			}
-			alteringComp = this;
-			lastParent = this.transform.parent;
+			AlteringComp = this;
+			LastParent = this.transform.parent;
 		}
 		protected virtual void OnTransformParentChanged()
 		{
@@ -32,20 +32,20 @@ namespace DataBinding.UIBind
 			}
 
 			// TODO: 处理父节点没有CCNodeLife托管的情况
-			if (alteringComp != this)
+			if (AlteringComp != this)
 			{
 				return;
 			}
-			alteringComp = null;
+			AlteringComp = null;
 
 			if (!this.IsPrefab)
 			{
 				NewlyLoaded.Add(this);
 			}
-			HandleHierachyChanging();
+			HandleHierarchyChanging();
 		}
 
-		public static void HandleHierachyChanging()
+		public static void HandleHierarchyChanging()
 		{
 			var anyThingDirty = true;
 
@@ -77,9 +77,9 @@ namespace DataBinding.UIBind
 		}
 		protected virtual void HandleParentChanged()
 		{
-			var oldParent = lastParent;
+			var oldParent = LastParent;
 			var newParent1 = this.transform.parent;
-			lastParent = newParent1;
+			LastParent = newParent1;
 
 			if (oldParent != newParent1)
 			{
@@ -110,14 +110,14 @@ namespace DataBinding.UIBind
 		}
 
         public static readonly List<CCNodeLife> NewlyLoaded = new List<CCNodeLife>();
-		protected bool isLoaded = false;
+		protected bool IsLoaded = false;
 		protected virtual void Integrate()
 		{
-			if (this.isLoaded)
+			if (this.IsLoaded)
 			{
 				return;
 			}
-			this.isLoaded = true;
+			this.IsLoaded = true;
 
 			// this["_onParentChanged"](this.node.parent, null)
 			CCNodeLife.NewlyLoaded.Add(this);
@@ -126,10 +126,10 @@ namespace DataBinding.UIBind
 		/// <summary>
 		/// 仅观测
 		/// </summary>
-		protected Transform newParent;
+		protected Transform NewParent;
 		protected virtual void OnParentChanged(Transform newParent0, Transform oldParent)
 		{
-			this.newParent = newParent0;
+			this.NewParent = newParent0;
 			// Console.Warn("parent-change:", this.name, newParent?.name, oldParent?.name)
 			if (newParent0 == null)
 			{

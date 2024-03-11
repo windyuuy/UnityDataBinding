@@ -8,26 +8,26 @@ namespace DataBinding.UIBind
 {
 	public class TPresetWatchingExpr
 	{
-		public string key;
-		public EventHandlerMV2<object, object> call;
+		public string Key;
+		public EventHandlerMV2<object, object> Call;
 	}
 	public class TWatchingExpr
 	{
-		public string key;
-		public EventHandlerMV2<object, object> call;
+		public string Key;
+		public EventHandlerMV2<object, object> Call;
 	}
 
 	public class DataBind
 	{
-		public Object rawObj;
-		public DataBindHub bindHub;
+		public Object RawObj;
+		public DataBindHub BindHub;
 		public void AddBindHub(IDataBindHub bindHub1)
 		{
 			this.AddBindHub((DataBindHub)bindHub1);
 		}
 		public void AddBindHub(DataBindHub bindHub1)
 		{
-			this.bindHub = bindHub1;
+			this.BindHub = bindHub1;
 			this.RecoverWatchers();
 		}
 		public void RemoveBindHub(IDataBindHub bindHub1)
@@ -36,10 +36,10 @@ namespace DataBinding.UIBind
 		}
 		public void RemoveBindHub(DataBindHub bindHub1)
 		{
-			if (bindHub1 == null || this.bindHub == bindHub1)
+			if (bindHub1 == null || this.BindHub == bindHub1)
 			{
 				this.BreakWatchers();
-				this.bindHub = null;
+				this.BindHub = null;
 			}
 			else
 			{
@@ -47,41 +47,41 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected readonly List<TPresetWatchingExpr> presetWatchingExprs = new List<TPresetWatchingExpr>();
+		protected readonly List<TPresetWatchingExpr> PresetWatchingExprs = new List<TPresetWatchingExpr>();
 
 		protected void RecordPresetExpr(string expr, EventHandlerMV2<object, object> call)
 		{
-			this.presetWatchingExprs.Add(new TPresetWatchingExpr()
+			this.PresetWatchingExprs.Add(new TPresetWatchingExpr()
 			{
-				key = expr,
-				call = call,
+				Key = expr,
+				Call = call,
 			});
 		}
 
 		protected void UnRecordPresetExpr(string expr, EventHandlerMV2<object, object> call)
 		{
-			var item = this.presetWatchingExprs.Find(item => item.key == expr);
+			var item = this.PresetWatchingExprs.Find(item => item.Key == expr);
 			if (item != null)
 			{
-				this.presetWatchingExprs.Remove(item);
+				this.PresetWatchingExprs.Remove(item);
 			}
 		}
 
 		protected void ClearRecordPresetExpr()
 		{
-			this.presetWatchingExprs.Clear();
+			this.PresetWatchingExprs.Clear();
 		}
 
-		protected List<ISEventCleanInfo2<object, object>> watchingExprs = new List<ISEventCleanInfo2<object, object>>();
+		protected List<ISEventCleanInfo2<object, object>> WatchingExprs = new List<ISEventCleanInfo2<object, object>>();
 
 		protected ISEventCleanInfo2<object, object> EaseWatchExpr(string expr, EventHandlerMV2<object, object> call)
 		{
-			if (this.bindHub != null)
+			if (this.BindHub != null)
 			{
-				var watcher = this.bindHub.EaseWatchExprValue(expr, call);
+				var watcher = this.BindHub.EaseWatchExprValue(expr, call);
 				if (watcher != null)
 				{
-					this.watchingExprs.Add(watcher);
+					this.WatchingExprs.Add(watcher);
 				}
 				return watcher;
 			}
@@ -97,13 +97,13 @@ namespace DataBinding.UIBind
 		{
 			this.UnRecordPresetExpr(expr, call);
 
-			var watcher = this.watchingExprs.Find(watcher => watcher.callback == call && watcher.key == expr);
+			var watcher = this.WatchingExprs.Find(watcher => watcher.Callback == call && watcher.key == expr);
 			if (watcher != null)
 			{
-				this.watchingExprs.Remove(watcher);
-				if (this.bindHub != null)
+				this.WatchingExprs.Remove(watcher);
+				if (this.BindHub != null)
 				{
-					var bindHub1 = this.bindHub;
+					var bindHub1 = this.BindHub;
 					bindHub1.EaseUnWatchExprValue(expr, call);
 				}
 			}
@@ -111,12 +111,12 @@ namespace DataBinding.UIBind
 
 		public void RecoverWatchers()
 		{
-			if (this.bindHub != null)
+			if (this.BindHub != null)
 			{
-				this.presetWatchingExprs.ForEach((TPresetWatchingExpr info) =>
+				this.PresetWatchingExprs.ForEach((TPresetWatchingExpr info) =>
 				{
-					var key = info.key;
-					var call = info.call;
+					var key = info.Key;
+					var call = info.Call;
 					this.EaseWatchExpr(key, call);
 				});
 			}
@@ -134,23 +134,23 @@ namespace DataBinding.UIBind
 		/// </summary>
 		public void BreakWatchers()
 		{
-			if (this.bindHub != null)
+			if (this.BindHub != null)
 			{
-				var bindHub1 = this.bindHub;
-				this.watchingExprs.ForEach((ISEventCleanInfo2<object, object> info) =>
+				var bindHub1 = this.BindHub;
+				this.WatchingExprs.ForEach((ISEventCleanInfo2<object, object> info) =>
 				{
 					var key = info.key;
-					var callback = info.callback;
+					var callback = info.Callback;
 					bindHub1.EaseUnWatchExprValue(key, callback);
 				});
-				this.watchingExprs.Clear();
+				this.WatchingExprs.Clear();
 			}
-			Debug.Assert(this.watchingExprs.Count == 0);
+			Debug.Assert(this.WatchingExprs.Count == 0);
 		}
 
 		public void Clear()
 		{
-			this.RemoveBindHub(this.bindHub);
+			this.RemoveBindHub(this.BindHub);
 		}
 
 	}

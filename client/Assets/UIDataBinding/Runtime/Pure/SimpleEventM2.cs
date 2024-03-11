@@ -58,7 +58,7 @@ namespace DataBinding.UIBind
 	public class ISEventCleanInfo2<T1, T2>
 	{
 		public string key;
-		public EventHandlerMV2<T1, T2> callback;
+		public EventHandlerMV2<T1, T2> Callback;
 	}
 
 	public interface ISEventOutputMV2<T1, T2>
@@ -70,21 +70,21 @@ namespace DataBinding.UIBind
 
 	public class SEventMV2<T1, T2> : ISEventInputMV2<T1, T2>, ISEventOutputMV2<T1, T2>
 	{
-		protected readonly Dictionary<string, SimpleEventMV2<T1, T2>> events = new Dictionary<string, SimpleEventMV2<T1, T2>>();
-		protected readonly SimpleEventMV3<string, T1, T2> anyEvent = new SimpleEventMV3<string, T1, T2>();
+		protected readonly Dictionary<string, SimpleEventMV2<T1, T2>> Events = new Dictionary<string, SimpleEventMV2<T1, T2>>();
+		protected readonly SimpleEventMV3<string, T1, T2> AnyEvent = new SimpleEventMV3<string, T1, T2>();
 
 		public string[] Keys
 		{
 			get
 			{
-				return this.events.Keys.ToArray();
+				return this.Events.Keys.ToArray();
 			}
 		}
 
 		public ISEventCleanInfo2<T1, T2> On(string key, EventHandlerMV2<T1, T2> callback)
 		{
-			this.events.TryAdd(key, new SimpleEventMV2<T1, T2>());
-			var event1 = this.events[key];
+			this.Events.TryAdd(key, new SimpleEventMV2<T1, T2>());
+			var event1 = this.Events[key];
 			if (event1 != null)
 			{
 				event1.On(callback);
@@ -92,7 +92,7 @@ namespace DataBinding.UIBind
 			return new ISEventCleanInfo2<T1, T2>()
 			{
 				key = key,
-				callback = callback,
+				Callback = callback,
 			};
 		}
 
@@ -108,7 +108,7 @@ namespace DataBinding.UIBind
 			return new ISEventCleanInfo2<T1, T2>()
 			{
 				key = key,
-				callback = call,
+				Callback = call,
 			};
 		}
 
@@ -116,11 +116,11 @@ namespace DataBinding.UIBind
 		{
 			if (callback == null)
 			{
-				this.events.Remove(key);
+				this.Events.Remove(key);
 			}
 			else
 			{
-				var event1 = this.events[key];
+				var event1 = this.Events[key];
 				if (event1 != null)
 				{
 					event1.Off(callback);
@@ -130,9 +130,9 @@ namespace DataBinding.UIBind
 
 		public void Emit(string key, T1 v1, T2 v2)
 		{
-			this.anyEvent.Emit(key, v1, v2);
+			this.AnyEvent.Emit(key, v1, v2);
 
-			if (this.events.TryGetValue(key, out var event1))
+			if (this.Events.TryGetValue(key, out var event1))
 			{
 				if (event1 != null)
 				{
@@ -143,17 +143,17 @@ namespace DataBinding.UIBind
 
 		public EventHandlerMV3<string, T1, T2> OnAnyEvent(EventHandlerMV3<string, T1, T2> callback)
 		{
-			return this.anyEvent.On(callback);
+			return this.AnyEvent.On(callback);
 		}
 
 		public EventHandlerMV3<string, T1, T2> OnceAnyEvent(EventHandlerMV3<string, T1, T2> callback)
 		{
-			return this.anyEvent.Once(callback);
+			return this.AnyEvent.Once(callback);
 		}
 
 		public void OffAnyEvent(EventHandlerMV3<string, T1, T2> callback)
 		{
-			this.anyEvent.Off(callback);
+			this.AnyEvent.Off(callback);
 		}
 
 	}

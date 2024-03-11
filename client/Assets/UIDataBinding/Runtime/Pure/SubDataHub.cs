@@ -78,7 +78,7 @@ namespace DataBinding.UIBind
 			if (parentHub != null && this.ParentHostWatcher != null)
 			{
 				var key = this.ParentHostWatcher.key;
-				var callback = this.ParentHostWatcher.callback;
+				var callback = this.ParentHostWatcher.Callback;
 
 				parentHub.EaseUnWatchExprValue(key, callback);
 				this.ParentHostWatcher = null;

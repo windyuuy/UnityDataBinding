@@ -9,7 +9,7 @@ namespace DataBinding.UIBind
 	public class ContainerBind
 	{
 		public DataBindHub bindHub;
-		public Object rawObj;
+		public Object RawObj;
 		public virtual void AddBindHub(IDataBindHub bindHub1)
 		{
 			this.AddBindHub((DataBindHub)bindHub1);
@@ -79,7 +79,7 @@ namespace DataBinding.UIBind
 				if (this.bindHub != null)
 				{
 					var bindHub1 = this.bindHub;
-					bindHub1.UnWatchExprValue(this.exprWatcher.key, this.exprWatcher.callback);
+					bindHub1.UnWatchExprValue(this.exprWatcher.key, this.exprWatcher.Callback);
 					bindHub1.DoUnWatchExprOnce(this.expr);
 				}
 				this.exprWatcher = null;

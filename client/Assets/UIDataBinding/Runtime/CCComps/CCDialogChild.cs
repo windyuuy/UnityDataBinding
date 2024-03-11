@@ -44,11 +44,11 @@ namespace DataBinding.UIBind
 			}
 		}
 
-		protected override ISubDataHub subDataHub { get; set; } = new SubDataHub();
+		protected override ISubDataHub SubDataHub { get; set; } = new SubDataHub();
 		protected virtual SubDataHub RSubDataHub
 		{
-			get => (SubDataHub)subDataHub;
-			set => subDataHub = value;
+			get => (SubDataHub)SubDataHub;
+			set => SubDataHub = value;
 		}
 
 		/// <summary>
@@ -60,7 +60,7 @@ namespace DataBinding.UIBind
 			this.RSubDataHub.ObserveData(data);
 		}
 
-		public void UnsetDataHost()
+		public override void UnsetDataHost()
 		{
 			this.RSubDataHub.UnsetDataHost();
 		}

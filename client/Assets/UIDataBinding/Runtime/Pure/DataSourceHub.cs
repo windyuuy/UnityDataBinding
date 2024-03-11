@@ -14,9 +14,9 @@ namespace DataBinding.UIBind
 
 	public class TPendingInfo
 	{
-		public string expr;
-		public object newValue;
-		public object oldValue;
+		public string Expr;
+		public object NewValue;
+		public object OldValue;
 
 		public TPendingInfo()
 		{
@@ -25,17 +25,17 @@ namespace DataBinding.UIBind
 
 		public TPendingInfo(string expr, object newValue, object oldValue)
 		{
-			this.expr = expr;
-			this.newValue = newValue;
-			this.oldValue = oldValue;
+			this.Expr = expr;
+			this.NewValue = newValue;
+			this.OldValue = oldValue;
 		}
 
 		public TPendingInfo Clone()
 		{
 			var cl = new TPendingInfo();
-			cl.expr = this.expr;
-			cl.newValue = this.newValue;
-			cl.oldValue = this.oldValue;
+			cl.Expr = this.Expr;
+			cl.NewValue = this.NewValue;
+			cl.OldValue = this.OldValue;
 			return cl;
 		}
 	}
@@ -270,9 +270,9 @@ namespace DataBinding.UIBind
 					pendingInfoMerged.Clear();
 					foreach (var info in pendingInfoCopy)
 					{
-						var expr = info.expr;
-						var v = info.newValue;
-						var oldValue = info.oldValue;
+						var expr = info.Expr;
+						var v = info.NewValue;
+						var oldValue = info.OldValue;
 						var infoMerged = pendingInfoMerged.TryGet(expr);
 						if (infoMerged == null)
 						{
@@ -281,16 +281,16 @@ namespace DataBinding.UIBind
 						}
 						else
 						{
-							infoMerged.newValue = v;
+							infoMerged.NewValue = v;
 						}
 					}
 					this.pendingInfo.Clear();
 
 					foreach (var entry in pendingInfoMerged)
 					{
-						var expr = entry.Value.expr;
-						var v = entry.Value.newValue;
-						var oldValue = entry.Value.oldValue;
+						var expr = entry.Value.Expr;
+						var v = entry.Value.NewValue;
+						var oldValue = entry.Value.OldValue;
 						this.EmitValueChangedEvent(expr, v, oldValue);
 					}
 				}

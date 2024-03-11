@@ -14,9 +14,9 @@ namespace DataBinding.UIBind
 	{
 
 		protected static number oidAcc = 0;
-		public number oid = ++DataBindHub.oidAcc;
+		public number Oid = ++DataBindHub.oidAcc;
 
-		public Object rawObj;
+		public Object RawObj;
 
 		public readonly Dictionary<string, number> watchingExprs = new Dictionary<string, number>();
 

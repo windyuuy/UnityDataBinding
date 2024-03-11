@@ -57,8 +57,8 @@ namespace DataBinding.UIBind
 
 	public class ISEventCleanInfo<T1>
 	{
-		public string key;
-		public EventHandlerMV<T1> callback;
+		public string Key;
+		public EventHandlerMV<T1> Callback;
 	}
 
 	public interface ISEventOutputMV<T>
@@ -91,8 +91,8 @@ namespace DataBinding.UIBind
 			}
 			return new ISEventCleanInfo<T>()
 			{
-				key = key,
-				callback = callback,
+				Key = key,
+				Callback = callback,
 			};
 		}
 
@@ -107,8 +107,8 @@ namespace DataBinding.UIBind
 			this.On(key, call);
 			return new ISEventCleanInfo<T>()
 			{
-				key = key,
-				callback = call,
+				Key = key,
+				Callback = call,
 			};
 		}
 
