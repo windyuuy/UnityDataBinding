@@ -313,7 +313,7 @@ namespace UnityEditor.UI
             PlaceUIElementRoot(go, menuCommand);
         }
 
-        [MenuItem("GameObject/UI/Dropdown", false, (int)MenuOptionsPriorityOrder.Dropdown)]
+        // [MenuItem("GameObject/UI/Dropdown", false, (int)MenuOptionsPriorityOrder.Dropdown)]
         static public void AddDropdown(MenuCommand menuCommand)
         {
             GameObject go;

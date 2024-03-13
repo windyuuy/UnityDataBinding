@@ -141,7 +141,7 @@ namespace TMPro.EditorUtilities
         }
 
 
-        [MenuItem("GameObject/UI/Dropdown - TextMeshPro", false, 2036)]
+        // [MenuItem("GameObject/UI/Dropdown - TextMeshPro", false, 2036)]
         public static void AddDropdown(MenuCommand menuCommand)
         {
             GameObject go = TMP_DefaultControls.CreateDropdown(GetStandardResources());
