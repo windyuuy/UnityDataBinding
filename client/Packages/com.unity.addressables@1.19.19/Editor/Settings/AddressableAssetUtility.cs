@@ -20,7 +20,7 @@ namespace UnityEditor.AddressableAssets.Settings
 {
     using Object = UnityEngine.Object;
 
-    internal static class AddressableAssetUtility
+    public static class AddressableAssetUtility
     {
 #if !UNITY_2020_3_OR_NEWER
         //these extention methods are needed prior to 2020.3 since they are not available
@@ -97,7 +97,7 @@ namespace UnityEditor.AddressableAssets.Settings
         private static string isEditorFolder = $"{Path.DirectorySeparatorChar}Editor";
         private static string insideEditorFolder = $"{Path.DirectorySeparatorChar}Editor{Path.DirectorySeparatorChar}";
         static HashSet<string> excludedExtensions = new HashSet<string>(new string[] { ".cs", ".js", ".boo", ".exe", ".dll", ".meta", ".preset", ".asmdef" });
-        internal static bool IsPathValidForEntry(string path)
+        public static bool IsPathValidForEntry(string path)
         {
             if (string.IsNullOrEmpty(path))
                 return false;
