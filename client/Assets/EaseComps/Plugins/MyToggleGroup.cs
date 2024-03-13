@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace UnityEngine.UI
 {
-	public class MyToggleGroup : UXToggleGroup
+	public class MyToggleGroup : ToggleGroup
 	{
 	}
 }

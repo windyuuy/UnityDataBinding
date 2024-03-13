@@ -45,14 +45,9 @@ namespace EaseComps.PrefabUtils
 			var pName = "UIEase/Button.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
-		[MenuItem("GameObject/UIEase/GridScrollView", false, 6, secondaryPriority = 30)]
-		public static void CreateUIEase_GridScrollView(MenuCommand menuCommand){
-			var pName = "UIEase/GridScrollView.prefab";
-			CreatePrefabInstanceAtMenu(menuCommand, pName);
-		}
-		[MenuItem("GameObject/UIEase/HorizontalListView", false, 6, secondaryPriority = 30)]
-		public static void CreateUIEase_HorizontalListView(MenuCommand menuCommand){
-			var pName = "UIEase/HorizontalListView.prefab";
+		[MenuItem("GameObject/UIEase/Dropdown", false, 6, secondaryPriority = 100)]
+		public static void CreateUIEase_Dropdown(MenuCommand menuCommand){
+			var pName = "UIEase/Dropdown.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
 		[MenuItem("GameObject/UIEase/Image", false, 6, secondaryPriority = 19)]
@@ -68,11 +63,6 @@ namespace EaseComps.PrefabUtils
 		[MenuItem("GameObject/UIEase/Panel", false, 6, secondaryPriority = 23)]
 		public static void CreateUIEase_Panel(MenuCommand menuCommand){
 			var pName = "UIEase/Panel.prefab";
-			CreatePrefabInstanceAtMenu(menuCommand, pName);
-		}
-		[MenuItem("GameObject/UIEase/ProgressBar", false, 6, secondaryPriority = 100)]
-		public static void CreateUIEase_ProgressBar(MenuCommand menuCommand){
-			var pName = "UIEase/ProgressBar.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
 		[MenuItem("GameObject/UIEase/SuperImage", false, 6, secondaryPriority = 100)]
@@ -95,9 +85,14 @@ namespace EaseComps.PrefabUtils
 			var pName = "UIEase/TMPText.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
-		[MenuItem("GameObject/UIEase/VerticleListView", false, 6, secondaryPriority = 30)]
-		public static void CreateUIEase_VerticleListView(MenuCommand menuCommand){
-			var pName = "UIEase/VerticleListView.prefab";
+		[MenuItem("GameObject/UIEase/Toggle", false, 6, secondaryPriority = 100)]
+		public static void CreateUIEase_Toggle(MenuCommand menuCommand){
+			var pName = "UIEase/Toggle.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/ToggleGroup", false, 6, secondaryPriority = 100)]
+		public static void CreateUIEase_ToggleGroup(MenuCommand menuCommand){
+			var pName = "UIEase/ToggleGroup.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
 		[MenuItem("GameObject/UIEase/内嵌标签页", false, 6, secondaryPriority = 32)]
@@ -113,6 +108,26 @@ namespace EaseComps.PrefabUtils
 		[MenuItem("GameObject/UIEase/标签页", false, 6, secondaryPriority = 31)]
 		public static void CreateUIEase_标签页(MenuCommand menuCommand){
 			var pName = "UIEase/标签页.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/横向列表", false, 6, secondaryPriority = 30)]
+		public static void CreateUIEase_横向列表(MenuCommand menuCommand){
+			var pName = "UIEase/横向列表.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/纵向列表", false, 6, secondaryPriority = 30)]
+		public static void CreateUIEase_纵向列表(MenuCommand menuCommand){
+			var pName = "UIEase/纵向列表.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/网格列表", false, 6, secondaryPriority = 30)]
+		public static void CreateUIEase_网格列表(MenuCommand menuCommand){
+			var pName = "UIEase/网格列表.prefab";
+			CreatePrefabInstanceAtMenu(menuCommand, pName);
+		}
+		[MenuItem("GameObject/UIEase/进度条", false, 6, secondaryPriority = 100)]
+		public static void CreateUIEase_进度条(MenuCommand menuCommand){
+			var pName = "UIEase/进度条.prefab";
 			CreatePrefabInstanceAtMenu(menuCommand, pName);
 		}
 	}

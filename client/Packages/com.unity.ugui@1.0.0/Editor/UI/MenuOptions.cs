@@ -201,7 +201,7 @@ namespace UnityEditor.UI
 
         // Graphic elements
 
-        [MenuItem("GameObject/UI/Image", false, (int)MenuOptionsPriorityOrder.Image)]
+        // [MenuItem("GameObject/UI/Image", false, (int)MenuOptionsPriorityOrder.Image)]
         static public void AddImage(MenuCommand menuCommand)
         {
             GameObject go;
@@ -219,7 +219,7 @@ namespace UnityEditor.UI
             PlaceUIElementRoot(go, menuCommand);
         }
 
-        [MenuItem("GameObject/UI/Panel", false, (int)MenuOptionsPriorityOrder.Panel)]
+        // [MenuItem("GameObject/UI/Panel", false, (int)MenuOptionsPriorityOrder.Panel)]
         static public void AddPanel(MenuCommand menuCommand)
         {
             GameObject go;
@@ -237,7 +237,7 @@ namespace UnityEditor.UI
 
         // Toggle is a control you just click on.
 
-        [MenuItem("GameObject/UI/Toggle", false, (int)MenuOptionsPriorityOrder.Toggle)]
+        // [MenuItem("GameObject/UI/Toggle", false, (int)MenuOptionsPriorityOrder.Toggle)]
         static public void AddToggle(MenuCommand menuCommand)
         {
             GameObject go;
@@ -295,7 +295,7 @@ namespace UnityEditor.UI
 
         // Legacy Elements
 
-        [MenuItem("GameObject/UI/Legacy/Text", false, (int)MenuOptionsPriorityOrder.Text)]
+        // [MenuItem("GameObject/UI/Legacy/Text", false, (int)MenuOptionsPriorityOrder.Text)]
         static public void AddText(MenuCommand menuCommand)
         {
             GameObject go;
@@ -304,7 +304,7 @@ namespace UnityEditor.UI
             PlaceUIElementRoot(go, menuCommand);
         }
 
-        [MenuItem("GameObject/UI/Legacy/Button", false, (int)MenuOptionsPriorityOrder.Button)]
+        // [MenuItem("GameObject/UI/Legacy/Button", false, (int)MenuOptionsPriorityOrder.Button)]
         static public void AddButton(MenuCommand menuCommand)
         {
             GameObject go;
@@ -313,7 +313,7 @@ namespace UnityEditor.UI
             PlaceUIElementRoot(go, menuCommand);
         }
 
-        [MenuItem("GameObject/UI/Legacy/Dropdown", false, (int)MenuOptionsPriorityOrder.Dropdown)]
+        [MenuItem("GameObject/UI/Dropdown", false, (int)MenuOptionsPriorityOrder.Dropdown)]
         static public void AddDropdown(MenuCommand menuCommand)
         {
             GameObject go;
@@ -322,7 +322,7 @@ namespace UnityEditor.UI
             PlaceUIElementRoot(go, menuCommand);
         }
 
-        [MenuItem("GameObject/UI/Legacy/Input Field", false, (int)MenuOptionsPriorityOrder.InputField)]
+        // [MenuItem("GameObject/UI/Legacy/Input Field", false, (int)MenuOptionsPriorityOrder.InputField)]
         public static void AddInputField(MenuCommand menuCommand)
         {
             GameObject go;
