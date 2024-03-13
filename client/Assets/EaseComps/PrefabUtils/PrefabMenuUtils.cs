@@ -20,7 +20,7 @@ namespace EaseComps.PrefabUtils
 
 			public MenuItemSettings(MenuFolderSettings settings)
 			{
-				order = settings.order;
+				// order = settings.order;
 			}
 
 			public string name;
@@ -29,7 +29,7 @@ namespace EaseComps.PrefabUtils
 			/// <summary>
 			/// 菜单顺序
 			/// </summary>
-			public int order = 10;
+			public int order = 100;
 		}
 
 		[Serializable]
@@ -42,7 +42,7 @@ namespace EaseComps.PrefabUtils
 			/// <summary>
 			/// 菜单顺序
 			/// </summary>
-			public int order = 10;
+			public int order = 100;
 
 			public MenuItemSettings[] items = Array.Empty<MenuItemSettings>();
 		}

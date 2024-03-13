@@ -1,35 +1,70 @@
 {
-	"order":7,
+	"order":6,
 	"items": [
+		{
+			"name":"Image",
+			"guid": "cc5529cf692bebc41b6df55cec2c3263",
+			"order":19
+		},
+		{
+			"name":"Text",
+			"guid": "934eacf51ccc4e246a991ed0ed0aa5ac",
+			"order":20
+		},
+		{
+			"name":"TMPText",
+			"guid": "bdbe829c4ec12cd4688d9f5e25fa7cc8",
+			"order":21
+		},
+		{
+			"name":"Button",
+			"guid": "69f3ddb782d57cb4b9bcc0e6b24b8c32",
+			"order":22
+		},
+		{
+			"name":"Panel",
+			"guid": "916f68d42c2106c44bc6e5c2d6ac456f",
+			"order":23
+		},
+		{
+			"name":"InputField",
+			"guid": "80f9c4da4a49b7e4880ad9a1b3225db0",
+			"order":24
+		},
+		{
+			"name":"TMPInputField",
+			"guid": "7654dc83a0591cd4282691dd35c24def",
+			"order":25
+		},
 		{
 			"name":"GridScrollView",
 			"guid": "d487138f888f52f4c958eb0fedabeb69",
-			"order":20
+			"order":30
 		},
 		{
 			"name":"HorizontalListView",
 			"guid": "d8bc37d9c92667348b4a43edde282eec",
-			"order":20
+			"order":30
 		},
 		{
 			"name":"VerticleListView",
 			"guid": "8fbbbcb00fca0ed459179e5e8e7a87f9",
-			"order":20
+			"order":30
 		},
 		{
-			"name": "分页",
+			"name": "标签页",
 			"guid": "3881a7a72205b134c84ecb7dfa3c97b7",
-			"order":21
+			"order":31
 		},
 		{
-			"name": "内嵌分页",
+			"name": "内嵌标签页",
 			"guid": "9a1edf519b5e74743aee54b3e9dbd1ec",
-			"order":22
+			"order":32
 		},
 		{
-			"name": "内嵌分页.unpack",
+			"name": "内嵌标签页.unpack",
 			"guid": "23c70c097813cf140beb52745e3c9eba",
-			"order":22
+			"order":33
 		}
 	]
 }

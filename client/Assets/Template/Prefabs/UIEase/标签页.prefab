@@ -139,9 +139,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -214,9 +214,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -243,7 +243,7 @@ GameObject:
   - component: {fileID: 6217032585111924963}
   - component: {fileID: 2223346483874693601}
   m_Layer: 5
-  m_Name: Toggle1
+  m_Name: Tab1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -354,8 +354,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105ed1b56a61499bb40a33d9d631221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  paraPassType: 0
   actions:
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 
       m_SubObjectName: 
       m_SubObjectType: 
@@ -366,7 +368,8 @@ MonoBehaviour:
     paras:
     - True
     uparas: []
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 8cb9be59520186140a1740eef26f4e8d
       m_SubObjectName: 
       m_SubObjectType: 
@@ -391,8 +394,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105ed1b56a61499bb40a33d9d631221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  paraPassType: 0
   actions:
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 
       m_SubObjectName: 
       m_SubObjectType: 
@@ -403,7 +408,8 @@ MonoBehaviour:
     paras:
     - False
     uparas: []
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 8cb9be59520186140a1740eef26f4e8d
       m_SubObjectName: 
       m_SubObjectType: 
@@ -553,9 +559,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -580,7 +586,7 @@ GameObject:
   - component: {fileID: 7328564140878081741}
   - component: {fileID: 2229408934427127805}
   m_Layer: 5
-  m_Name: "\u5206\u9875"
+  m_Name: "\u6807\u7B7E\u9875"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -680,9 +686,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -709,7 +715,7 @@ GameObject:
   - component: {fileID: 8066335795476974417}
   - component: {fileID: 5758906978874308981}
   m_Layer: 5
-  m_Name: Toggle2
+  m_Name: Tab2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -820,8 +826,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105ed1b56a61499bb40a33d9d631221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  paraPassType: 0
   actions:
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 
       m_SubObjectName: 
       m_SubObjectType: 
@@ -832,7 +840,8 @@ MonoBehaviour:
     paras:
     - True
     uparas: []
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 8cb9be59520186140a1740eef26f4e8d
       m_SubObjectName: 
       m_SubObjectType: 
@@ -857,8 +866,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105ed1b56a61499bb40a33d9d631221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  paraPassType: 0
   actions:
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 
       m_SubObjectName: 
       m_SubObjectType: 
@@ -869,7 +880,8 @@ MonoBehaviour:
     paras:
     - False
     uparas: []
-  - self:
+  - wait: 0
+    self:
       m_AssetGUID: 8cb9be59520186140a1740eef26f4e8d
       m_SubObjectName: 
       m_SubObjectType: 

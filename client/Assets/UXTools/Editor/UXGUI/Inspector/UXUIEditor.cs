@@ -6,7 +6,7 @@ using ThunderFireUITool;
 
 public class UXUIEditor : Editor
 {
-    [MenuItem("GameObject/UI/UXImage")]
+    // [MenuItem("GameObject/UI/UXImage")]
     public static void CreateUXImage(MenuCommand menuCommand)
     {
         Type MenuOptionsType = typeof(UnityEditor.UI.ImageEditor).Assembly.GetType("UnityEditor.UI.MenuOptions");
@@ -19,7 +19,7 @@ public class UXUIEditor : Editor
     }
 
 
-    [MenuItem("GameObject/UI/UXText")]
+    // [MenuItem("GameObject/UI/UXText")]
     public static void CreateUXText(MenuCommand menuCommand)
     {
         Type MenuOptionsType = typeof(UnityEditor.UI.ImageEditor).Assembly.GetType("UnityEditor.UI.MenuOptions");
@@ -30,7 +30,7 @@ public class UXUIEditor : Editor
         var text = obj.AddComponent<UXText>();
         //text.material = AssetDatabase.LoadAssetAtPath<Material>(UXGUIConfig.UXTextDefaultMatPath);
     }
-    [MenuItem("GameObject/UI/UXTextMeshPro")]
+    // [MenuItem("GameObject/UI/UXTextMeshPro")]
     private static void CreateUXTextMeshPro(MenuCommand menuCommand)
     {
         Type MenuOptionsType = typeof(UnityEditor.UI.ImageEditor).Assembly.GetType("UnityEditor.UI.MenuOptions");
@@ -41,7 +41,7 @@ public class UXUIEditor : Editor
         obj.AddComponent<UXTextMeshPro>();
     }
 
-    [MenuItem("GameObject/UI/UXToggle")]
+    // [MenuItem("GameObject/UI/UXToggle")]
     public static void CreateUXToggle(MenuCommand menuCommand)
     {
         Type MenuOptionsType = typeof(UnityEditor.UI.ImageEditor).Assembly.GetType("UnityEditor.UI.MenuOptions");
@@ -52,7 +52,7 @@ public class UXUIEditor : Editor
         obj.AddComponent<UXToggle>();
     }
 
-    [MenuItem("GameObject/UI/UXScrollView")]
+    // [MenuItem("GameObject/UI/UXScrollView")]
     public static void CreateUXScrollView(MenuCommand menuCommand)
     {
         Type MenuOptionsType = typeof(UnityEditor.UI.ImageEditor).Assembly.GetType("UnityEditor.UI.MenuOptions");

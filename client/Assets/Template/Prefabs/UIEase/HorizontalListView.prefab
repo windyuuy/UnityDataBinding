@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c1b74f910281224a8cae6d8e4fc1f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellViewPrefab: {fileID: 3225263759840364554, guid: cd683d25156649042ad907242a05b45b, type: 3}
+  cellViewPrefab: {fileID: 3225263759840364554, guid: 0ba9acaa16419544e9acbc8ef13dd23c, type: 3}
   loop: 0
   loopWhileDragging: 1
   maxVelocity: 0
@@ -173,7 +173,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 3
+  m_ChildAlignment: 0
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1

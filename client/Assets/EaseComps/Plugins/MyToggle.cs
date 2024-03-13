@@ -14,7 +14,7 @@ namespace UnityEngine.UI
     /// </remarks>
     [AddComponentMenu("UI/MyToggle", 30)]
     [RequireComponent(typeof(RectTransform))]
-    public class MyToggle : Toggle
+    public class MyToggle : UXToggle
     {
     }
 }

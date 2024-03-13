@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 6108691911817261315}
   - component: {fileID: 4202703892498172713}
   m_Layer: 5
-  m_Name: Toggle2
+  m_Name: Tab2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -190,8 +190,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105ed1b56a61499bb40a33d9d631221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  paraPassType: 0
   actions:
-  - run: 
+  - wait: 0
     self:
       m_AssetGUID: 
       m_SubObjectName: 
@@ -369,7 +370,7 @@ GameObject:
   - component: {fileID: 6129297750165922622}
   - component: {fileID: 6585361462336271596}
   m_Layer: 5
-  m_Name: Toggle1
+  m_Name: Tab1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -468,8 +469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105ed1b56a61499bb40a33d9d631221c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  paraPassType: 0
   actions:
-  - run: 
+  - wait: 0
     self:
       m_AssetGUID: 
       m_SubObjectName: 
@@ -766,7 +768,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2751874351749696309}
   m_Layer: 5
-  m_Name: "\u5185\u5D4C\u5206\u9875.unpack"
+  m_Name: "\u5185\u5D4C\u6807\u7B7E\u9875.unpack"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

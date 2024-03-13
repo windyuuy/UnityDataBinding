@@ -15,4 +15,4 @@ MonoBehaviour:
   m_AvailableLanguages: 00000000010000000200000003000000
   m_LocalizationFolder: Assets/Resources/
   m_PreviewTablePath: 
-  m_RuntimeTablePath: 
+  m_RuntimeTablePath: Assets/Scenes/TestAnim/RuntimeTable.xlsx

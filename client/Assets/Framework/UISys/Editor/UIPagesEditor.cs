@@ -19,14 +19,14 @@ namespace Framework.UISys.Editor
 
 			var comp = (UIPages)this.serializedObject.targetObject;
 
-			var enableOld = GUI.enabled;
-			GUI.enabled = true;
-
 			EditorGUI.BeginChangeCheck();
 			comp.EnableMirrorEditor = EditorGUILayout.Toggle(new GUIContent("开启镜像编辑"), comp.EnableMirrorEditor);
 			if (EditorGUI.EndChangeCheck())
 			{
 			}
+
+			var enableOld = GUI.enabled;
+			GUI.enabled = true;
 
 			EditorGUI.BeginChangeCheck();
 			var enablePreview = false;

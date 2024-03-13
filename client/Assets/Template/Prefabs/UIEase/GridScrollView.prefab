@@ -156,4 +156,4 @@ MonoBehaviour:
   enhancedScroller: {fileID: 5829449913939328215}
   scrollRect: {fileID: 8843659074492292404}
   container: {fileID: 328100032389713298}
-  cellViewPrefab: {fileID: 3225263759840364554, guid: cd683d25156649042ad907242a05b45b, type: 3}
+  cellViewPrefab: {fileID: 9101326175732306488, guid: d97b8110702aef54696ecca95dc8710b, type: 3}
