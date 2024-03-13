@@ -8,7 +8,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	public class ResourceSet : IDisposable, IResourceLoader
 	{

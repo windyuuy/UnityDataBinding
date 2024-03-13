@@ -2,6 +2,7 @@ using System.Linq;
 using System.Linq.Ext;
 using DataBinding;
 using DataBinding.CollectionExt;
+using DataBinding.UIBind;
 using TestDataBinding.TestBasic;
 using UnityEngine.UI;
 

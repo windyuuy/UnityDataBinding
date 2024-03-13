@@ -6,7 +6,7 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	[CreateAssetMenu(fileName = "资源分组.asset", menuName = "UISys/资源分组")]
 	public class GroupConfig : ScriptableObject

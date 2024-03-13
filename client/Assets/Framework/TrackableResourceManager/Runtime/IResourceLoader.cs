@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	public interface IResourceLoader
 	{

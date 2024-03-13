@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	public readonly struct DelayResourceScope : IDisposable
 	{

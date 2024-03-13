@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	public readonly struct ResourceScope : IDisposable
 	{

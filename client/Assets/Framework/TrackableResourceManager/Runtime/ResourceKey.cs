@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Game.Diagnostics;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	public interface IResourceKey
 	{

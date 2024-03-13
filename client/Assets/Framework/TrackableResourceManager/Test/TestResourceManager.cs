@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
-using ResourceManager.Trackable.Runtime;
+using TrackableResourceManager.Runtime;
 using UISys.Runtime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace ResourceManager.Trackable.Test
+namespace TrackableResourceManager.Test
 {
 	public class TestResourceManager : MonoBehaviour
 	{

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ResourceManager.Trackable.Runtime;
+using TrackableResourceManager.Runtime;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.GUI;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace ResourceManager.Trackable.Editor
+namespace TrackableResourceManager.Editor
 {
 	[CustomEditor(typeof(GroupConfig))]
 	public class GroupConfigEditor : UnityEditor.Editor

@@ -1,8 +1,8 @@
-﻿using ResourceManager.Trackable.Runtime;
+﻿using TrackableResourceManager.Runtime;
 using UnityEditor;
 using UnityEngine;
 
-namespace ResourceManager.Trackable.Editor
+namespace TrackableResourceManager.Editor
 {
 	[CustomEditor(typeof(ResourceManifestConfig))]
 	public class ResourceManifestConfigEditor: UnityEditor.Editor

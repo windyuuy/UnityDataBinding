@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	[CreateAssetMenu(fileName = "资源清单.asset", menuName = "UISys/资源清单")]
 	public class ResourceManifestConfig : ScriptableObject

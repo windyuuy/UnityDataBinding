@@ -1,6 +1,6 @@
 ﻿
 // ReSharper disable InconsistentNaming
-namespace ResourceManager.Trackable.Runtime
+namespace TrackableResourceManager.Runtime
 {
 	public static partial class R
 	{

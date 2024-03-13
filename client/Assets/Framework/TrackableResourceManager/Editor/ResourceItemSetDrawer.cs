@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using ResourceManager.Trackable.Runtime;
+using TrackableResourceManager.Runtime;
 using UnityEditor;
 using UnityEngine;
 
-namespace ResourceManager.Trackable.Editor
+namespace TrackableResourceManager.Editor
 {
 	[CustomPropertyDrawer(typeof(ResourceManifestConfig.ResourceItemSet), true)]
 	public class ResourceItemSetDrawer : PropertyDrawer

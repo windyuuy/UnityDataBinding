@@ -10,7 +10,7 @@ using UnityEditor.Build.Content;
 using UnityEditor.Build.Player;
 using UnityEngine;
 
-namespace Framework.TrackableResourceManager.Editor
+namespace TrackableResourceManager.Editor
 {
 	public static class GroupExpandTool
 	{
