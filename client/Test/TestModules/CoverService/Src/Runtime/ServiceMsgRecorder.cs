@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace CoverService.Recoverable
+namespace CoverService.Runtime.Recoverable
 {
 	[Serializable]
 	public class ServiceMsg

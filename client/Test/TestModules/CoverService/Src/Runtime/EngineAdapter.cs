@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace System.Runtime.CompilerServices
 {
@@ -8,11 +10,24 @@ namespace System.Runtime.CompilerServices
 	}
 }
 
+public static class AsyncTaskExt
+{
+	public static Task<T[]> WhenAll<T>(this IEnumerable<Task<T>> tasks)
+	{
+		return Task.WhenAll(tasks);
+	}
+}
+
 #if !(UNITY_EDITOR || UNITY_2017_1_OR_NEWER)
 namespace UnityEngine
 {
 	public class JsonUtility
 	{
+		public static object FromJson(string text, Type type)
+		{
+			return Newtonsoft.Json.JsonConvert.DeserializeObject(text, type);
+		}
+
 		public static T FromJson<T>(string text)
 		{
 			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(text);

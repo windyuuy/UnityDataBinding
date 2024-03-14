@@ -19,7 +19,10 @@ namespace Tests
 			AppLoader loader = new AppLoader();
 			loader.Load();
 			var checkin = UIServiceConfig.Inst.GetAccessor<CheckinService.Accessor>(this);
-			await checkin.ReqSampleAsync2(new CheckinService.AReq());
+			var aReq = new CheckinReq();
+			var ret = await checkin.ReqSampleAsync2(aReq);
+			var ret2 = await checkin.BroadRequestAsync<CheckinResp>(aReq).WhenAll();
+
 			Assert.Pass();
 		}
 	}

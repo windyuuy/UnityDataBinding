@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoverService;
+using CoverService.Runtime;
+using DataBinding;
 using Sample;
 using SampleSolutionMaintainer.Config;
 using SampleSolutionMaintainer.Builder;
 using SampleSolutionMaintainer.Launcher;
+using SampleSolutionMaintainer.Solution;
+using UnityEngine;
 
 namespace SampleSolutionMaintainer.Config
 {
@@ -32,103 +36,108 @@ namespace SampleSolutionMaintainer.Config
 	public static class UIServiceConfig
 	{
 		public static IWithAccessorGetter Inst { get; internal set; }
-		
+
 		public static IWithAccessorGetter Create()
 		{
 			Inst = MainServiceConfig.Create();
 			return Inst;
 		}
-
 	}
 }
 
 namespace Sample
 {
 	public class CheckinService
-		: ServiceTemplate<CheckinService, CheckinService.InternalAccessorSet, CheckinService.Accessor>
+		: ServiceTemplate<CheckinService, InternalAccessorSet, CheckinService.Accessor>
 	{
-		public record InternalAccessorSet(Accessor OtherCheckinAccessor) : ServiceAccessorSet;
-
-		public struct AReq
+		public class Accessor : InternalServiceAccessor
 		{
-		}
-
-		public struct BResp
-		{
-		}
-
-		public class AsyncCheckinSampleHandler
-			: InternalAsyncRequestHandler<AReq, BResp>
-		{
-			protected override Task<BResp> OnHandle(InternalAccessorSet accessorSet, AReq req)
+			public class InternalIocContainer : AIocContainer
 			{
-				return accessorSet.OtherCheckinAccessor.ReqSampleAsync(req);
-			}
-		}
-
-		public class CheckinSampleHandler
-			: InternalRequestHandler<AReq, BResp>
-		{
-			protected override BResp OnHandle(InternalAccessorSet accessorSet, AReq req)
-			{
-				return accessorSet.OtherCheckinAccessor.ReqSample(req);
-			}
-		}
-
-		// [IStdHost]
-		public class CheckinViewModel : ViewModelBase
-		{
-			public BResp Data;
-
-			public override async Task Load()
-			{
-				Data = await Accessor.ReqSampleAsync(new());
+				public override void Init()
+				{
+					this.Register<ICheckinSampleHandlerTestIoc>(() => new AsyncCheckinSampleHandler());
+				}
 			}
 
-			public async Task CheckinToday()
-			{
-				await Accessor.ReqSampleAsync2(new());
-			}
+			protected override AIocContainer IocContainer { get; set; } = new InternalIocContainer();
 
-			public CheckinViewModel(Accessor accessor) : base(accessor)
-			{
-			}
-		}
-
-		public class Accessor : ServiceAccessor<CheckinService>
-		{
-			public Task<BResp> ReqSampleAsync(AReq req)
+			public Task<CheckinResp> ReqSampleAsync(CheckinReq req)
 			{
 				return Service.SendRequest(req, new AsyncCheckinSampleHandler());
 			}
 
-			public BResp ReqSample(AReq req)
+			public CheckinResp ReqSample(CheckinReq req)
 			{
 				return Service.SendRequest(req, new CheckinSampleHandler());
 			}
 
-			public Task<BResp> ReqSampleAsync2(AReq req)
+			public Task<CheckinResp> ReqSampleAsync2(CheckinReq req)
 			{
-				return Service.SendRequest(req, _ => Task.FromResult(new BResp()));
+				return Service.SendRequest(req, _ => Task.FromResult(new CheckinResp()));
 			}
 
-			public BResp ReqSample2(AReq req)
+			public CheckinResp ReqSample2(CheckinReq req)
 			{
-				return Service.SendRequest(req, _ => new BResp());
+				return Service.SendRequest(req, _ => new CheckinResp());
 			}
 
 			public CheckinViewModel CreateCheckinViewModel() => new CheckinViewModel(this);
 		}
 	}
 
-	public class SampleSolution : ServiceSolution, IWithMainConfig
+	public record InternalAccessorSet(CheckinService.Accessor OtherCheckinAccessor) : ServiceAccessorSet;
+
+	public interface ICheckinSampleHandlerTestIoc
 	{
-		public void Init(MainServiceConfig config)
+	}
+
+	[Serializable]
+	public struct CheckinReq : IRequest, ICheckinSampleHandlerTestIoc
+	{
+	}
+
+	[Serializable]
+	public struct CheckinResp
+	{
+	}
+
+	public class AsyncCheckinSampleHandler
+		: CheckinService.AsyncRequestHandler<CheckinReq, CheckinResp>
+	{
+		protected override Task<CheckinResp> OnHandle(InternalAccessorSet accessorSet, CheckinReq req)
 		{
-			var checkinService = config.Get<CheckinService>();
-			checkinService.Init(new(
-				config.GetAccessor<CheckinService.Accessor>(checkinService)
-			));
+			// return accessorSet.OtherCheckinAccessor.ReqSampleAsync(req);
+			Debug.LogError("lwkjfe");
+			return Task.FromResult(new CheckinResp());
+		}
+	}
+
+	public class CheckinSampleHandler
+		: CheckinService.RequestHandler<CheckinReq, CheckinResp>
+	{
+		protected override CheckinResp OnHandle(InternalAccessorSet accessorSet, CheckinReq req)
+		{
+			return accessorSet.OtherCheckinAccessor.ReqSample(req);
+		}
+	}
+
+	public class CheckinViewModel : CheckinService.ViewModelBase, IStdHost
+	{
+		public CheckinResp Data;
+
+		public override async Task Load()
+		{
+			Data = await Accessor.ReqSampleAsync(new());
+		}
+
+		public async Task CheckinToday()
+		{
+			await Accessor.ReqSampleAsync2(new());
+		}
+
+		public CheckinViewModel(CheckinService.Accessor accessor) : base(accessor)
+		{
 		}
 	}
 
@@ -147,16 +156,30 @@ namespace Sample
 			ObserveData(ViewModel);
 		}
 
-		private void ObserveData(CheckinService.CheckinViewModel viewModel)
+		private void ObserveData(CheckinViewModel viewModel)
 		{
 			throw new System.NotImplementedException();
 		}
 
-		public CheckinService.CheckinViewModel ViewModel { get; set; }
+		public CheckinViewModel ViewModel { get; set; }
 
 		public async Task OnClick()
 		{
 			await ViewModel.CheckinToday();
+		}
+	}
+}
+
+namespace SampleSolutionMaintainer.Solution
+{
+	public class SampleSolution : ServiceSolution, IWithMainConfig
+	{
+		public void Init(MainServiceConfig config)
+		{
+			var checkinService = config.Get<CheckinService>();
+			checkinService.Init(new(
+				config.GetAccessor<CheckinService.Accessor>(checkinService)
+			));
 		}
 	}
 }
@@ -186,7 +209,7 @@ namespace SampleSolutionMaintainer.Launcher
 {
 	public class ServiceSolutionLauncher
 	{
-		public void Launcher(MainServiceConfig config)
+		public void Launch(MainServiceConfig config)
 		{
 			foreach (var serviceSolution in config.ServiceSolutions)
 			{
@@ -208,7 +231,7 @@ namespace ProjectLoader
 			var builder = new ServiceColonyBuilder();
 			var launcher = new ServiceSolutionLauncher();
 			var mainConfig = builder.BuildConfig();
-			launcher.Launcher(mainConfig);
+			launcher.Launch(mainConfig);
 		}
 	}
 }
