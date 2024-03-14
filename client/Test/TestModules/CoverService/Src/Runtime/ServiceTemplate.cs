@@ -289,6 +289,18 @@ namespace CoverService
 			}
 		}
 
+		public void RegisterInstance<T>(T obj) where T : IServiceTemplate, new()
+		{
+			if(!_mapper.TryGetValue(typeof(T), out _))
+			{
+				_mapper.Add(typeof(T), obj);
+			}
+			else
+			{
+				Debug.LogError($"duplicate services: {typeof(T).FullName}");
+			}
+		}
+
 		public T Get<T>() where T : class, IServiceTemplate, new()
 		{
 			if (_mapper.TryGetValue(typeof(T), out var service))

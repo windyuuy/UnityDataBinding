@@ -21,11 +21,6 @@ namespace SampleSolutionMaintainer.Config
 	{
 		private static readonly MainServiceConfig Inst = new();
 
-		private MainServiceConfig()
-		{
-			UIServiceConfig.Inst = this;
-		}
-
 		public static MainServiceConfig Create()
 		{
 			return Inst;
@@ -37,6 +32,13 @@ namespace SampleSolutionMaintainer.Config
 	public static class UIServiceConfig
 	{
 		public static IWithAccessorGetter Inst { get; internal set; }
+		
+		public static IWithAccessorGetter Create()
+		{
+			Inst = MainServiceConfig.Create();
+			return Inst;
+		}
+
 	}
 }
 
@@ -166,6 +168,8 @@ namespace SampleSolutionMaintainer.Builder
 		public MainServiceConfig BuildConfig()
 		{
 			var config = MainServiceConfig.Create();
+
+			UIServiceConfig.Create();
 
 			// register services
 			config.RegisterInstance<CheckinService>();
