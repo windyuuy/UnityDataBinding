@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using gcc.layer;
 using UI.UISys.GameUILayer.Runtime.Input;
 using UnityEngine;
-using UnityEngine.Serialization;
 using console = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
@@ -14,7 +12,6 @@ namespace UISys.Runtime
 	[RequireComponent(typeof(TransformTagsComp), typeof(TransformCoverComp))]
 	public class UILayer : MonoBehaviour, ILayer, ITransformCoverHandler
 	{
-		// [SerializeField] [HideInInspector] protected string[] layerTags = new string[0];
 		[SerializeField] protected TransformTagsComp tagsComp;
 
 		public virtual string[] LayerTags
@@ -31,7 +28,7 @@ namespace UISys.Runtime
 		}
 
 		public virtual TLayerManager LayerManager => LayerRoot.LayerManager;
-		
+
 		//#region layer bundle manager
 
 		private UILayerLifecycleDelegate _lifecycleDelegate;
@@ -90,10 +87,10 @@ namespace UISys.Runtime
 
 		private TransformCoverComp _transformCoverComp;
 
-		/**
-		 * 初次创建调用
-		 */
-		internal virtual async Task __callOnCreate(object data = null)
+		/// <summary>
+		/// 初次创建调用
+		/// </summary>
+		internal virtual async Task __callOnCreate()
 		{
 			if (this.tagsComp == null)
 			{
@@ -112,14 +109,14 @@ namespace UISys.Runtime
 
 			UIInputMG.Shared.TryRegister(this);
 			this.IntegrateDataBind();
-			await this.OnInit(data);
+			await this.OnInit();
 		}
 
-		/**
-		 * 创建对话框完成时调用
-		 * @param data
-		 */
-		protected virtual Task OnInit(object data = null)
+		/// <summary>
+		/// 创建对话框完成时调用
+		/// </summary>
+		/// <returns></returns>
+		protected virtual Task OnInit()
 		{
 			return Task.CompletedTask;
 		}
@@ -138,9 +135,9 @@ namespace UISys.Runtime
 			this._clearNodePool();
 		}
 
-		/**
-		 * 调用对话框destroy之前调用
-		 */
+		/// <summary>
+		/// 调用对话框destroy之前调用
+		/// </summary>
 		protected virtual void OnBeforeDestroy()
 		{
 		}
@@ -154,10 +151,12 @@ namespace UISys.Runtime
 			return Task.CompletedTask;
 		}
 
-		/**
-		 * 初次创建调用
-		 */
-		internal virtual Task __callOnPrepare()
+		/// <summary>
+		/// 初次创建调用
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		internal virtual Task __callOnPrepare(object data)
 		{
 			var transformParent = this.transform.parent;
 			if (transformParent != null)
@@ -177,7 +176,20 @@ namespace UISys.Runtime
 				this._layerRoot = null;
 			}
 
+			this.OnReset(data);
 			return OnPrepare();
+		}
+
+		private object _rawData;
+
+		protected virtual void OnReset(object data)
+		{
+			_rawData = data;
+		}
+
+		protected virtual T GetData<T>()
+		{
+			return (T)_rawData;
 		}
 
 		/// <summary>
@@ -188,9 +200,9 @@ namespace UISys.Runtime
 		{
 		}
 
-		/**
-		 * 初次创建调用
-		 */
+		/// <summary>
+		/// 初次创建调用
+		/// </summary>
 		internal virtual void __callOnReady()
 		{
 			OnReady();
@@ -202,32 +214,33 @@ namespace UISys.Runtime
 			this.OnExpose();
 		}
 
-		/**
-		 * 每次由隐藏变为显示调用
-		 */
+		/// <summary>
+		/// 每次由隐藏变为显示调用
+		/// </summary>
 		protected virtual void OnExpose()
 		{
 		}
 
-		/**
-		 * 强制隐藏而不关闭对话框
-		 */
+		/// <summary>
+		/// 强制隐藏而不关闭对话框
+		/// </summary>
 		internal virtual void __callOnShield()
 		{
 			this.OnShield();
 			this.PauseLayer();
 		}
 
-		/**
-		 * 每次由显示变为隐藏调用
-		 */
+		/// <summary>
+		/// 每次由显示变为隐藏调用
+		/// </summary>
 		protected virtual void OnShield()
 		{
 		}
 
-		/**
-		 * 关闭对话框=\
-		 */
+		/// <summary>
+		/// 关闭对话框
+		/// </summary>
+		/// <returns></returns>
 		public virtual Task<ILayer> Close()
 		{
 			return this.LayerManager.CloseLayer(this.Uri);
@@ -250,9 +263,9 @@ namespace UISys.Runtime
 			this.OnClosed();
 		}
 
-		/**
-		 * 关闭调用
-		 */
+		/// <summary>
+		/// 关闭调用
+		/// </summary>
 		protected virtual void OnClosed()
 		{
 		}
@@ -272,10 +285,10 @@ namespace UISys.Runtime
 			this.OnOpened();
 		}
 
-		/**
-		 * 强制关闭并销毁对话框自身
-		 * @returns
-		 */
+		/// <summary>
+		/// 强制关闭并销毁对话框自身
+		/// </summary>
+		/// <returns></returns>
 		public virtual Task Dispose()
 		{
 			return LayerManager.DestroyLayer(new DestroyLayerParam(this.Uri));
@@ -284,9 +297,9 @@ namespace UISys.Runtime
 		//#region
 
 		//#region node pool
-		/**
-		 * 清理使用的节点
-		 */
+		/// <summary>
+		/// 清理使用的节点
+		/// </summary>
 		private void _clearNodePool()
 		{
 		}
@@ -298,10 +311,11 @@ namespace UISys.Runtime
 		{
 		}
 
-		/**
-		 * 观测数据
-		 * @param data
-		 */
+		/// <summary>
+		/// 绑定观测数据
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="updateChildren"></param>
 		public virtual void ObserveData(Object data, bool updateChildren = true)
 		{
 		}
@@ -324,69 +338,51 @@ namespace UISys.Runtime
 
 
 		//#region UILog
-		protected lang.libs.Logger _logger;
+		private lang.libs.Logger _logger;
 
-		// 使用get避免没人用浪费内存
-		/**
-		 * 对话框日志管理
-		 */
+		/// <summary>
+		/// 对话框日志管理
+		/// </summary>
 		public virtual lang.libs.Logger Logger
 		{
 			get
 			{
-				return this._logger ?? (
-					this._logger = Logs.UILogger
-						.Clone()
-						.AppendTags(new string[]
-						{
-							"dialog",
-							this.name
-						})
-				);
+				return this._logger ??= Logs.UILogger
+					.Clone()
+					.AppendTags(new string[]
+					{
+						"dialog",
+						this.name
+					});
 			}
 		}
 
-		/**
-		 * 打印普通日志
-		 * @param args
-		 */
+		/// <summary>
+		/// 打印普通日志
+		/// </summary>
+		/// <param name="args"></param>
 		public virtual void Log(params object[] args)
 		{
 			this.Logger.Log(args);
 		}
 
-		// debug(...args: any[]) {
-		// 	this.logger.debug(...args)
-		// }
-		// info(...args: any[]) {
-		// 	this.logger.info(...args)
-		// }
-		/**
-		 * 打印警告日志
-		 * @param args
-		 */
+		/// <summary>
+		/// 打印警告日志
+		/// </summary>
+		/// <param name="args"></param>
 		public virtual void Warn(params object[] args)
 		{
 			this.Logger.Warn(args);
 		}
 
-		/**
-		 * 打印错误日志
-		 * @param args
-		 */
+		/// <summary>
+		/// 打印错误日志
+		/// </summary>
+		/// <param name="args"></param>
 		public virtual void Error(params object[] args)
 		{
 			this.Logger.Error(args);
 		}
-
-		/**
-		 * 播放游戏结算界面音效
-		 * @param key
-		 */
-		// public virtual void PlayGameResultEffect(string key)
-		// {
-		//     // AudioManager.playCommonEffect(key, this.node)
-		// }
 
 		//#endregion
 
@@ -437,6 +433,7 @@ namespace UISys.Runtime
 		}
 
 		#endregion
+
 		//
 		// private void OnEnable()
 		// {

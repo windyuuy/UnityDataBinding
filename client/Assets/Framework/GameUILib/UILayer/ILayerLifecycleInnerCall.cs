@@ -12,9 +12,9 @@ namespace gcc.layer
 	    /**
 		 * 初次创建调用
 		 */
-	    Task __callOnCreate(Object data = null);
+	    Task __callOnCreate();
 
-	    Task __callOnPrepare();
+	    Task __callOnPrepare(object data);
 
 	    void __callOnReady();
 

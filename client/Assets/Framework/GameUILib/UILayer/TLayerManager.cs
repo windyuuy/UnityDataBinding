@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using Node = UnityEngine.Transform;
@@ -107,7 +106,7 @@ namespace gcc.layer
 			var status = GetOrCreateLayer(paras.Uri, paras.ResUri, paras.LoadLayerRootTask);
 			var task = status.PendingTask;
 
-			async Task<ILayer> Load()
+			async Task<ILayer> Open()
 			{
 				var layer = status.Layer;
 				if (status.State.ContainFlag(LayerState.Opening) || status.State.ContainFlag(LayerState.Opened))
@@ -122,7 +121,7 @@ namespace gcc.layer
 					layer.transform.SetParent(layerRoot, false);
 				}
 
-				await layer.Lifecycle.__callOnPrepare();
+				await layer.Lifecycle.__callOnPrepare(paras.Data);
 				layer.Lifecycle.__callOnReady();
 				layer.gameObject.SetActive(true);
 				var openingTask = layer.Lifecycle.__callOnOpening();
@@ -133,7 +132,7 @@ namespace gcc.layer
 				return layer;
 			}
 
-			_ = status.AppendTask(Load);
+			_ = status.AppendTask(Open);
 
 			status.TargetState.SetMainFlag(LayerState.Opened);
 

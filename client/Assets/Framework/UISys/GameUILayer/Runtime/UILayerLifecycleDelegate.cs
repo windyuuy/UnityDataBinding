@@ -8,14 +8,14 @@ namespace UISys.Runtime
 	{
 		public UILayer Layer;
 
-		public Task __callOnCreate(object data = null)
+		public Task __callOnCreate()
 		{
 			return Layer.__callOnCreate();
 		}
 
-		public Task __callOnPrepare()
+		public Task __callOnPrepare(object data)
 		{
-			return Layer.__callOnPrepare();
+			return Layer.__callOnPrepare(data);
 		}
 
 		public void __callOnReady()
