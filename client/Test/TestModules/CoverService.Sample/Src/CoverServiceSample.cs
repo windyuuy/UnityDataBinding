@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoverService;
 using Sample;
-using SampleSystemMaintainer.Builder;
-using SampleSystemMaintainer.Config;
-using SampleSystemMaintainer.Launcher;
+using SampleSolutionMaintainer.Config;
+using SampleSolutionMaintainer.Builder;
+using SampleSolutionMaintainer.Launcher;
 
-namespace SampleSystemMaintainer.Config
+namespace SampleSolutionMaintainer.Config
 {
 	public interface IWithMainConfig
 	{
@@ -31,7 +31,7 @@ namespace SampleSystemMaintainer.Config
 			return Inst;
 		}
 
-		public readonly List<ServerSystem> ServerSystems = new();
+		public readonly List<ServiceSolution> ServiceSolutions = new();
 	}
 
 	public static class UIServiceConfig
@@ -119,7 +119,7 @@ namespace Sample
 		}
 	}
 
-	public class SampleSystem : ServerSystem, IWithMainConfig
+	public class SampleSolution : ServiceSolution, IWithMainConfig
 	{
 		public void Init(MainServiceConfig config)
 		{
@@ -159,7 +159,7 @@ namespace Sample
 	}
 }
 
-namespace SampleSystemMaintainer.Builder
+namespace SampleSolutionMaintainer.Builder
 {
 	public class ServiceColonyBuilder
 	{
@@ -171,22 +171,22 @@ namespace SampleSystemMaintainer.Builder
 			config.RegisterInstance<CheckinService>();
 
 			// register systems
-			config.ServerSystems.Add(new SampleSystem());
+			config.ServiceSolutions.Add(new SampleSolution());
 
 			return config;
 		}
 	}
 }
 
-namespace SampleSystemMaintainer.Launcher
+namespace SampleSolutionMaintainer.Launcher
 {
-	public class ServiceSystemLauncher
+	public class ServiceSolutionLauncher
 	{
 		public void Launcher(MainServiceConfig config)
 		{
-			foreach (var serverSystem in config.ServerSystems)
+			foreach (var serviceSolution in config.ServiceSolutions)
 			{
-				if (serverSystem is IWithMainConfig withMainConfig)
+				if (serviceSolution is IWithMainConfig withMainConfig)
 				{
 					withMainConfig.Init(config);
 				}
@@ -202,7 +202,7 @@ namespace ProjectLoader
 		public void Load()
 		{
 			var builder = new ServiceColonyBuilder();
-			var launcher = new ServiceSystemLauncher();
+			var launcher = new ServiceSolutionLauncher();
 			var mainConfig = builder.BuildConfig();
 			launcher.Launcher(mainConfig);
 		}

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{6D841B0F-B3FB-426A-9B8B-BC3D8AEE3D49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoverService.Sample.Test", "CoverService.Sample.Test\CoverService.Sample.Test.csproj", "{6D841B0F-B3FB-426A-9B8B-BC3D8AEE3D49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoverService", "CoverService\CoverService.csproj", "{D2767487-0AB9-49E4-9BDD-94AFA281D624}"
 EndProject

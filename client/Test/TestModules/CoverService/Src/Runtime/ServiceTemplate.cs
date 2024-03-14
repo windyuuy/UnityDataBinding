@@ -317,11 +317,11 @@ namespace CoverService
 		}
 	}
 
-	public interface IServerSystem
+	public interface IServiceSolution
 	{
 	}
 
-	public abstract class ServerSystem : IServerSystem
+	public abstract class ServiceSolution : IServiceSolution
 	{
 	}
 }

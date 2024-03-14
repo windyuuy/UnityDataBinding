@@ -34,9 +34,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>copy $(SolutionDir)\CoverService.Sample\bin\$(Configuration)\CoverService.Sample.dll $(SolutionDir)..\..\Assets\Framework\CoverService\Test\CoverService.Sample.dll /y</PostBuildEvent>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />

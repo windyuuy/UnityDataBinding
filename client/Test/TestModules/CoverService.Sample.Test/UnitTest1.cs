@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using ProjectLoader;
 using Sample;
-using SampleSystemMaintainer.Config;
+using SampleSolutionMaintainer.Config;
 using System.Threading.Tasks;
 
 namespace Tests

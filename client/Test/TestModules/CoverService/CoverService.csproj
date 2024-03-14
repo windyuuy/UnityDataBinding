@@ -49,9 +49,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Assets\Framework\wfwe\hello.cs">
-      <Link>wfwe\hello.cs</Link>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Src\Runtime\EngineAdapter.cs" />
     <Compile Include="Src\Runtime\ServiceMsgRecorder.cs" />
