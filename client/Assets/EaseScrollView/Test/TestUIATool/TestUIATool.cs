@@ -42,36 +42,36 @@ public class TestUIATool : MonoBehaviour
     {
         var prefab =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/TestDataBinding/TestDatabind/TestCompBind/TestCompBind.prefab");
+                "Assets/TestDataBind/TestDataBind/TestCompBind/TestCompBind.prefab");
         var codeText = new UIDataBindExposer().ExposeBind(prefab.transform, "UIAOut1");
-        File.WriteAllText("Assets/TestDataBinding/TestUIATool/Output/UIAOut1.cs", codeText, Encoding.UTF8);
+        File.WriteAllText("Assets/TestDataBind/TestUIATool/Output/UIAOut1.cs", codeText, Encoding.UTF8);
     }
 
     public void Test2()
     {
         var prefab =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/TestDataBinding/TestDatabind/TestContainerBind/TestContainer.prefab");
+                "Assets/TestDataBind/TestDataBind/TestContainerBind/TestContainer.prefab");
         var codeText = new UIDataBindExposer().ExposeBind(prefab.transform, "UIAOut2");
-        File.WriteAllText("Assets/TestDataBinding/TestUIATool/Output/UIAOut2.cs", codeText, Encoding.UTF8);
+        File.WriteAllText("Assets/TestDataBind/TestUIATool/Output/UIAOut2.cs", codeText, Encoding.UTF8);
     }
 
     public void Test3()
     {
         var prefab =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/TestDataBinding/TestDatabind/TestBasic/TestBasic.prefab");
+                "Assets/TestDataBind/TestDataBind/TestBasic/TestBasic.prefab");
         var codeText = new UIDataBindExposer().ExposeBind(prefab.transform, "UIAOut3");
-        File.WriteAllText("Assets/TestDataBinding/TestUIATool/Output/UIAOut3.cs", codeText, Encoding.UTF8);
+        File.WriteAllText("Assets/TestDataBind/TestUIATool/Output/UIAOut3.cs", codeText, Encoding.UTF8);
     }
 
     public void Test4()
     {
         var prefab =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/TestDataBinding/TestDatabind/TestDialogChild/TestDialogChild.prefab");
+                "Assets/TestDataBind/TestDataBind/TestDialogChild/TestDialogChild.prefab");
         var codeText = new UIDataBindExposer().ExposeBind(prefab.transform, "UIAOut4");
-        File.WriteAllText("Assets/TestDataBinding/TestUIATool/Output/UIAOut4.cs", codeText, Encoding.UTF8);
+        File.WriteAllText("Assets/TestDataBind/TestUIATool/Output/UIAOut4.cs", codeText, Encoding.UTF8);
     }
 
 }

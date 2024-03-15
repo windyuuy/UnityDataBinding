@@ -1,10 +1,12 @@
 {
-    "name": "UIDataBinding",
+    "name": "UIDataBind",
     "rootNamespace": "",
     "references": [
         "GUID:987fc81b61b78b843959a40e81de74d7",
         "GUID:6bcd1da1c33cefc4dbfe7a99c469fe87",
-        "GUID:09a3ac9abd1bd554997295d6282d5a7f"
+        "GUID:09a3ac9abd1bd554997295d6282d5a7f",
+        "GUID:343deaaf83e0cee4ca978e7df0b80d21",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

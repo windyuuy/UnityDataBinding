@@ -12,7 +12,7 @@ namespace TestUIDataBind
 		[Test]
 		public void RunScene1()
 		{
-			EditorSceneManager.LoadSceneInPlayMode("Assets/TestDataBinding/TestDatabind/TestScene.unity",
+			EditorSceneManager.LoadSceneInPlayMode("Assets/TestDataBind/TestDataBind/TestScene.unity",
 				new LoadSceneParameters(LoadSceneMode.Additive));
 		}
 	}
