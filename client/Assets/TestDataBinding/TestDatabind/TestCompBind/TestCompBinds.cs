@@ -1,13 +1,13 @@
-using DataBinding;
-using DataBinding.UIBind;
-using Game.Diagnostics.IO;
-using TestDataBinding.TestBasic;
+using DataBind;
+using DataBind.UIBind;
+using EngineAdapter.Diagnostics;
+using TestDataBind.TestBasic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TestDataBinding.Tests.TestCompBinds
+namespace TestDataBind.Tests.TestCompBinds
 {
-	using TButtonBindCallback = System.Action<DataBinding.UIBind.ButtonBindComp, double>;
+	using TButtonBindCallback = System.Action<DataBind.UIBind.ButtonBindComp, double>;
 
 	public class TRawData:IStdHost
 	{

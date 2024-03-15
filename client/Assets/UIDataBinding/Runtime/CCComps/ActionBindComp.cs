@@ -2,10 +2,10 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	[AddComponentMenu("DataDrive/ActionBind")]
-	public class ActionBindComp : DataBindCompBase
+	public class ActionBindComp : DataBindBaseComp
 	{
 		[Serializable]
 		public class ActionEvent : UnityEvent<object>

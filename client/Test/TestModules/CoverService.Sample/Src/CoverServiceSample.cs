@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoverService;
 using CoverService.Runtime;
-using DataBinding;
 using Sample;
 using SampleSolutionMaintainer.Config;
 using SampleSolutionMaintainer.Builder;
@@ -122,7 +121,7 @@ namespace Sample
 		}
 	}
 
-	public class CheckinViewModel : CheckinService.ViewModelBase, IStdHost
+	public class CheckinViewModel : CheckinService.ViewModelBase
 	{
 		public CheckinResp Data;
 

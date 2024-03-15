@@ -2,14 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
-using Console = Game.Diagnostics.IO.Console;
+using Console = EngineAdapter.Diagnostics.Console;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	using TButtonBindCallback=System.Object;
 
 	[AddComponentMenu("DataDrive/ButtonBind")]
-	public class ButtonBindComp : DataBindCompBase
+	public class ButtonBindComp : DataBindBaseComp
 	{
 		[Rename("可交互")]
 		public string kInteractive = "";

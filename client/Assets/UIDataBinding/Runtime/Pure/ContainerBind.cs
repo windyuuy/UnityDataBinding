@@ -1,8 +1,9 @@
 
 using System;
 using System.Collections.Generic;
+using DataBind;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public class ContainerBind
 	{

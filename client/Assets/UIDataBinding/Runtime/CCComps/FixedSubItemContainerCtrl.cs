@@ -1,7 +1,7 @@
-﻿using System.Linq.Ext;
+﻿using EngineAdapter.LinqExt;
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public class FixedSubItemContainerCtrl : MonoBehaviour
 	{

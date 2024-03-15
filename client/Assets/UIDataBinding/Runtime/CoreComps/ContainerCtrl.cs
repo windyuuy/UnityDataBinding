@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	/**
 	 * 确定CCContainerBind的具体绑定行为

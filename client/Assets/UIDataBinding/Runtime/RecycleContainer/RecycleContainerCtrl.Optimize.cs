@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind.RecycleContainer
+namespace DataBind.UIBind.RecycleContainer
 {
 	public partial class RecycleContainerCtrl
 	{

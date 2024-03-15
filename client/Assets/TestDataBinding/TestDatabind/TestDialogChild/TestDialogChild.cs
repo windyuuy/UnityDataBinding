@@ -1,10 +1,10 @@
-using DataBinding;
-using DataBinding.UIBind;
-using TestDataBinding.TestBasic;
+using DataBind;
+using DataBind.UIBind;
+using TestDataBind.TestBasic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TestDataBinding.Tests.TestDialogChild
+namespace TestDataBind.Tests.TestDialogChild
 {
 	class C1Item : IStdHost
 	{

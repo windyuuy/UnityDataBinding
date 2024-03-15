@@ -1,7 +1,10 @@
 
 
-namespace DataBinding.UIBind
+using UnityEngine;
+
+namespace DataBind.UIBind
 {
+	[AddComponentMenu("DataDrive/ContainerItem")]
 	public class ContainerItemComp : SubDataHubComp
 	{
 		protected override ISubDataHub SubDataHub { get; set; } = new ContainerItem();

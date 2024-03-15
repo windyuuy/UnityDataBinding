@@ -2,7 +2,7 @@
 
 namespace TestingCode
 {
-	public class UIAOut3: DataBinding.IStdHost
+	public class UIAOut3: DataBind.IStdHost
 	{
 		/// <note>
 		/// env::kk

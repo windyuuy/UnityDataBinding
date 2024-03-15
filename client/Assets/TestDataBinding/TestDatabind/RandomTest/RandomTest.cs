@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DataBinding;
-using DataBinding.UIBind;
+using DataBind;
+using DataBind.UIBind;
 
 namespace TestRandom
 {
@@ -22,7 +22,7 @@ namespace TestRandom
 
 			this.testData.hello = "hello2";
 			this.testData.imageSrc = "doge_cartoon";
-			VM.Tick.Next();
+			DataBind.VM.Tick.Next();
 		}
 
 	}

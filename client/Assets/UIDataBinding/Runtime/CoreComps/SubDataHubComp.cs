@@ -1,8 +1,10 @@
 
-using DataBinding;
+using DataBind;
+using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
+	[AddComponentMenu("DataDrive/SubDataHub")]
 	public class SubDataHubComp : MyComponent, ICCSubDataHub
 	{
 		protected virtual ISubDataHub SubDataHub { get; set; }

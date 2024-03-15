@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace DataBinding.UIBind.RecycleContainer
+namespace DataBind.UIBind.RecycleContainer
 {
 	[Serializable]
 	public struct IntVector2

@@ -1,12 +1,12 @@
-﻿using DataBinding.UIBind;
+﻿using DataBind.UIBind;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityVisualize.Runtime;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	[AddComponentMenu("DataDrive/EaseActionBind")]
-	public class EaseActionBindComp : DataBindCompBase
+	public class EaseActionBindComp : DataBindBaseComp
 	{
 		[Rename("触发表达式")] [SerializeField] protected string key = "";
 		[SerializeField] protected EaseActionsComp actions;

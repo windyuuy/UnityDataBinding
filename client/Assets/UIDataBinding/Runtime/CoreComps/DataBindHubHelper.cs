@@ -2,9 +2,9 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using DataBinding;
+using DataBind;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public interface ICCIntegrate
 	{

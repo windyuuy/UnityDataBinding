@@ -1,19 +1,19 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	[AddComponentMenu("DataDrive/ActiveBind")]
-
-	public class ActiveBindComp : DataBindCompBase
+	public class ActiveBindComp : DataBindBaseComp
 	{
-		[Rename("可见性")]
-		public string visible = "";
+		[FormerlySerializedAs("visible")] [Rename("可见性")]
+		public string key = "";
 
 		protected override bool NeedAttach()
 		{
-			if (!string.IsNullOrEmpty(this.visible))
+			if (!string.IsNullOrEmpty(this.key))
 			{
 				if(this.isAttachCalled && this.enabled)
                 {
@@ -38,7 +38,7 @@ namespace DataBinding.UIBind
 
 		public virtual bool CheckVisible()
 		{
-			if (string.IsNullOrEmpty(this.visible))
+			if (string.IsNullOrEmpty(this.key))
 			{
 				return false;
 			}
@@ -47,7 +47,7 @@ namespace DataBinding.UIBind
 			{
 				return false;
 			}
-			this.WatchValueChange<bool>(this.visible, (object newValue, object oldValue) =>
+			this.WatchValueChange<bool>(this.key, (object newValue, object oldValue) =>
 			{
 				if (Utils.IsValid(node, true))
 				{

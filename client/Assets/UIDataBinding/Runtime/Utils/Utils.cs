@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public static class Utils
 	{

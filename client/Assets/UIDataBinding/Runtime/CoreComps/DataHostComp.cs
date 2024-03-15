@@ -1,5 +1,9 @@
-namespace DataBinding.UIBind
+using DataBind;
+using UnityEngine;
+
+namespace DataBind.UIBind
 {
+	[AddComponentMenu("DataDrive/DataHost")]
 	public class DataHostComp : MyComponent, ICCDataHost
 	{
 

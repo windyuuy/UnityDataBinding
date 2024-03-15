@@ -5,9 +5,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace TestUIDataBinding
+namespace TestUIDataBind
 {
-	public class TestDataBindingRunner : MonoBehaviour
+	public class TestDataBindRunner : MonoBehaviour
 	{
 		[Test]
 		public void RunScene1()

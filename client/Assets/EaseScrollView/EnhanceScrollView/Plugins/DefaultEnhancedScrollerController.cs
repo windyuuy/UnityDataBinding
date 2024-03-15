@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using DataBinding.UIBind;
+using DataBind.UIBind;
 using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using UnityEngine;
@@ -203,7 +203,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			{
 				ccItem.ContainerItem.Index = index;
 				var itemHost = dataSource;
-				var itemHost1 = VM.Utils.ImplementStdHost(itemHost);
+				var itemHost1 = DataBind.VM.Utils.ImplementStdHost(itemHost);
 				ccItem.BindDataHost(itemHost1, $"N|{ccItem.ContainerItem.Index}");
 			}
 		}

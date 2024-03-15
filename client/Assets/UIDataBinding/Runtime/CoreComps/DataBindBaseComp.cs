@@ -2,10 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
-	[AddComponentMenu("DataDrive/DataBindHub")]
-	public abstract class DataBindCompBase : MyComponent, ICCDataBindBase
+	[AddComponentMenu("DataDrive/DataBindBase")]
+	public abstract class DataBindBaseComp : MyComponent, ICCDataBindBase
 	{
 		// constructor(...args: any[]) {
 		// 	super(...args)

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataBinding.UIBind;
+using DataBind.UIBind;
 using UnityEngine;
 
-namespace DataBinding.UIATool
+namespace DataBind.UIATool
 {
 	public class UIDataBindScaner
 	{
@@ -64,7 +64,7 @@ namespace DataBinding.UIATool
 				var index = dataHost.ContainerItem.Index;
 				HostKey = Utils.CombineKeys(subExp,index.ToString());
 			}
-			public DataHostHandler(DataHostHandler parent, DialogChildComp dataHost)
+			public DataHostHandler(DataHostHandler parent, SubHostComp dataHost)
 			{
 				this.Parent = parent;
 				this.SubDataHost = dataHost;
@@ -91,7 +91,7 @@ namespace DataBinding.UIATool
 		{
 			var hostKey = dataHostHandler?.HostKey ?? "";
 			// handle ui bind comps
-			var bindComps = node.GetComponents<DataBindCompBase>();
+			var bindComps = node.GetComponents<DataBindBaseComp>();
 			for (var i = 0; i < bindComps.Length; i++)
 			{
 				var bindComp = bindComps[i];
@@ -110,7 +110,7 @@ namespace DataBinding.UIATool
 				}
 				else if (bindComp is ActiveBindComp ccActiveBind)
 				{
-					hostKeys.Add(Utils.CombineKeys(hostKey,ccActiveBind.visible));
+					hostKeys.Add(Utils.CombineKeys(hostKey,ccActiveBind.key));
 				}
 				else if (bindComp is ToggleBindComp ccToggleBind)
 				{
@@ -153,7 +153,7 @@ namespace DataBinding.UIATool
 					}
 					else
 					{
-						var childDialog = node.GetComponent<DialogChildComp>();
+						var childDialog = node.GetComponent<SubHostComp>();
 						if (childDialog != null)
 						{
 							curDataHost = new DataHostHandler(curDataHost, childDialog);

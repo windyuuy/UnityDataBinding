@@ -1,9 +1,9 @@
-﻿using DataBinding.CollectionExt;
+﻿using DataBind.CollectionExt;
 using Action = System.Action;
 
 namespace TestingCode
 {
-	public class UIAOut2: DataBinding.IStdHost
+	public class UIAOut2: DataBind.IStdHost
 	{
 		/// <note>
 		/// env::C1

@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	/// <summary>
 	/// 支持调用 ObserveData 设置独立的数据源，与父数据源隔离
 	/// 也支持从父数据源直接延续，增强灵活性
 	/// </summary>
-	public class DialogChildComp : SubDataHubComp, ICCDialogChild
+	[AddComponentMenu("DataDrive/SubHost")]
+	public class SubHostComp : SubDataHubComp, ICCDialogChild
 	{
 		[FormerlySerializedAs("_autoExtendDataSource")]
 		[Rename("承接父容器数据源")]

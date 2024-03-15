@@ -1,4 +1,4 @@
-﻿using DataBinding;
+﻿using DataBind;
 using UnityEngine;
 
 namespace TestingCode
@@ -11,7 +11,7 @@ namespace TestingCode
 		public UserData()
 		{
 			// 必须实现基础方法，实现外部监听
-			VM.Utils.ImplementStdHost(this);
+			DataBind.VM.Utils.ImplementStdHost(this);
 		}
 
 	}

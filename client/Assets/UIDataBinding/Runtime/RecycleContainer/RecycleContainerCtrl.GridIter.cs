@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace DataBinding.UIBind.RecycleContainer
+namespace DataBind.UIBind.RecycleContainer
 {
 	public interface ILayoutRectIter
 	{

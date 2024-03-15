@@ -4,8 +4,9 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
+	[AddComponentMenu("DataDrive/NodeLife")]
 	public class NodeLifeComp : MyComponent
 	{
 		protected Transform LastParent = null;

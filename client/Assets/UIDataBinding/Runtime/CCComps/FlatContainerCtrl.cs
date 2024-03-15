@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	[RequireComponent(typeof(ContainerBindComp))]
 	public class FlatContainerCtrl : MonoBehaviour

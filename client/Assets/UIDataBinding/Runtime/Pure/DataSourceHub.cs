@@ -1,11 +1,11 @@
 
 using System;
-using System.Linq.Ext;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Console = Game.Diagnostics.IO.Console;
+using EngineAdapter.LinqExt;
+using Console = EngineAdapter.Diagnostics.Console;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	using TExprCall = EventHandlerMV2<object, object>;
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace TestDataBinding.TestBasic
+namespace TestDataBind.TestBasic
 {
 	public class AutoInstantiateComp :MonoBehaviour
 	{

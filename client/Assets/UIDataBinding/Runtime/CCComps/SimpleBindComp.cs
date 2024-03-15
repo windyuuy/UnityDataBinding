@@ -3,11 +3,11 @@ using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	// TODO: 针对资源的绑定，改为在组件上弱引用资源， 由数据绑定提供索引/键值
 	[AddComponentMenu("DataDrive/SimpleBind")]
-	public class SimpleBindComp : DataBindCompBase
+	public class SimpleBindComp : DataBindBaseComp
 	{
 		[Rename("主属性")]
 		public string key = "";

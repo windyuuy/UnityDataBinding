@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public delegate void EventHandlerMV1<T1>(T1 msg1);
 

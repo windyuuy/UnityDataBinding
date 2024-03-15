@@ -1,13 +1,10 @@
 using System.Collections;
-using System.Linq;
-using System.Linq.Ext;
-using DataBinding;
-using DataBinding.CollectionExt;
-using TestDataBinding.TestBasic;
+using DataBind;
+using DataBind.CollectionExt;
+using TestDataBind.TestBasic;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace TestDataBinding.Tests.TestRecycleContainer
+namespace TestDataBind.Tests.TestRecycleContainer
 {
 	class TC1Item : IStdHost
 	{

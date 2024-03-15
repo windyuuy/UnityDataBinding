@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
+	[AddComponentMenu("DataDrive/DataBindHub")]
 	public class DataBindHubComp : MyComponent, ICCDataBindHub
 	{
 		public virtual DataBindHub DataBindHub { get; set; } = new DataBindHub();

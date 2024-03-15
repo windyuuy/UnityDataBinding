@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	using TExprCall = EventHandlerMV2<object, object>;
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;

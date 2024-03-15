@@ -1,12 +1,12 @@
 using System.Linq;
-using System.Linq.Ext;
-using DataBinding;
-using DataBinding.CollectionExt;
-using DataBinding.UIBind;
-using TestDataBinding.TestBasic;
+using DataBind;
+using DataBind.CollectionExt;
+using DataBind.UIBind;
+using EngineAdapter.LinqExt;
+using TestDataBind.TestBasic;
 using UnityEngine.UI;
 
-namespace TestDataBinding.Tests.TestContainer
+namespace TestDataBind.Tests.TestContainer
 {
 	class TC2Item : IStdHost
 	{

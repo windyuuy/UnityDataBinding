@@ -1,10 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Game.Diagnostics.IO;
-using Console = Game.Diagnostics.IO.Console;
+using Console = EngineAdapter.Diagnostics.Console;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public class TPresetWatchingExpr
 	{

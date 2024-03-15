@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using DataBinding.UIBind;
+using DataBind.UIBind;
 using UnityEngine;
 
-namespace TestDataBinding.TestBasic
+namespace TestDataBind.TestBasic
 {
 	public static class UnityXPathExt
 	{

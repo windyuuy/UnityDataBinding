@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;
 	using TExprCall = EventHandlerMV2<object, object>;

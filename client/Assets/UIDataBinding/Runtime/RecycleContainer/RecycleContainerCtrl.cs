@@ -11,7 +11,7 @@ using Debug = UnityEngine.Debug;
 
 // ReSharper disable All
 
-namespace DataBinding.UIBind.RecycleContainer
+namespace DataBind.UIBind.RecycleContainer
 {
 	public partial class RecycleContainerCtrl : FlatContainerCtrl
 	{

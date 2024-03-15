@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public class MyComponent : MonoBehaviour, ISerializationCallbackReceiver
 	{

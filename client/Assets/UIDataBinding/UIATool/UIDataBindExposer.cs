@@ -6,9 +6,9 @@ using System.Text;
 using Newtonsoft.Json;
 using ParseJSDataBindAbstract;
 using ParseJSDataBindAbstract.CodeWriter;
-using DataBinding.UIATool;
+using DataBind.UIATool;
+using DataBind.VM;
 using UnityEngine;
-using VM;
 
 public class UIDataBindExposer
 {

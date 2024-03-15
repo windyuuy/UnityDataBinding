@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DataBinding;
-using DataBinding.UIBind;
+using DataBind;
+using DataBind.UIBind;
 using UnityEngine;
 
 public class TestActionBindData: IStdHost
@@ -32,6 +32,6 @@ public class TestActionBind : MonoBehaviour
 
 	private void Update()
 	{
-		VM.Tick.Next();
+		DataBind.VM.Tick.Next();
 	}
 }

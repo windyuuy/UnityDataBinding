@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using DataBinding.UIBind.RecycleContainer;
+using DataBind.UIBind.RecycleContainer;
 using UnityEngine;
 using Random = UnityEngine.Random;
 

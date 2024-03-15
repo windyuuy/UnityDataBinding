@@ -1,6 +1,6 @@
 using System;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public interface ISubDataHub
 	{

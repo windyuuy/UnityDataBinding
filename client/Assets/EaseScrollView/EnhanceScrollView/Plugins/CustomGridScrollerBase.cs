@@ -6,7 +6,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind.RecycleContainer
+namespace DataBind.UIBind.RecycleContainer
 {
 	public class CustomGridScrollerBase : MonoBehaviour
 	{

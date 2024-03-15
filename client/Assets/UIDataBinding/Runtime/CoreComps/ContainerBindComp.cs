@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	/// <summary>
 	/// ContainerBindComp 本身并不强制所有子节点采用 container 的数据源，而是在 integrate 阶段，通过增加 DataBindHubComp 组件实现对子节点注入数据源
 	/// </summary>
-	[AddComponentMenu("DataDrive/ContainerBindComp")]
+	[AddComponentMenu("DataDrive/ContainerBind")]
 	public class ContainerBindComp : MyComponent, ICCContainerBinding
 	{
 		public virtual string BindSubExp { get => bindSubExp; set => bindSubExp = value; }

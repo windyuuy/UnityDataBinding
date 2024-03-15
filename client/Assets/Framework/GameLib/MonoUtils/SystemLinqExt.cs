@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace System.Linq.MyExt
 {
-	public static class SystemLinqExt
+	public static partial class SystemLinqExt
 	{
 		public static void ForEach<T>(this T[] array, Action<T> action)
 		{

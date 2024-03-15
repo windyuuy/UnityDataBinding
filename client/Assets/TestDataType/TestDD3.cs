@@ -1,4 +1,4 @@
-using DataBinding;
+using DataBind;
 
 namespace TestDD
 {

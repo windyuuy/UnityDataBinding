@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	public class SubDataHub : ISubDataHub
 	{

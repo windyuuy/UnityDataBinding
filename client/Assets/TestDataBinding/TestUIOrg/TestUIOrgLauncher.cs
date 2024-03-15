@@ -8,6 +8,6 @@ public class TestUIOrgLauncher : MonoBehaviour
 {
     private void Update()
     {
-        VM.Tick.Next();
+        DataBind.VM.Tick.Next();
     }
 }

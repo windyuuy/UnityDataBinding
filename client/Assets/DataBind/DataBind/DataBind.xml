@@ -4,242 +4,242 @@
         <name>DataBind</name>
     </assembly>
     <members>
-        <member name="M:VM.Dep.dependCollection(System.Collections.IEnumerable)">
+        <member name="M:DataBind.VM.Dep.dependCollection(System.Collections.IEnumerable)">
             递归遍历数组，进行ob对象的依赖记录。
         </member>
-        <member name="F:VM.Dep.target">
+        <member name="F:DataBind.VM.Dep.target">
             当前正在收集依赖的对象
         </member>
-        <member name="F:VM.Dep.collectTargetStack">
+        <member name="F:DataBind.VM.Dep.collectTargetStack">
             当前正在收集以来的列队
         </member>
-        <member name="F:VM.Dep.id">
+        <member name="F:DataBind.VM.Dep.id">
             唯一id，方便hashmap判断是否存在
         </member>
-        <member name="F:VM.Dep.watchers">
+        <member name="F:DataBind.VM.Dep.watchers">
             侦听者
         </member>
-        <member name="M:VM.Dep.asCurTargetDepend">
+        <member name="M:DataBind.VM.Dep.asCurTargetDepend">
             向当前 watcher 依赖项目中添加自身
         </member>
-        <member name="M:VM.Dep.notifyWatchers">
+        <member name="M:DataBind.VM.Dep.notifyWatchers">
             通知所有侦听者
         </member>
-        <member name="M:VM.Utils.ImplementHost``1(``0)">
+        <member name="M:DataBind.VM.Utils.ImplementHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
-        <member name="M:VM.Utils.ImplementStdHost``1(``0)">
+        <member name="M:DataBind.VM.Utils.ImplementStdHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
-        <member name="M:VM.Utils.UpdateHost``1(``0)">
+        <member name="M:DataBind.VM.Utils.UpdateHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
-        <member name="M:VM.Utils.UpdateStdHost``1(``0)">
+        <member name="M:DataBind.VM.Utils.UpdateStdHost``1(``0)">
             向普通对象注入Host相关方法
         </member>
-        <member name="M:VM.Utils.IsObservable(System.Object)">
+        <member name="M:DataBind.VM.Utils.IsObservable(System.Object)">
             <summary>
             是否可观察对象
             </summary>
             <returns></returns>
         </member>
-        <member name="M:VM.Utils.Observe(System.Object)">
+        <member name="M:DataBind.VM.Utils.Observe(System.Object)">
             将对象处理为可观察对象
         </member>
-        <member name="M:VM.Utils.DefineReactive(System.Object,System.String,System.Object)">
+        <member name="M:DataBind.VM.Utils.DefineReactive(System.Object,System.String,System.Object)">
             拦截对象所有的key和value
         </member>
-        <member name="M:VM.Utils.IsTrue(System.Object)">
+        <member name="M:DataBind.VM.Utils.IsTrue(System.Object)">
             讲使用.分隔的路径访问转换为函数。
             @param path 
         </member>
-        <member name="M:VM.HostExt._Swatch(VM.IHostAccessor,VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+        <member name="M:DataBind.VM.HostExt._Swatch(DataBind.VM.IHostAccessor,DataBind.VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},DataBind.VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
-        <member name="M:VM.HostExt._Sdestroy(VM.IHostAccessor)">
+        <member name="M:DataBind.VM.HostExt._Sdestroy(DataBind.VM.IHostAccessor)">
             释放host，包括所有watch
         </member>
-        <member name="M:VM.IdMap.Has(System.Double)">
+        <member name="M:DataBind.VM.IdMap.Has(System.Double)">
             <inheritdoc />
         </member>
-        <member name="M:VM.IdMap.Add(System.Double)">
+        <member name="M:DataBind.VM.IdMap.Add(System.Double)">
             <inheritdoc />
         </member>
-        <member name="M:VM.IdMap.Clear">
+        <member name="M:DataBind.VM.IdMap.Clear">
             <inheritdoc />
         </member>
-        <member name="M:VM.Observer.Walk(System.Object)">
+        <member name="M:DataBind.VM.Observer.Walk(System.Object)">
             遍历所有属性，拦截get set
         </member>
-        <member name="M:VM.Observer.ObserveCollection(System.Collections.IEnumerable)">
+        <member name="M:DataBind.VM.Observer.ObserveCollection(System.Collections.IEnumerable)">
             所以成员都替换成observe
         </member>
-        <member name="F:VM.Watcher.host">
+        <member name="F:DataBind.VM.Watcher.host">
             宿主
         </member>
-        <member name="F:VM.Watcher.cb">
+        <member name="F:DataBind.VM.Watcher.cb">
             update的时候的回调函数
         </member>
-        <member name="F:VM.Watcher.sync">
+        <member name="F:DataBind.VM.Watcher.sync">
             立即执行
         </member>
-        <member name="F:VM.Watcher.active">
+        <member name="F:DataBind.VM.Watcher.active">
             控制watch的开关
         </member>
-        <member name="F:VM.Watcher.deps">
+        <member name="F:DataBind.VM.Watcher.deps">
             当前收集的依赖，用于与新的依赖差异对比
         </member>
-        <member name="F:VM.Watcher.newDeps">
+        <member name="F:DataBind.VM.Watcher.newDeps">
             本轮收集的依赖，在作为当前依赖前，需要用于差异对比
         </member>
-        <member name="F:VM.Watcher.getter">
+        <member name="F:DataBind.VM.Watcher.getter">
             最终要执行的get函数
         </member>
-        <member name="F:VM.Watcher.value">
+        <member name="F:DataBind.VM.Watcher.value">
             执行后的结果值
         </member>
-        <member name="F:VM.Watcher.loseValue">
+        <member name="F:DataBind.VM.Watcher.loseValue">
             当执行失败时所要表达值
         </member>
-        <member name="M:VM.Watcher.get">
+        <member name="M:DataBind.VM.Watcher.get">
             获取值，并重新收集依赖
         </member>
-        <member name="M:VM.Watcher.addDep(VM.Dep)">
+        <member name="M:DataBind.VM.Watcher.addDep(DataBind.VM.Dep)">
             添加依赖
             在收集依赖的时候，触发 Dependency.collectTarget.addDep
         </member>
-        <member name="M:VM.Watcher.cleanupDeps">
+        <member name="M:DataBind.VM.Watcher.cleanupDeps">
             清理依赖收集
         </member>
-        <member name="M:VM.Watcher.update">
+        <member name="M:DataBind.VM.Watcher.update">
             当依赖发生变化就会被执行
         </member>
-        <member name="M:VM.Watcher.run">
+        <member name="M:DataBind.VM.Watcher.run">
             执行watch
         </member>
-        <member name="M:VM.Watcher.depend">
+        <member name="M:DataBind.VM.Watcher.depend">
             收集该watcher的所有deps依赖
         </member>
-        <member name="M:VM.Watcher.teardown">
+        <member name="M:DataBind.VM.Watcher.teardown">
             将自身从所有依赖收集订阅列表删除
         </member>
-        <member name="P:VM.TNodeType.BracketL">
+        <member name="P:DataBind.VM.TNodeType.BracketL">
             <summary>
             [
             </summary>
         </member>
-        <member name="P:VM.TNodeType.BracketR">
+        <member name="P:DataBind.VM.TNodeType.BracketR">
             <summary>
             ]
             </summary>
         </member>
-        <member name="P:VM.TNodeType.BraceL">
+        <member name="P:DataBind.VM.TNodeType.BraceL">
             <summary>
             {
             </summary>
         </member>
-        <member name="P:VM.TNodeType.BraceR">
+        <member name="P:DataBind.VM.TNodeType.BraceR">
             <summary>
             }
             </summary>
         </member>
-        <member name="P:VM.TNodeType.ParenthesesL">
+        <member name="P:DataBind.VM.TNodeType.ParenthesesL">
             <summary>
             (
             </summary>
         </member>
-        <member name="P:VM.TNodeType.ParenthesesR">
+        <member name="P:DataBind.VM.TNodeType.ParenthesesR">
             <summary>
             )
             </summary>
         </member>
-        <member name="F:VM.WordNode.FrontAnnotation">
+        <member name="F:DataBind.VM.WordNode.FrontAnnotation">
             相关注释
         </member>
-        <member name="F:VM.ASTNodeBase.OperatorX">
+        <member name="F:DataBind.VM.ASTNodeBase.OperatorX">
             <summary>
             @type: ENodeType
             </summary>
         </member>
-        <member name="F:VM.UnitaryASTNode.Right">
+        <member name="F:DataBind.VM.UnitaryASTNode.Right">
             一元表达式的右值
         </member>
-        <member name="F:VM.BinaryASTNode.Left">
+        <member name="F:DataBind.VM.BinaryASTNode.Left">
             二元表达式的左值
         </member>
-        <member name="F:VM.BinaryASTNode.Right">
+        <member name="F:DataBind.VM.BinaryASTNode.Right">
             二元表达式的左值
         </member>
-        <member name="F:VM.CallASTNode.Left">
+        <member name="F:DataBind.VM.CallASTNode.Left">
             函数访问节点
         </member>
-        <member name="F:VM.CallASTNode.Parameters">
+        <member name="F:DataBind.VM.CallASTNode.Parameters">
             函数参数列表
         </member>
-        <member name="M:VM.Interpreter.ToString">
+        <member name="M:DataBind.VM.Interpreter.ToString">
             <inheritdoc />
         </member>
-        <member name="M:VM.Interpreter.SRun(DataBinding.CollectionExt.IWithPrototype,VM.ASTNodeBase)">
+        <member name="M:DataBind.VM.Interpreter.SRun(DataBind.CollectionExt.IWithPrototype,DataBind.VM.ASTNodeBase)">
             该函数所执行的表达式将自动进行容错处理
             1. 当访问属性产生null值时，其将不参与计算 例如：a.b+13 当a或b为空时，结果将返回13
             2. 当访问的表达式完全为null时，表达式将最终返回结果0，例如：a.b+c 则返回0
             @param environment 
             @param ast 
         </member>
-        <member name="T:VM.IHost">
+        <member name="T:DataBind.VM.IHost">
             <summary>
             实现观察者
             </summary>
         </member>
-        <member name="M:VM.IHost._Swatch(VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+        <member name="M:DataBind.VM.IHost._Swatch(DataBind.VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},DataBind.VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
-        <member name="M:VM.IHost._Sdestroy">
+        <member name="M:DataBind.VM.IHost._Sdestroy">
             释放host，包括所有watch
         </member>
-        <member name="T:VM.IObservable">
+        <member name="T:DataBind.VM.IObservable">
             <summary>
             标记可观察对象
             </summary>
         </member>
-        <member name="T:VM.IObservableCollection">
+        <member name="T:DataBind.VM.IObservableCollection">
             <summary>
             标记可观察容器对象
             </summary>
         </member>
-        <member name="T:DataBinding.HostExt2">
+        <member name="T:DataBind.HostExt2">
             <summary>
             IStdHost 代理
             </summary>
         </member>
-        <member name="M:DataBinding.HostExt2.Watch(DataBinding.IStdHost,VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+        <member name="M:DataBind.HostExt2.Watch(DataBind.IStdHost,DataBind.VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},DataBind.VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
-        <member name="M:DataBinding.HostExt2._Watch0(DataBinding.IStdHost,VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+        <member name="M:DataBind.HostExt2._Watch0(DataBind.IStdHost,DataBind.VM.CombineType{System.Object,System.String,System.Func{System.Object,System.Object,System.Object}},System.Action{System.Object,System.Object,System.Object},DataBind.VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
-        <member name="M:DataBinding.HostExt2.Watch(DataBinding.IStdHost,System.String,System.Action{System.Object,System.Object,System.Object},VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+        <member name="M:DataBind.HostExt2.Watch(DataBind.IStdHost,System.String,System.Action{System.Object,System.Object,System.Object},DataBind.VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
-        <member name="M:DataBinding.HostExt2.Watch(DataBinding.IStdHost,System.Func{System.Object,System.Object,System.Object},System.Action{System.Object,System.Object,System.Object},VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
+        <member name="M:DataBind.HostExt2.Watch(DataBind.IStdHost,System.Func{System.Object,System.Object,System.Object},System.Action{System.Object,System.Object,System.Object},DataBind.VM.CombineType{System.Object,System.String,System.Double,System.Boolean},System.Boolean)">
             侦听一个数据发生的变化
             @param expOrFn 访问的数据路径，或数据值的计算函数，当路径中的变量或计算函数所访问的值发生变化时，将会被重新执行
             @param cb 重新执行后，发生变化则会出发回调函数
         </member>
-        <member name="M:DataBinding.HostExt2.Destroy(DataBinding.IStdHost)">
+        <member name="M:DataBind.HostExt2.Destroy(DataBind.IStdHost)">
             释放host，包括所有watch
         </member>
-        <member name="M:DataBinding.HostExt2.NotifyChangeValue``1(DataBinding.IStdHost,System.String,``0)">
+        <member name="M:DataBind.HostExt2.NotifyChangeValue``1(DataBind.IStdHost,System.String,``0)">
             <summary>
             通知设置值并强制通知值已更新
             </summary>
@@ -249,7 +249,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:DataBinding.HostExt2.MarkDirty``1(DataBinding.IStdHost,System.String,``0)">
+        <member name="M:DataBind.HostExt2.MarkDirty``1(DataBind.IStdHost,System.String,``0)">
             <summary>
             强制通知值已更新
             </summary>
@@ -258,7 +258,7 @@
             <param name="oldValue"></param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:DataBinding.HostExt2.MarkDirty``1(DataBinding.IStdHost,System.String)">
+        <member name="M:DataBind.HostExt2.MarkDirty``1(DataBind.IStdHost,System.String)">
             <summary>
             强制通知值已更新
             </summary>
@@ -266,48 +266,41 @@
             <param name="key"></param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="T:DataBinding.IStdHost">
+        <member name="T:DataBind.IStdHost">
             <summary>
             用于标记需要作为观察者
             </summary>
         </member>
-        <member name="T:DataBinding.StdHostAttribute">
+        <member name="T:DataBind.StdHostAttribute">
             <summary>
             手动添加，标记这个类需要作为观察者
             </summary>
         </member>
-        <member name="T:DataBinding.ObservableAttribute">
+        <member name="T:DataBind.ObservableAttribute">
             <summary>
             标记可观察对象
             </summary>
         </member>
-        <member name="F:DataBinding.ObservableAttribute.ObserveState">
+        <member name="F:DataBind.ObservableAttribute.ObserveState">
             <summary>
             状态：0：可观察，1：已观察，2：无需观察
             </summary>
         </member>
-        <member name="T:DataBinding.ObservableRecursiveAttribute">
+        <member name="T:DataBind.ObservableRecursiveAttribute">
             <summary>
             标记可观察对象
             - 所有属性对应的类型也会被标记为可观察
             </summary>
         </member>
-        <member name="T:DataBinding.AutoFieldPropertyAttribute">
+        <member name="T:DataBind.AutoFieldPropertyAttribute">
             <summary>
             使field自动转为property
             </summary>
         </member>
-        <member name="T:DataBinding.KeepFieldPropertyAttribute">
+        <member name="T:DataBind.KeepFieldPropertyAttribute">
             <summary>
             使field自动转为property
             </summary>
-        </member>
-        <member name="M:StringExt._P_length(System.String)">
-            <summary>
-            _P_ 开头的方法可以以属性的形式在数据绑定表达式中使用
-            </summary>
-            <param name="str"></param>
-            <returns></returns>
         </member>
     </members>
 </doc>

@@ -1,7 +1,7 @@
-using DataBinding.UIBind;
+using DataBind.UIBind;
 using UnityEngine;
 
-namespace TestDataBinding.TestBasic
+namespace TestDataBind.TestBasic
 {
 	public class TestBase : MonoBehaviour
 	{
@@ -104,7 +104,7 @@ namespace TestDataBinding.TestBasic
 
 		public virtual void Tick()
 		{
-			VM.Tick.Next();
+			DataBind.VM.Tick.Next();
 		}
 
 		protected virtual void Update()

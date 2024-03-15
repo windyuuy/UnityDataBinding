@@ -1,5 +1,5 @@
-﻿// 需要引用DataBinding命名空间
-using DataBinding;
+﻿// 需要引用DataBind命名空间
+using DataBind;
 
 // 需要实现 IStdHost 观察者接口
 public class SampleHost:IStdHost

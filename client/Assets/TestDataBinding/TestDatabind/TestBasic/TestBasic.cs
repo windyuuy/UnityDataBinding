@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using DataBinding;
+using DataBind;
 
-namespace TestDataBinding.TestBasic
+namespace TestDataBind.TestBasic
 {
 	class TRawData : IStdHost
 	{

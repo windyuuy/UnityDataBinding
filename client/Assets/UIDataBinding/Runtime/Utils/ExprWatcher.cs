@@ -1,9 +1,9 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using DataBinding;
+using DataBind;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	/**
 	 * 表达式监听集合

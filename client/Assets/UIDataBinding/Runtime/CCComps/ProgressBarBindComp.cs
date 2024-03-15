@@ -2,10 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	[AddComponentMenu("DataDrive/ProgressBarBind")]
-	public class ProgressBarBindComp : DataBindCompBase
+	public class ProgressBarBindComp : DataBindBaseComp
 	{
 		[SerializeField] [Rename("主属性")] public string key = "";
 

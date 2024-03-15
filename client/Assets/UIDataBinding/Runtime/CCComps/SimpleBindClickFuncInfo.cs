@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DataBinding.UIBind
+namespace DataBind.UIBind
 {
 	[System.Serializable]
 	public class SimpleBindClickFuncInfo
