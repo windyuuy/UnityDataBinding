@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DataBinding.UIBind
 {
+	[AddComponentMenu("DataDrive/DataBindHub")]
 	public abstract class DataBindCompBase : MyComponent, ICCDataBindBase
 	{
 		// constructor(...args: any[]) {

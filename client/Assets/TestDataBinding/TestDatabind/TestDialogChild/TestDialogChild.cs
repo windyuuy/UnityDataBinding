@@ -55,7 +55,7 @@ namespace TestDataBinding.Tests.TestDialogChild
 		{
 			var CustomDataNode = this.CN("CustomData")!;
 			var label = CustomDataNode.CN("Label")?.GetComponent<Text>()!;
-			var ccDialogChild = CustomDataNode.GetComponent<DialogChildComp>()!;
+			var ccDialogChild = CustomDataNode.GetComponent<SubHostComp>()!;
 			Assert(label.text == "label");
 			this.Tick();
 			Assert(label.text == "label");
@@ -79,7 +79,7 @@ namespace TestDataBinding.Tests.TestDialogChild
 		{
 			var AutoBindNode = this.CN("AutoBind")!;
 			var label = AutoBindNode.CN("Label")?.GetComponent<Text>()!;
-			var ccDialogChild = AutoBindNode.GetComponent<DialogChildComp>()!;
+			var ccDialogChild = AutoBindNode.GetComponent<SubHostComp>()!;
 			this.Tick();
 			Assert(label.text == this.RawData.C1.AV2);
 			ccDialogChild.ObserveData(this.rawData3);
