@@ -1,4 +1,5 @@
 ﻿using System;
+using DataBind.UIBind.Meta;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +13,7 @@ namespace DataBind.UIBind
 		{
 		}
 
+		[UIBindKey(typeof(object))]
 		public string key = "";
 		[SerializeField] protected ActionEvent onAction;
 

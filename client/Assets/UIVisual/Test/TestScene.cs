@@ -13,7 +13,7 @@ public class TestScene : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        VM.Tick.Next();
+        DataBind.VM.Tick.Next();
     }
 
     public void OnClick()

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace DataBind.UIBind
 {
-	[AddComponentMenu("DataDrive/SubDataHub")]
-	public class SubDataHubComp : MyComponent, ICCSubDataHub
+	// [AddComponentMenu("DataDrive/SubDataHub")]
+	public abstract class SubDataHubComp : MyComponent, ICCSubDataHub
 	{
 		protected virtual ISubDataHub SubDataHub { get; set; }
 		public virtual string SubKey { get; set; }

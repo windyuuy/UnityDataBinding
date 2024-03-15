@@ -1,6 +1,6 @@
 using System;
 using Unity.VisualScripting;
-using DataBinding;
+using DataBind;
 using UnityEngine;
 
 // TODO: adapt AutoFieldProperty for visualscripting

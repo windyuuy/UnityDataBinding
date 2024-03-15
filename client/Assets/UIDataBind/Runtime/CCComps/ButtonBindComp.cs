@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using DataBind.UIBind.Meta;
 using Console = EngineAdapter.Diagnostics.Console;
 
 namespace DataBind.UIBind
@@ -11,9 +12,11 @@ namespace DataBind.UIBind
 	[AddComponentMenu("DataDrive/ButtonBind")]
 	public class ButtonBindComp : DataBindBaseComp
 	{
+		[UIBindKey(typeof(bool))]
 		[Rename("可交互")]
 		public string kInteractive = "";
 
+		[UIBindKey(typeof(bool))]
 		[Rename("变灰")]
 		public string kToGray = "";
 

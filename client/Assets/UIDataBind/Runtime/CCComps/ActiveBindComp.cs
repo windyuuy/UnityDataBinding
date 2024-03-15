@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using DataBind.UIBind.Meta;
 using UnityEngine.Serialization;
 
 namespace DataBind.UIBind
@@ -9,6 +10,7 @@ namespace DataBind.UIBind
 	public class ActiveBindComp : DataBindBaseComp
 	{
 		[FormerlySerializedAs("visible")] [Rename("可见性")]
+		[UIBindKey(typeof(object))]
 		public string key = "";
 
 		protected override bool NeedAttach()

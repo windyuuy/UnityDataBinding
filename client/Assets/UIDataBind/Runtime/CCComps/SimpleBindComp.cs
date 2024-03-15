@@ -2,23 +2,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using DataBind.UIBind.Meta;
 
 namespace DataBind.UIBind
 {
 	// TODO: 针对资源的绑定，改为在组件上弱引用资源， 由数据绑定提供索引/键值
 	[AddComponentMenu("DataDrive/SimpleBind")]
-	public class SimpleBindComp : DataBindBaseComp
+	public sealed class SimpleBindComp : DataBindBaseComp
 	{
-		[Rename("主属性")]
-		public string key = "";
+		[UIBindKey(typeof(object))]
+		[Rename("主属性")] public string key = "";
 
-		[Rename("忽略undefined值")]
-		public bool ignoreUndefinedValue = true;
+		[Rename("忽略undefined值")] public bool ignoreUndefinedValue = true;
 
-		[HideInInspector]
-		public object target;
+		[HideInInspector] public object target;
 
-		public virtual ISEventCleanInfo2<object, object> WatchValueChange2<T>(string key0, Action<T, T> call)
+		public ISEventCleanInfo2<object, object> WatchValueChange2<T>(string key0, Action<T, T> call)
 		{
 			return base.WatchValueChange<T>(key0, (value, old) =>
 			{
@@ -51,13 +50,14 @@ namespace DataBind.UIBind
 		}
 
 		// TODO: 完善文本赋值
-		public virtual bool CheckLabel()
+		public bool CheckLabel()
 		{
 			var label = this.GetComponent<Text>();
 			if (label == null)
 			{
 				return false;
 			}
+
 			this.target = label;
 			this.WatchValueChange2<string>(this.key, (newValue, oldValue) =>
 			{
@@ -66,14 +66,14 @@ namespace DataBind.UIBind
 			return true;
 		}
 
-		public virtual bool CheckProgressBar()
+		public bool CheckProgressBar()
 		{
-
 			var progressComponent = this.GetComponent<Slider>();
 			if (progressComponent == null)
 			{
 				return false;
 			}
+
 			this.target = progressComponent;
 			this.WatchValueChange2<float>(this.key, (newValue, oldValue) =>
 			{
@@ -82,15 +82,16 @@ namespace DataBind.UIBind
 			return true;
 		}
 
-		[HideInInspector]
-		public string spriteTextureUrl;
-		public virtual bool CheckSprite()
+		[HideInInspector] public string spriteTextureUrl;
+
+		public bool CheckSprite()
 		{
 			var sprite = this.GetComponent<Image>();
 			if (sprite == null)
 			{
 				return false;
 			}
+
 			this.target = sprite;
 			this.WatchValueChange2<string>(this.key, (newValue, oldValue) =>
 			{
@@ -103,7 +104,7 @@ namespace DataBind.UIBind
 			return true;
 		}
 
-		protected virtual void LoadImage(string url, Image sprite)
+		protected void LoadImage(string url, Image sprite)
 		{
 			if (url == "")
 			{

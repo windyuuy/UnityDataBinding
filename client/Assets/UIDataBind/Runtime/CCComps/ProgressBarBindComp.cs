@@ -1,4 +1,5 @@
 ﻿using System;
+using DataBind.UIBind.Meta;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,7 @@ namespace DataBind.UIBind
 	[AddComponentMenu("DataDrive/ProgressBarBind")]
 	public class ProgressBarBindComp : DataBindBaseComp
 	{
+		[UIBindKey(typeof(float))]
 		[SerializeField] [Rename("主属性")] public string key = "";
 
 		[SerializeField] [Rename("忽略undefined值")]

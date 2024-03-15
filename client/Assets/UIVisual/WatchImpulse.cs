@@ -1,6 +1,6 @@
 
 using Unity.VisualScripting;
-using DataBinding;
+using DataBind;
 
 public class WatchImpulse : Unit
 {
@@ -17,7 +17,7 @@ public class WatchImpulse : Unit
     public ValueInput host;
 
     protected GraphReference inputFlowRef = null;
-    protected VM.Watcher watcher;
+    protected DataBind.VM.Watcher watcher;
 
     protected override void Definition()
     {

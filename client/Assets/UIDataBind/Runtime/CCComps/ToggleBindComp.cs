@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DataBind.UIBind.Meta;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,7 @@ namespace DataBind.UIBind
 	[AddComponentMenu("DataDrive/ToggleBind")]
 	public class ToggleBindComp : DataBindBaseComp
 	{
+		[UIBindKey(typeof(bool))]
 		[Rename("是否选中")] [SerializeField] public string kIsChecked = "";
 
 		[SerializeField] public Toggle target;

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using DataBind.UIBind.Meta;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -31,6 +33,7 @@ namespace DataBind.UIBind
 		[FormerlySerializedAs("_subKey")]
 		[Rename("绑定子项数据源")]
 		[SerializeField]
+		[UIBindKey(typeof(List<object>))]
 		private string subKey = "";
 
 		public override string SubKey

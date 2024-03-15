@@ -1,4 +1,5 @@
 ﻿using System;
+using DataBind.UIBind.Meta;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,7 @@ namespace DataBind.UIBind
 	[AddComponentMenu("DataDrive/LabelBind")]
 	public class TextBindComp : DataBindBaseComp
 	{
+		[UIBindKey(typeof(string))]
 		[SerializeField] [Rename("主属性")] protected string key = "";
 		[SerializeField] protected Text label;
 

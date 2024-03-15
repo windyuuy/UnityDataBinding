@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using DataBind.UIBind.Meta;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ namespace DataBind.UIBind
 	[AddComponentMenu("DataDrive/ImageBind")]
 	public class ImageBindComp : DataBindBaseComp
 	{
+		[UIBindKey(typeof(string))]
 		[SerializeField] [Rename("主属性")] protected string key = "";
 
 		[SerializeField] protected Image target;
