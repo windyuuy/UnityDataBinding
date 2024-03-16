@@ -27,13 +27,16 @@ namespace UISys.Editor
 			var layerRootRefProp = property.FindPropertyRelative("layerRootRef");
 			var uriProp = property.FindPropertyRelative("uri");
 
-			EditorGUILayout.BeginHorizontal();
+			var div = 2;
+			var windowWidth = EditorGUIUtility.currentViewWidth-div*4- 50;
+			var width = windowWidth / 3;
+			var layerRect = new Rect(position.x, position.y, width, position.height);
+			var layerRootRect = new Rect(layerRect.xMax+div, position.y, width, position.height);
+			var uriRect = new Rect(layerRootRect.xMax+div, position.y, width, position.height);
+			EditorUtils.DrawAssetReferenceT<UILayer>(layerProp, layerRect);
 
-			EditorUtils.DrawAssetReferenceT<UILayer>(layerProp);
-
-			EditorGUILayout.PropertyField(layerRootRefProp, GUIContent.none);
-			EditorGUILayout.PropertyField(uriProp, GUIContent.none);
-			EditorGUILayout.EndHorizontal();
+			EditorGUI.PropertyField(layerRootRect, layerRootRefProp, GUIContent.none);
+			EditorGUI.PropertyField(uriRect, uriProp, GUIContent.none);
 		}
 
 	}

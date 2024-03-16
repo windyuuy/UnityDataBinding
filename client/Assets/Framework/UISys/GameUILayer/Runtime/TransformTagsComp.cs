@@ -5,9 +5,10 @@ using UnityEngine;
 namespace UISys.Runtime
 {
 	[AddComponentMenu("UISys/Tags")]
+	[DisallowMultipleComponent]
 	public class TransformTagsComp : MonoBehaviour
 	{
-		[SerializeField] protected LayerTagsConfig config;
+		[SerializeField] protected PresetTagsConfig config;
 
 		public string[] PresetTags => config == null ? Array.Empty<string>() : config.presetTags;
 

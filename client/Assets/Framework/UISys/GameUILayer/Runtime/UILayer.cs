@@ -14,6 +14,16 @@ namespace UISys.Runtime
 	{
 		[SerializeField] protected TransformTagsComp tagsComp;
 
+#if UNITY_EDITOR
+		protected virtual void Reset()
+		{
+			if (this.tagsComp == null)
+			{
+				this.tagsComp = this.GetComponent<TransformTagsComp>();
+			}
+		}
+#endif
+
 		public virtual string[] LayerTags
 		{
 			get => tagsComp == null ? Array.Empty<string>() : tagsComp.Tags;

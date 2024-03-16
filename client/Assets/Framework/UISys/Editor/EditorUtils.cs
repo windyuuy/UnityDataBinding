@@ -27,11 +27,11 @@ namespace UISys.Editor
 			return empty;
 		}
 		
-		public static void DrawAssetReferenceT<T>(SerializedProperty layerProp) where T : Component
+		public static void DrawAssetReferenceT<T>(SerializedProperty layerProp, Rect layerRect) where T : Component
 		{
-			DrawAssetReferenceT(layerProp, typeof(T));
+			DrawAssetReferenceT(layerProp, typeof(T), layerRect);
 		}
-		public static void DrawAssetReferenceT(SerializedProperty layerProp, Type type)
+		public static void DrawAssetReferenceT(SerializedProperty layerProp, Type type, Rect layerRect)
 		{
 			var objRef = (AssetReferenceGameObject)layerProp.boxedValue;
 			var nullRef = EditorUtils.GetEmptyReferenceGameObject(objRef);
@@ -41,7 +41,7 @@ namespace UISys.Editor
 				: null;
 			var gType = typeof(GameObject);
 			EditorGUI.BeginChangeCheck();
-			var uiLayer = EditorGUILayout.ObjectField(GUIContent.none, value2,
+			var uiLayer = EditorGUI.ObjectField(layerRect, GUIContent.none, value2,
 				gType, false);
 			if (EditorGUI.EndChangeCheck())
 			{

@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace UISys.Runtime
 {
 	[CreateAssetMenu(fileName = "TagOrdersConfig.asset", menuName = "UISys/TagOrdersConfig")]
 	public class TagOrdersConfig : ScriptableObject
 	{
+		public PresetTagsConfig presetTagsConfig;
+		
 		public List<string> mainOrders;
 		public List<string> dependOrders;
 		public TagOrdersConfig[] extendConfigs;

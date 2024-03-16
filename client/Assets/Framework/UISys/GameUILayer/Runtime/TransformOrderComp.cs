@@ -9,6 +9,7 @@ using UnityEngine.Serialization;
 namespace gcc.layer
 {
 	[AddComponentMenu("UISys/TransformOrder")]
+	[DisallowMultipleComponent]
 	public class TransformOrderComp : MonoBehaviour
 	{
 		[SerializeField] protected TagOrdersConfig config;

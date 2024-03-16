@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TagOrdersConfig
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 6efd724a0b1049abbafad648bc9e8dc5, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: presetTagsConfig
+    value: 
+    objectReference: {fileID: 11400000, guid: b9ceeb8fd5e7f474e96c3a1ad02831a8, type: 2}
+  - target: {fileID: 0}
+    propertyPath: mainOrders.Array.size
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: mainOrders.Array.data[0]
+    value: AA<BB<CC
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: dependOrders.Array.size
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: dependOrders.Array.data[0]
+    value: DD>CC
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: extendConfigs.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
