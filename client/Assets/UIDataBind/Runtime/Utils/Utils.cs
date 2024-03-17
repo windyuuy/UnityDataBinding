@@ -103,7 +103,7 @@ namespace DataBind.UIBind
 			return comp != null;
 		}
 
-		public static void DestorySafe(this GameObject self, bool immediateForce = false)
+		public static void DestroySafe(this GameObject self, bool immediateForce = false)
 		{
 #if UNITY_EDITOR
 			if (immediateForce || !Application.isPlaying)

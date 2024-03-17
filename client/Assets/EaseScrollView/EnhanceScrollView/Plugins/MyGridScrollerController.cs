@@ -54,7 +54,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 // 				return;
 // 			}
 // #endif
-			InitContainer();
+			InitContainer(ContainerBindComp);
 
 			if (cellViewPrefab == null)
 			{
@@ -80,8 +80,11 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			}
 		}
 
-		protected virtual void InitContainer()
+		protected ContainerBindComp ContainerBindComp;
+		protected virtual void InitContainer(ContainerBindComp containerBindComp)
 		{
+			ContainerBindComp = containerBindComp;
+			
 			if (scrollRect == null)
 			{
 				scrollRect = this.GetComponent<ScrollRect>();
@@ -225,6 +228,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 				var itemHost = dataSource;
 				var itemHost1 = DataBind.VM.Utils.ImplementStdHost(itemHost);
 				ccItem.BindDataHost(itemHost1, $"N|{ccItem.ContainerItem.Index}");
+				ContainerBindComp.BindItem(ccItem);
 			}
 		}
 
@@ -261,6 +265,13 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 		public virtual void RecycleCellView(RectTransform cellView, int dataIndex)
 		{
 			cellView.localPosition = InVisiblePos;
+			
+			var ccItem = cellView.GetComponent<ContainerItemComp>();
+			if (ccItem != null)
+			{
+				ccItem.UnsetDataHost();
+				ContainerBindComp.UnbindItem(ccItem);
+			}
 		}
 
 		public Vector2 ToVec2(Vector3 pos)

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System;
+using DataBind.UIBind;
 using EaseScrollView.EnhanceScrollView.Plugins;
 using UnityEditor;
 
@@ -1751,6 +1752,10 @@ namespace EnhancedUI.EnhancedScroller
         private void _RecycleCell(EnhancedScrollerCellView cellView)
         {
             if (cellViewWillRecycle != null) cellViewWillRecycle(cellView);
+            if (_delegate != null)
+            {
+                _delegate.RecycleCellView(cellView);
+            }
 
             // remove the cell view from the active list
             _activeCellViews.Remove(cellView);
@@ -2085,7 +2090,7 @@ namespace EnhancedUI.EnhancedScroller
             _lastLoop = loop;
             _lastScrollbarVisibility = scrollbarVisibility;
 
-            InitContainer();
+            InitContainer(ContainerBindComp);
             
             _initialized = true;
             _delegate.OnScrollerInitialized();
@@ -2101,8 +2106,10 @@ namespace EnhancedUI.EnhancedScroller
             }
         }
 
-		protected void InitContainer()
-		{
+        protected ContainerBindComp ContainerBindComp;
+		protected void InitContainer(ContainerBindComp containerBindComp)
+        {
+            ContainerBindComp = containerBindComp;
             if (_delegate == null)
             {
                 _delegate=this.GetComponent<DefaultEnhancedScrollerController>();

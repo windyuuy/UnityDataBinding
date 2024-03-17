@@ -9,9 +9,11 @@ namespace DataBind.UIBind
 		 * 如果子节点没有添加 DialogChild, 那么强制为所有子节点添加 DialogChild
 		 */
 		[Rename("自动收容子节点")] public bool bindChildren = true;
-		
-		protected virtual void InitContainer()
+
+		protected ContainerBindComp ContainerBindComp;
+		protected virtual void InitContainer(ContainerBindComp containerBindComp)
 		{
+			ContainerBindComp = containerBindComp;
 			if (this.bindChildren)
 			{
 				this.ForEachChildren(child =>
@@ -78,6 +80,7 @@ namespace DataBind.UIBind
 						var itemHost = dataSources[(int)ccItem.ContainerItem.Index];
 						var itemHost1 = VM.Utils.ImplementStdHost(itemHost);
 						ccItem.BindDataHost(itemHost1, $"N|{ccItem.ContainerItem.Index}");
+						ContainerBindComp.BindItem(ccItem);
 					});
 				}
 
@@ -108,6 +111,12 @@ namespace DataBind.UIBind
 		{
 			child.gameObject.SetActive(false);
 			// GameObject.DestroyImmediate(child.gameObject);
+			var ccItem = child.GetComponent<ContainerItemComp>();
+			if (ccItem != null)
+			{
+				ccItem.UnsetDataHost();
+				ContainerBindComp.UnbindItem(ccItem);
+			}
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 
 		protected virtual void Awake()
 		{
-			InitContainer();
+			InitContainer(ContainerBindComp);
 			
 			if (CellViewPrefab == null)
 			{
@@ -67,8 +67,10 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 			}
 		}
 
-		protected virtual void InitContainer()
+		protected ContainerBindComp ContainerBindComp;
+		protected virtual void InitContainer(ContainerBindComp containerBindComp)
 		{
+			ContainerBindComp = containerBindComp;
 			if (enhancedScroller == null)
 			{
 				enhancedScroller = this.gameObject.GetComponent<EnhancedScroller>();
@@ -205,6 +207,17 @@ namespace EaseScrollView.EnhanceScrollView.Plugins
 				var itemHost = dataSource;
 				var itemHost1 = DataBind.VM.Utils.ImplementStdHost(itemHost);
 				ccItem.BindDataHost(itemHost1, $"N|{ccItem.ContainerItem.Index}");
+				ContainerBindComp.BindItem(ccItem);
+			}
+		}
+
+		public void RecycleCellView(EnhancedScrollerCellView cellView)
+		{
+			var ccItem = cellView.GetComponent<ContainerItemComp>();
+			if (ccItem != null)
+			{
+				ccItem.UnsetDataHost();
+				ContainerBindComp.UnbindItem(ccItem);
 			}
 		}
 

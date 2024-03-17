@@ -34,5 +34,6 @@ namespace EnhancedUI.EnhancedScroller
 		EnhancedScrollerCellView GetCellView(int dataIndex, int cellIndex);
 
 		void OnScrollerInitialized();
+		void RecycleCellView(EnhancedScrollerCellView cellView);
 	}
 }

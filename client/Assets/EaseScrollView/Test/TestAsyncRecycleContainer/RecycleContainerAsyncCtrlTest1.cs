@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using DataBind.UIBind;
 using DataBind.UIBind.RecycleContainer;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -11,12 +12,12 @@ namespace EaseScrollView.Test
 		public GameObject templateNode;
 
 		protected Transform Root;
-		protected override void InitContainer()
+		protected override void InitContainer(ContainerBindComp containerBindComp)
 		{
 			Root = new GameObject("RecycleRoot").transform;
 			Root.gameObject.SetActive(false);
 			
-			base.InitContainer();
+			base.InitContainer(containerBindComp);
 		}
 
 		protected override Transform GetTemplateNode(int index)

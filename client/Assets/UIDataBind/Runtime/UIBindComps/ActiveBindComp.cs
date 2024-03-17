@@ -17,7 +17,7 @@ namespace DataBind.UIBind
 		{
 			if (!string.IsNullOrEmpty(this.key))
 			{
-				if(this.isAttachCalled && this.enabled)
+				if(this.IsAttachCalled && this.enabled)
                 {
 					var p = this.transform.parent;
 					return p != null && p.IsActiveInHierarchy();
@@ -26,7 +26,7 @@ namespace DataBind.UIBind
 			}
 			else
 			{
-				return this.isAttachCalled && this.EnabledInHierarchy;
+				return this.IsAttachCalled && this.EnabledInHierarchy;
 			}
 		}
 

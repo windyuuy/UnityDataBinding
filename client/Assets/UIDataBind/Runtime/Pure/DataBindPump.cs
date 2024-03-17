@@ -16,10 +16,10 @@ namespace DataBind.UIBind
 		public EventHandlerMV2<object, object> Call;
 	}
 
-	public class DataBind
+	public class DataBindPump: IDataBindPump
 	{
-		public Object RawObj;
-		public DataBindHub BindHub;
+		public Object RawObj { get; set; }
+		public DataBindHub BindHub { get; set; }
 		public void AddBindHub(IDataBindHub bindHub1)
 		{
 			this.AddBindHub((DataBindHub)bindHub1);
@@ -28,6 +28,7 @@ namespace DataBind.UIBind
 		{
 			this.BindHub = bindHub1;
 			this.RecoverWatchers();
+			bindHub1.DataBindPumps.Add(this);
 		}
 		public void RemoveBindHub(IDataBindHub bindHub1)
 		{
@@ -37,6 +38,10 @@ namespace DataBind.UIBind
 		{
 			if (bindHub1 == null || this.BindHub == bindHub1)
 			{
+				if (bindHub1 != null)
+				{
+					bindHub1.DataBindPumps.Remove(this);
+				}
 				this.BreakWatchers();
 				this.BindHub = null;
 			}
@@ -77,6 +82,7 @@ namespace DataBind.UIBind
 		{
 			if (this.BindHub != null)
 			{
+				Debug.Assert(call.Target is IRawObjObservable, "call.Target is IRawObjObservable");
 				var watcher = this.BindHub.EaseWatchExprValue(expr, call);
 				if (watcher != null)
 				{
@@ -96,7 +102,7 @@ namespace DataBind.UIBind
 		{
 			this.UnRecordPresetExpr(expr, call);
 
-			var watcher = this.WatchingExprs.Find(watcher => watcher.Callback == call && watcher.key == expr);
+			var watcher = this.WatchingExprs.Find(watcher => watcher.Callback == call && watcher.Key == expr);
 			if (watcher != null)
 			{
 				this.WatchingExprs.Remove(watcher);
@@ -131,14 +137,14 @@ namespace DataBind.UIBind
 		/// <summary>
 		/// break watchers when hub is break
 		/// </summary>
-		public void BreakWatchers()
+		protected void BreakWatchers()
 		{
 			if (this.BindHub != null)
 			{
 				var bindHub1 = this.BindHub;
 				this.WatchingExprs.ForEach((ISEventCleanInfo2<object, object> info) =>
 				{
-					var key = info.key;
+					var key = info.Key;
 					var callback = info.Callback;
 					bindHub1.EaseUnWatchExprValue(key, callback);
 				});

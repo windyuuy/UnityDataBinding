@@ -16,24 +16,26 @@ namespace DataBind.UIBind
 		[Rename("忽略undefined值")] public bool ignoreUndefinedValue = true;
 
 		[HideInInspector] public object target;
-
-		public ISEventCleanInfo2<object, object> WatchValueChange2<T>(string key0, Action<T, T> call)
-		{
-			return base.WatchValueChange<T>(key0, (value, old) =>
-			{
-				if (this.ignoreUndefinedValue)
-				{
-					if (value != null)
-					{
-						call((T)value, (T)(old ?? default(T)));
-					}
-				}
-				else
-				{
-					call((T)(value ?? default(T)), (T)(old ?? default(T)));
-				}
-			});
-		}
+		//
+		// public ISEventCleanInfo2<object, object> WatchValueChange2<T>(string key0, Action<T, T> call)
+		// {
+		// 	return base.WatchValueChange<T>(key0, OnValueChanged);
+		// }
+		//
+		// protected void OnValueChanged(object value, object old)
+		// {
+		// 	if (this.ignoreUndefinedValue)
+		// 	{
+		// 		if (value != null)
+		// 		{
+		// 			call((T)value, (T)(old ?? default(T)));
+		// 		}
+		// 	}
+		// 	else
+		// 	{
+		// 		call((T)(value ?? default(T)), (T)(old ?? default(T)));
+		// 	}
+		// }
 
 		/**
 		 * 更新显示状态
@@ -49,59 +51,90 @@ namespace DataBind.UIBind
 			}
 		}
 
+		protected Text Label;
 		// TODO: 完善文本赋值
 		public bool CheckLabel()
 		{
-			var label = this.GetComponent<Text>();
-			if (label == null)
+			if (Label == null)
+			{
+				Label = this.GetComponent<Text>();
+			}
+			if (Label == null)
 			{
 				return false;
 			}
 
-			this.target = label;
-			this.WatchValueChange2<string>(this.key, (newValue, oldValue) =>
-			{
-				if (label) label.text = $"{newValue}";
-			});
+			this.target = Label;
+			this.WatchValueChange<string>(this.key, OnTextChanged);
 			return true;
 		}
 
+		protected void OnTextChanged(object newValue,object oldValue)
+		{
+			var newValue2 = ConvValueType<string>(newValue);
+			if (Label) Label.text = $"{newValue2}";
+		}
+
+		protected Slider ProgressComponent;
 		public bool CheckProgressBar()
 		{
-			var progressComponent = this.GetComponent<Slider>();
-			if (progressComponent == null)
+			if (ProgressComponent == null)
+			{
+				ProgressComponent = this.GetComponent<Slider>();
+			}
+			if (ProgressComponent == null)
 			{
 				return false;
 			}
 
-			this.target = progressComponent;
-			this.WatchValueChange2<float>(this.key, (newValue, oldValue) =>
-			{
-				if (progressComponent) progressComponent.value = newValue;
-			});
+			this.target = ProgressComponent;
+
+			this.WatchValueChange<float>(this.key, OnFloatChanged);
 			return true;
+		}
+
+		protected void OnFloatChanged(object newValue, object oldValue)
+		{
+			var newValue2 = ConvValueType<float>(newValue);
+			if (ProgressComponent != null)
+			{
+				ProgressComponent.value = newValue2;
+			}
 		}
 
 		[HideInInspector] public string spriteTextureUrl;
 
+		protected Image Sprite;
 		public bool CheckSprite()
 		{
-			var sprite = this.GetComponent<Image>();
-			if (sprite == null)
+			if (Sprite == null)
+			{
+				Sprite = this.GetComponent<Image>();
+			}
+			if (Sprite == null)
 			{
 				return false;
 			}
 
-			this.target = sprite;
-			this.WatchValueChange2<string>(this.key, (newValue, oldValue) =>
-			{
-				if (sprite != null && this.spriteTextureUrl != newValue)
-				{
-					this.spriteTextureUrl = newValue;
-					this.LoadImage(newValue, sprite);
-				}
-			});
+			this.target = Sprite;
+
+			this.WatchValueChange<string>(this.key, OnUrlChanged);
 			return true;
+		}
+
+		void OnUrlChanged(object newValue, object oldValue)
+		{
+			var newValue2 = ConvValueType<string>(newValue)??"";
+			if (Sprite != null && this.spriteTextureUrl != newValue2)
+			{
+				this.spriteTextureUrl = newValue2;
+				this.LoadImage(newValue2, Sprite);
+			}
+		}
+
+		private T ConvValueType<T>(object newValue)
+		{
+			return ignoreUndefinedValue ? (newValue==null ? default(T):(T)newValue) : (T)newValue;
 		}
 
 		protected void LoadImage(string url, Image sprite)

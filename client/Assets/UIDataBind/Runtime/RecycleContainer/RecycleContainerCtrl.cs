@@ -34,8 +34,8 @@ namespace DataBind.UIBind.RecycleContainer
 
 			IsAwake = true;
 		}
-
-		protected override void InitContainer()
+		
+		protected override void InitContainer(ContainerBindComp containerBindComp)
 		{
 			InitLayoutRebuilder();
 
@@ -64,7 +64,7 @@ namespace DataBind.UIBind.RecycleContainer
 				Debug.LogError($"scroll rect invalid, please set it");
 			}
 
-			base.InitContainer();
+			base.InitContainer(containerBindComp);
 		}
 
 		protected bool IsDataDirty = false;
@@ -926,7 +926,7 @@ namespace DataBind.UIBind.RecycleContainer
 
 		public virtual void ReleaseNode(Transform child)
 		{
-			child.gameObject.DestorySafe();
+			child.gameObject.DestroySafe();
 		}
 
 		protected override void ApplyResetPosition(Transform child, int index, ref Vector3 localPosition)

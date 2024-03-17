@@ -40,7 +40,7 @@ namespace DataBind.UIBind
 
 	public interface ICCDataBindBase : ICCIntegrate
 	{
-		DataBind DataBind { get; set; }
+		DataBindPump DataBindPump { get; set; }
 		void DoBindItems();
 		void DoUnBindItems();
 	}
@@ -90,7 +90,7 @@ namespace DataBind.UIBind
 			else
 			{
 				var ccParent = SeekSurfParent<DataBindHubComp>(comp.transform);
-				ccParent?.DataBindHub.addBindHub(self.DataBindHub);
+				ccParent?.DataBindHub.AddBindHub(self.DataBindHub);
 			}
 
 		}
@@ -160,7 +160,7 @@ namespace DataBind.UIBind
 		public static void OnAddDataBind(ICCDataBindBase self)
 		{
 			var selfComp = self as Component;
-			self.DataBind.RawObj = self;
+			self.DataBindPump.RawObj = self;
 			var lifeComp = selfComp.GetOrAddComponent<NodeLifeComp>();
 			// lifeComp.integrate()
 		}
@@ -172,7 +172,7 @@ namespace DataBind.UIBind
 			var ccDataBindHub = selfComp.GetComponent<DataBindHubComp>() ?? SeekSurfParent<DataBindHubComp>(selfComp.transform);
 			if (ccDataBindHub)
 			{
-				self.DataBind.AddBindHub(ccDataBindHub.DataBindHub);
+				self.DataBindPump.AddBindHub(ccDataBindHub.DataBindHub);
 			}
 			self.DoBindItems();
 		}
@@ -180,10 +180,10 @@ namespace DataBind.UIBind
 		public static void OnDerelateDataBind(ICCDataBindBase self)
 		{
 			self.DoUnBindItems();
-			var parent = self.DataBind.BindHub;
+			var parent = self.DataBindPump.BindHub;
 			if (parent != null)
 			{
-				self.DataBind.RemoveBindHub(parent);
+				self.DataBindPump.RemoveBindHub(parent);
 			}
 		}
 

@@ -13,7 +13,7 @@ namespace DataBind.UIBind
 
 		protected override bool NeedAttach()
 		{
-			if (this.isAttachCalled && this.enabled)
+			if (this.IsAttachCalled && this.enabled)
 			{
 				var parent = this.transform.parent;
 				return  parent!=null && parent.IsActiveInHierarchy();

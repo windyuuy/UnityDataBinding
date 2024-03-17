@@ -5,21 +5,21 @@ using System.Collections.Generic;
 namespace DataBind.UIBind
 {
 	[AddComponentMenu("DataDrive/DataBindBase")]
-	public abstract class DataBindBaseComp : MyComponent, ICCDataBindBase
+	public abstract class DataBindBaseComp : MyComponent, ICCDataBindBase, IRawObjObservable
 	{
 		// constructor(...args: any[]) {
 		// 	super(...args)
 		// }
 
-		public virtual DataBind DataBind { get; set; } = new DataBind();
+		public virtual DataBindPump DataBindPump { get; set; } = new DataBindPump();
 
 		public virtual ISEventCleanInfo2<object, object> WatchValueChange<T>(string key, EventHandlerMV2<object, object> call)
 		{
-			return this.DataBind.WatchExprValue(key, call);
+			return this.DataBindPump.WatchExprValue(key, call);
 		}
 		public virtual void ClearWatchers()
 		{
-			this.DataBind.ClearWatchers();
+			this.DataBindPump.ClearWatchers();
 		}
 
 		public virtual void DoBindItems()
@@ -38,33 +38,6 @@ namespace DataBind.UIBind
 			this.ClearWatchers();
 		}
 
-		// /**
-		//  * 获取当前组件所在节点的host
-		//  */
-		// public virtual CCDialogComp findDialogComp()
-		// {
-		// 	var node = this.transform;
-		//
-		// 	try
-		// 	{
-		// 		while (node.GetComponent<CCDialogComp>() != null)
-		// 		{
-		// 			node = node.parent;
-		// 		}
-		// 	}
-		// 	catch
-		// 	{
-		//
-		// 	}
-		// 	if (!node)
-		// 	{
-		// 		return null;
-		// 	}
-		//
-		// 	var dialogComponent = node.GetComponent<CCDialogComp>();
-		// 	return dialogComponent;
-		// }
-
 		public virtual void Integrate()
 		{
 			DataBindHubHelper.OnAddDataBind(this);
@@ -72,7 +45,7 @@ namespace DataBind.UIBind
 
 		public virtual void Deintegrate()
 		{
-			this.DataBind.Clear();
+			this.DataBindPump.Clear();
 		}
 
 		public virtual void Relate()
@@ -105,5 +78,33 @@ namespace DataBind.UIBind
 			this.Derelate();
 		}
 
+		// /**
+		//  * 获取当前组件所在节点的host
+		//  */
+		// public virtual CCDialogComp findDialogComp()
+		// {
+		// 	var node = this.transform;
+		//
+		// 	try
+		// 	{
+		// 		while (node.GetComponent<CCDialogComp>() != null)
+		// 		{
+		// 			node = node.parent;
+		// 		}
+		// 	}
+		// 	catch
+		// 	{
+		//
+		// 	}
+		// 	if (!node)
+		// 	{
+		// 		return null;
+		// 	}
+		//
+		// 	var dialogComponent = node.GetComponent<CCDialogComp>();
+		// 	return dialogComponent;
+		// }
+
+		public object RawObj => this;
 	}
 }

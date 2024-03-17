@@ -359,6 +359,16 @@ namespace DataBind.UIBind.RecycleContainer
 			}
 		}
 
+		public void RecycleCellView(Transform cellView)
+		{
+			var ccItem = cellView.GetComponent<ContainerItemComp>();
+			if (ccItem != null)
+			{
+				ccItem.UnsetDataHost();
+				// ContainerBindComp.UnbindItem(ccItem);
+			}
+		}
+
 		public Vector2 ToVec2(Vector3 pos)
 		{
 			return new Vector2(pos.x, pos.y);

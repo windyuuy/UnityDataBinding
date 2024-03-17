@@ -7,14 +7,14 @@ namespace DataBind.UIBind
 	public class MyComponent : MonoBehaviour, ISerializationCallbackReceiver
 	{
 #if UNITY_EDITOR
-		protected static bool isRuntimeMode = false;
+		protected static bool IsRuntimeMode = false;
 		[UnityEditor.InitializeOnEnterPlayMode]
 		static void OnEnterPlayMode()
 		{
-			isRuntimeMode = true;
+			IsRuntimeMode = true;
 			Application.wantsToQuit += () =>
 			{
-				isRuntimeMode = false;
+				IsRuntimeMode = false;
 				return true;
 			};
 		}
@@ -29,9 +29,9 @@ namespace DataBind.UIBind
 
 		public MyComponent() : base()
 		{
-			if (isRuntimeMode)
+			if (IsRuntimeMode)
 			{
-				this.isCreating = this.MarkCreating();
+				this.IsCreating = this.MarkCreating();
 			}
 		}
 
@@ -44,8 +44,8 @@ namespace DataBind.UIBind
 		}
 
 		protected static readonly List<MyComponent> CreatingList = new List<MyComponent>();
-		protected bool isCreating = false;
-		protected virtual bool MarkCreating()
+		protected bool IsCreating = false;
+		protected bool MarkCreating()
 		{
 			MyComponent.CreatingList.Add(this);
 			return true;
@@ -58,40 +58,40 @@ namespace DataBind.UIBind
 
 		protected virtual void OnDestroy()
 		{
-			this.isCreating = false;
+			this.IsCreating = false;
 			this.OnPreDestroy();
 		}
 
 		protected virtual void Awake()
 		{
-			if (this.isCreating)
+			if (this.IsCreating)
 			{
-				this.isCreating = false;
+				this.IsCreating = false;
 				this.HandlePreload();
 			}
 		}
 		public virtual void HandleLoaded()
 		{
-			if (this.isCreating)
+			if (this.IsCreating)
 			{
-				this.isCreating = false;
+				this.IsCreating = false;
 				this.HandlePreload();
 			}
 		}
 
-		protected static bool isPreloading = false;
+		protected static bool IsPreloading = false;
 		protected virtual void HandlePreload()
 		{
 			var loading = false;
-			if (!isPreloading)
+			if (!IsPreloading)
 			{
-				isPreloading = true;
+				IsPreloading = true;
 				loading = true;
 			}
 			this.OnPreload();
 			if (loading)
 			{
-				isPreloading = false;
+				IsPreloading = false;
 				loading = false;
 				this.AfterPreload();
 			}
@@ -120,27 +120,27 @@ namespace DataBind.UIBind
 			if (EnableLazyAttach)
 			{
 				var needAttach = this.NeedAttach();
-				if (needAttach && (!this.isAttached))
+				if (needAttach && (!this.IsAttached))
 				{
-					this.isAttached = true;
+					this.IsAttached = true;
 					this.OnAttach();
 				}
-				else if ((!needAttach) && this.isAttached)
+				else if ((!needAttach) && this.IsAttached)
 				{
-					this.isAttached = false;
+					this.IsAttached = false;
 					this.OnDeattach();
 				}
 			}
 			else
 			{
-				if (this.isAttachCalled && (!this.isAttached))
+				if (this.IsAttachCalled && (!this.IsAttached))
 				{
-					this.isAttached = true;
+					this.IsAttached = true;
 					this.OnAttach();
 				}
-				else if ((!this.isAttachCalled) && this.isAttached)
+				else if ((!this.IsAttachCalled) && this.IsAttached)
 				{
-					this.isAttached = false;
+					this.IsAttached = false;
 					this.OnDeattach();
 				}
 			}
@@ -155,23 +155,23 @@ namespace DataBind.UIBind
 		}
 		protected virtual bool NeedAttach()
 		{
-			return this.isAttachCalled && this.EnabledInHierarchy;
+			return this.IsAttachCalled && this.EnabledInHierarchy;
 			// && this.node.parent?.activeInHierarchy
 		}
-		protected bool isAttachCalled = false;
+		protected bool IsAttachCalled = false;
 
 		protected virtual void OnNotifyAttachedAlready()
 		{
-			isAttachCalled = true;
+			IsAttachCalled = true;
 		}
-		protected bool isAttached = false;
+		protected bool IsAttached = false;
 		protected virtual void OnEnable()
 		{
 			this.UpdateAttach();
 		}
 		public virtual void OnRequireAttach()
 		{
-			this.isAttachCalled = true;
+			this.IsAttachCalled = true;
 			this.UpdateAttach();
 		}
 		protected virtual void OnDisable()
@@ -180,7 +180,7 @@ namespace DataBind.UIBind
 		}
 		public virtual void OnRequireDeattach()
 		{
-			this.isAttachCalled = false;
+			this.IsAttachCalled = false;
 			this.UpdateAttach();
 		}
 

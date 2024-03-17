@@ -6,6 +6,32 @@ namespace DataBind.UIBind
 	using TExprCall = EventHandlerMV2<object, object>;
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;
 
+	public interface IRawObjObservable
+	{
+		public object RawObj { get;}
+		// public string DebugName { get; }
+	}
+	public interface IDataSourcePump: IRawObjObservable
+	{
+		public DataBindHub BindHub { get;}
+		public IEnumerable<T> PeekSourceBindEvents<T>();
+	}
+	public interface IDataBindPump: IRawObjObservable
+	{
+		public DataBindHub BindHub { get;}
+	}
+
+	public interface IDataSourceDispatcher: IDataBindPump
+	{
+		public IEnumerable<DataSourceHub> GetDataSourceHubs();
+	}
+	public interface IDataBindRepeater: IRawObjObservable, IDataBindHubSubTree
+	{
+		public List<DataBindHub> BindHubs { get; }
+		public IEnumerable<(string key, IRawObjObservable target)> PeekBindEvents();
+		public IEnumerable<IDataBindPump> GetBindPumps();
+	}
+	
 	public interface IDataBindHubTree
 	{
 		void AddBindHub(IDataBindHub bindHub);
@@ -19,10 +45,15 @@ namespace DataBind.UIBind
 		void SyncExprValue(string expr, TExprCall call);
 	}
 
-	public interface IDataBindHub : IDataBindHubTree
+	public interface IDataBindHubSubTree
 	{
-		List<IDataBindHubTree> Parents { get; set; }
-		IDataBindHubTree Parent { get; set; }
+		public List<IDataBindHubTree> Parents { get; }
+	}
+
+	public interface IDataBindHub : IDataBindHubTree, IDataBindHubSubTree, IDataBindRepeater
+	{
+		// List<IDataBindHubTree> Parents { get;}
+		// IDataBindHubTree Parent { get; set; }
 
 		/**
 		 * 监听未监听过的接口

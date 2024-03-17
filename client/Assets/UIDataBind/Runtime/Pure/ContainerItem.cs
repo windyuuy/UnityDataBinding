@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace DataBind.UIBind
 {
@@ -51,6 +52,17 @@ namespace DataBind.UIBind
 			{
 				this.ObserveData(data);
 			}
+		}
+
+		public void SetParent(ContainerBind containerBind)
+		{
+			this.RealDataHub.Parents.Clear();
+			this.RealDataHub.Parents.Add(containerBind.BindHub);
+		}
+
+		public void UnsetParent(ContainerBind containerBind)
+		{
+			this.RealDataHub.Parents.Clear();
 		}
 	}
 }

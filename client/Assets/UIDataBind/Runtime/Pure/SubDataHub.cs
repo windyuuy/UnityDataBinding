@@ -1,4 +1,3 @@
-
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -50,6 +49,7 @@ namespace DataBind.UIBind
 
 		protected ISEventCleanInfo2<object, object> ParentHostWatcher;
 		protected DataBindHub ParentHub;
+
 		public ISEventCleanInfo2<object, object> BindFromParentHub(DataBindHub parentHub, string subKey)
 		{
 			this.UnbindFromParentHub();
@@ -70,12 +70,13 @@ namespace DataBind.UIBind
 			this.ParentHub = parentHub;
 			return watcher;
 		}
+
 		public void UnbindFromParentHub()
 		{
 			var parentHub = this.ParentHub;
 			if (parentHub != null && this.ParentHostWatcher != null)
 			{
-				var key = this.ParentHostWatcher.key;
+				var key = this.ParentHostWatcher.Key;
 				var callback = this.ParentHostWatcher.Callback;
 
 				parentHub.EaseUnWatchExprValue(key, callback);
@@ -84,5 +85,6 @@ namespace DataBind.UIBind
 			}
 		}
 
+		public List<IDataBindHubTree> Parents { get; } = new();
 	}
 }

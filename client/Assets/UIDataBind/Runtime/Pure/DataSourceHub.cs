@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
 using EngineAdapter.LinqExt;
 using Console = EngineAdapter.Diagnostics.Console;
 
@@ -40,23 +41,23 @@ namespace DataBind.UIBind
 	/**
 	 * 适配 DataHost, 提供更易用的接口规范
 	 */
-	public class DataSourceHub : IDataBindHubTree
+	public class DataSourceHub : IDataBindHubTree, IDataSourcePump, IDataBindHubSubTree
 	{
 
 		// public static readonly NoneOldValue = Symbol("NoneOldValue");
 
 		public IStdHost DataHost = null;
-		public Object RawObj;
+		public Object RawObj { get; set; }
 
-		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> onWatchNewExprCall;
-		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> onUnWatchExprCall;
+		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> OnWatchNewExprCall;
+		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> OnUnWatchExprCall;
 		public DataSourceHub()
 		{
-			this.onWatchNewExprCall = (string expr, EventHandlerMV2<object, object> call) =>
+			this.OnWatchNewExprCall = (string expr, EventHandlerMV2<object, object> call) =>
 			{
 				this.DoWatchNewExpr(expr, call);
 			};
-			this.onUnWatchExprCall = (string expr, EventHandlerMV2<object, object> call) =>
+			this.OnUnWatchExprCall = (string expr, EventHandlerMV2<object, object> call) =>
 			{
 				this.DoUnWatchExprOnce(expr);
 			};
@@ -98,12 +99,12 @@ namespace DataBind.UIBind
 		}
 		protected void _unsetDataHost()
 		{
-			foreach (var expr in this.watcherList.Keys)
+			foreach (var expr in this.WatcherList.Keys)
 			{
-				var watcher = this.watcherList[expr];
+				var watcher = this.WatcherList[expr];
 				watcher.teardown();
 			}
-			this.watcherList.Clear();
+			this.WatcherList.Clear();
 
 			this.DataHost = null;
 		}
@@ -126,9 +127,9 @@ namespace DataBind.UIBind
 			}
 			if (dataHost != null)
 			{
-				foreach (var expr in this.watchingExprs.Keys)
+				foreach (var expr in this.WatchingExprs.Keys)
 				{
-					var acc = this.watchingExprs[expr];
+					var acc = this.WatchingExprs[expr];
 					if (acc >= 1)
 					{
 						try
@@ -147,7 +148,12 @@ namespace DataBind.UIBind
 			}
 		}
 
-		public DataBindHub BindHub = null;
+		public DataBindHub BindHub { get; set; } = null;
+		public IEnumerable<T> PeekSourceBindEvents<T>()
+		{
+			return this.ValueChangedEvent.PeekListeningObject<T>().Distinct();
+		}
+
 		public void AddBindHub(IDataBindHub bindHub)
 		{
 			AddBindHub((DataBindHub)bindHub);
@@ -169,10 +175,10 @@ namespace DataBind.UIBind
 					bindHub0.Parents.Add(this);
 
 
-					bindHub0.OnWatchNewExpr(this.onWatchNewExprCall);
-					bindHub0.OnUnWatchExpr(this.onUnWatchExprCall);
-					this.OnValueChanged(bindHub0.onValueChanged);
-					foreach (var expr in bindHub0.watchingExprs.Keys)
+					bindHub0.OnWatchNewExpr(this.OnWatchNewExprCall);
+					bindHub0.OnUnWatchExpr(this.OnUnWatchExprCall);
+					this.OnValueChanged(bindHub0.OnValueChanged);
+					foreach (var expr in bindHub0.WatchingExprs.Keys)
 					{
 						this.DoWatchNewExpr(expr, (value, oldValue) =>
 						{
@@ -194,7 +200,7 @@ namespace DataBind.UIBind
 		{
 			if (bindHub0 != null && this.BindHub == bindHub0)
 			{
-				var watchingExprs1 = bindHub0.watchingExprs;
+				var watchingExprs1 = bindHub0.WatchingExprs;
 				foreach (var expr in watchingExprs1.Keys)
 				{
 					if (watchingExprs1[expr] > 0)
@@ -202,9 +208,9 @@ namespace DataBind.UIBind
 						this.DoUnWatchExprOnce(expr);
 					}
 				}
-				bindHub0.OffWatchNewExpr(this.onWatchNewExprCall);
-				bindHub0.OffUnWatchExpr(this.onUnWatchExprCall);
-				this.OffValueChanged(bindHub0.onValueChanged);
+				bindHub0.OffWatchNewExpr(this.OnWatchNewExprCall);
+				bindHub0.OffUnWatchExpr(this.OnUnWatchExprCall);
+				this.OffValueChanged(bindHub0.OnValueChanged);
 				bindHub0.Parents.Remove(this);
 				this.BindHub = null;
 			}
@@ -224,7 +230,7 @@ namespace DataBind.UIBind
 			}
 			else
 			{
-				if (this.watcherList.TryGetValue(expr, out var watcher))
+				if (this.WatcherList.TryGetValue(expr, out var watcher))
 				{
 					if (watcher != null)
 					{
@@ -244,25 +250,25 @@ namespace DataBind.UIBind
 			this.ValueChangedEvent.Off(call);
 		}
 
-		protected readonly Dictionary<string, long> watchingExprs = new Dictionary<string, long>();
+		protected readonly Dictionary<string, long> WatchingExprs = new Dictionary<string, long>();
 
-		protected readonly Dictionary<string, VM.Watcher> watcherList = new Dictionary<string, VM.Watcher>();
-		protected readonly Dictionary<string, TPendingInfo> pendingInfoMergedCache = new Dictionary<string, TPendingInfo>();
+		protected readonly Dictionary<string, VM.Watcher> WatcherList = new Dictionary<string, VM.Watcher>();
+		protected readonly Dictionary<string, TPendingInfo> PendingInfoMergedCache = new Dictionary<string, TPendingInfo>();
 
-		protected bool running = true;
+		private bool _running = true;
 		public bool Running
 		{
 			get
 			{
-				return this.running;
+				return this._running;
 			}
 			set
 			{
-				this.running = value;
-				if (value && this.pendingInfo.Count > 0)
+				this._running = value;
+				if (value && this.PendingInfo.Count > 0)
 				{
-					var pendingInfoCopy = this.pendingInfo;
-					var pendingInfoMerged = this.pendingInfoMergedCache;
+					var pendingInfoCopy = this.PendingInfo;
+					var pendingInfoMerged = this.PendingInfoMergedCache;
 					pendingInfoMerged.Clear();
 					foreach (var info in pendingInfoCopy)
 					{
@@ -280,7 +286,7 @@ namespace DataBind.UIBind
 							infoMerged.NewValue = v;
 						}
 					}
-					this.pendingInfo.Clear();
+					this.PendingInfo.Clear();
 
 					foreach (var entry in pendingInfoMerged)
 					{
@@ -293,7 +299,7 @@ namespace DataBind.UIBind
 			}
 		}
 
-		protected readonly List<TPendingInfo> pendingInfo = new List<TPendingInfo>();
+		protected readonly List<TPendingInfo> PendingInfo = new List<TPendingInfo>();
 		protected void EmitValueChangedEvent<T>(string expr, T value, T oldValue)
 		{
 			if (this.Running)
@@ -302,7 +308,7 @@ namespace DataBind.UIBind
 			}
 			else
 			{
-				this.pendingInfo.Add(new TPendingInfo(expr, value, oldValue));
+				this.PendingInfo.Add(new TPendingInfo(expr, value, oldValue));
 			}
 		}
 
@@ -321,11 +327,11 @@ namespace DataBind.UIBind
 				}
 				else
 				{
-					if (this.watchingExprs[expr] > 0)
+					if (this.WatchingExprs[expr] > 0)
 					{
 						var watcher = this.DataHost.Watch(expr, (host, value, oldValue) =>
 						{
-							if (this.watchingExprs[expr] > 0)
+							if (this.WatchingExprs[expr] > 0)
 							{
 								this.EmitValueChangedEvent(expr, value, oldValue);
 							}
@@ -333,7 +339,7 @@ namespace DataBind.UIBind
 
 						if (watcher != null)
 						{
-							this.watcherList[expr] = watcher;
+							this.WatcherList[expr] = watcher;
 							// 需要额外通知自身变化
 							this.EmitValueChangedEvent(expr, watcher.value, null);
 						}
@@ -347,10 +353,10 @@ namespace DataBind.UIBind
 		 */
 		protected void DoWatchNewExpr(string expr, EventHandlerMV2<object, object> call)
 		{
-			this.watchingExprs[expr] = this.watchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
-			this.watchingExprs[expr]++;
+			this.WatchingExprs[expr] = this.WatchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
+			this.WatchingExprs[expr]++;
 
-			if (this.watcherList.ContainsKey(expr) == false)
+			if (this.WatcherList.ContainsKey(expr) == false)
 			{
 				// if (expr == "&this") {
 				// 	this.emitValueChangedEvent(expr, this.dataHost, null)
@@ -383,15 +389,19 @@ namespace DataBind.UIBind
 		 */
 		protected void DoUnWatchExprOnce(string expr)
 		{
-			this.watchingExprs[expr] = this.watchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
-			this.watchingExprs[expr]--;
-			Debug.Assert(this.watchingExprs[expr] >= 0);
+			this.WatchingExprs[expr] = this.WatchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
+			this.WatchingExprs[expr]--;
+			Debug.Assert(this.WatchingExprs[expr] >= 0);
 
-			if (this.watchingExprs[expr] == 0)
+			if (this.WatchingExprs[expr] == 0)
 			{
-				this.watcherList.Remove(expr);
+				this.WatcherList.Remove(expr);
 			}
 		}
 
+		/// <summary>
+		/// debug only
+		/// </summary>
+		public List<IDataBindHubTree> Parents { get; } = new();
 	}
 }

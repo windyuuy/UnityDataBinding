@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+
 namespace DataBind.UIBind
 {
 	public delegate void EventHandlerMV3<T1, T2, T3>(T1 msg1, T2 msg2, T3 msg3);
@@ -43,6 +45,19 @@ namespace DataBind.UIBind
 		public void Clear()
 		{
 			this.Callbacks = null;
+		}
+
+		public IEnumerable<T> PeekListeningObject<T>()
+		{
+			if (Callbacks == null)
+			{
+				yield break;
+			}
+			
+			foreach (var delegate1 in this.Callbacks.GetInvocationList())
+			{
+				yield return (T)delegate1.Target;
+			}
 		}
 	}
 

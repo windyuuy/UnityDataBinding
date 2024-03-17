@@ -60,8 +60,10 @@ namespace DataBind.UIBind
 		{
 		}
 
-		protected virtual void InitContainer()
+		protected ContainerBindComp ContainerBindComp;
+		protected virtual void InitContainer(ContainerBindComp containerBindComp)
 		{
+			ContainerBindComp = containerBindComp;
 			if (this.container == null)
 			{
 				this.container = (RectTransform)this.transform;
@@ -368,6 +370,7 @@ namespace DataBind.UIBind
 				var itemHost = dataSource;
 				var itemHost1 = VM.Utils.ImplementStdHost(itemHost);
 				ccItem.BindDataHost(itemHost1, $"N|{ccItem.ContainerItem.Index}");
+				ContainerBindComp.BindItem(ccItem);
 			}
 		}
 
@@ -430,6 +433,7 @@ namespace DataBind.UIBind
 			if (ccItem != null)
 			{
 				ccItem.UnsetDataHost();
+				ContainerBindComp.UnbindItem(ccItem);
 			}
 
 			RecycleNode(child);
@@ -451,7 +455,7 @@ namespace DataBind.UIBind
 #if UNITY_EDITOR
 				child.SetParent(null, false);
 #endif
-				child.gameObject.DestorySafe();
+				child.gameObject.DestroySafe();
 			}
 		}
 

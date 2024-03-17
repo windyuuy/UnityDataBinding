@@ -2,23 +2,24 @@
 using System.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DataBind.UIBind
 {
 	using TWatchExprCall = EventHandlerMV2<string, EventHandlerMV2<object, object>>;
 	using TExprCall = EventHandlerMV2<object, object>;
 
-	public class DataBindHub : IDataBindHub, IDataBindHubTree
+	public class DataBindHub : IDataBindHub 
 	{
 
-		protected static long oidAcc = 0;
-		public long Oid = ++DataBindHub.oidAcc;
+		protected static long OidAcc = 0;
+		public long Oid = ++DataBindHub.OidAcc;
 
-		public Object RawObj;
+		public Object RawObj { get; set; }
 
-		public readonly Dictionary<string, long> watchingExprs = new Dictionary<string, long>();
+		public readonly Dictionary<string, long> WatchingExprs = new Dictionary<string, long>();
 
-		public List<IDataBindHubTree> Parents { get; set; } = new List<IDataBindHubTree>();
+		public List<IDataBindHubTree> Parents { get;} = new List<IDataBindHubTree>();
 		public IDataBindHubTree Parent
 		{
 			get
@@ -50,7 +51,18 @@ namespace DataBind.UIBind
 			}
 		}
 
-		public readonly List<DataBindHub> bindHubs = new List<DataBindHub>();
+		public List<DataBindHub> BindHubs { get; } = new List<DataBindHub>();
+
+		public readonly List<IDataBindPump> DataBindPumps = new();
+		public IEnumerable<(string key, IRawObjObservable target)> PeekBindEvents()
+		{
+			return this.Listeners.PeekNamedListeningObject<IRawObjObservable>().Distinct();
+		}
+
+		public IEnumerable<IDataBindPump> GetBindPumps()
+		{
+			return DataBindPumps;
+		}
 
 		public void RemoveParents()
 		{
@@ -61,27 +73,27 @@ namespace DataBind.UIBind
 		}
 		public void RemoveChildren()
 		{
-			while (this.bindHubs.Count > 0)
+			while (this.BindHubs.Count > 0)
 			{
-				var bindHub = this.bindHubs[0];
-				this.removeBindHub(bindHub);
+				var bindHub = this.BindHubs[0];
+				this.RemoveBindHub(bindHub);
 			}
 		}
 
-		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> onWatchNewExprCall;
-		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> onUnWatchExprCall;
-		public readonly EventHandlerMV3<string, object, object> onValueChanged;
+		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> OnWatchNewExprCall;
+		protected readonly EventHandlerMV2<string, EventHandlerMV2<object, object>> OnUnWatchExprCall;
+		public readonly EventHandlerMV3<string, object, object> OnValueChanged;
 		public DataBindHub()
 		{
-			this.onWatchNewExprCall = (string expr, EventHandlerMV2<object, object> call) =>
+			this.OnWatchNewExprCall = (string expr, EventHandlerMV2<object, object> call) =>
 			{
 				this.DoWatchNewExpr(expr, call);
 			};
-			this.onUnWatchExprCall = (string expr, EventHandlerMV2<object, object> call) =>
+			this.OnUnWatchExprCall = (string expr, EventHandlerMV2<object, object> call) =>
 			{
 				this.DoUnWatchExprOnce(expr);
 			};
-			this.onValueChanged = (string expr, object value, object oldValue) =>
+			this.OnValueChanged = (string expr, object value, object oldValue) =>
 			{
 				this.EmitExprValueChanged(expr, value, oldValue);
 			};
@@ -89,19 +101,19 @@ namespace DataBind.UIBind
 
 		public void AddBindHub(IDataBindHub bindHub)
 		{
-			addBindHub((DataBindHub)bindHub);
+			AddBindHub((DataBindHub)bindHub);
 		}
-		public void addBindHub(DataBindHub bindHub)
+		public void AddBindHub(DataBindHub bindHub)
 		{
-			if (!this.bindHubs.Contains(bindHub))
+			if (!this.BindHubs.Contains(bindHub))
 			{
-				this.bindHubs.Add(bindHub);
+				this.BindHubs.Add(bindHub);
 				Debug.Assert(bindHub.Parents.Count == 0);
 				bindHub.Parents.Add(this);
-				bindHub.OnWatchNewExpr(this.onWatchNewExprCall);
-				bindHub.OnUnWatchExpr(this.onUnWatchExprCall);
-				this.OnAnyValueChanged(bindHub.onValueChanged);
-				foreach (var expr in bindHub.watchingExprs.Keys)
+				bindHub.OnWatchNewExpr(this.OnWatchNewExprCall);
+				bindHub.OnUnWatchExpr(this.OnUnWatchExprCall);
+				this.OnAnyValueChanged(bindHub.OnValueChanged);
+				foreach (var expr in bindHub.WatchingExprs.Keys)
 				{
 					EventHandlerMV2<object, object> call = (object value, object oldValue) =>
 					{
@@ -115,13 +127,13 @@ namespace DataBind.UIBind
 
 		public void RemoveBindHub(IDataBindHub bindHub)
 		{
-			removeBindHub((DataBindHub)bindHub);
+			RemoveBindHub((DataBindHub)bindHub);
 		}
-		public void removeBindHub(DataBindHub bindHub)
+		public void RemoveBindHub(DataBindHub bindHub)
 		{
-			if (this.bindHubs.Contains(bindHub))
+			if (this.BindHubs.Contains(bindHub))
 			{
-				var watchingExprs = bindHub.watchingExprs;
+				var watchingExprs = bindHub.WatchingExprs;
 				foreach (var expr in watchingExprs.Keys)
 				{
 					if (watchingExprs[expr] > 0)
@@ -129,16 +141,16 @@ namespace DataBind.UIBind
 						this.DoUnWatchExprOnce(expr);
 					}
 				}
-				bindHub.OffWatchNewExpr(this.onWatchNewExprCall);
-				bindHub.OffUnWatchExpr(this.onUnWatchExprCall);
-				this.OffAnyValueChanged(bindHub.onValueChanged);
+				bindHub.OffWatchNewExpr(this.OnWatchNewExprCall);
+				bindHub.OffUnWatchExpr(this.OnUnWatchExprCall);
+				this.OffAnyValueChanged(bindHub.OnValueChanged);
 				bindHub.Parents.Remove(this);
-				this.bindHubs.Remove(bindHub);
+				this.BindHubs.Remove(bindHub);
 			}
 		}
 
-		protected SimpleEventMV2<string, EventHandlerMV2<object, object>> newExprEvent = new SimpleEventMV2<string, EventHandlerMV2<object, object>>();
-		protected SimpleEventMV2<string, EventHandlerMV2<object, object>> removeExprEvent = new SimpleEventMV2<string, EventHandlerMV2<object, object>>();
+		protected readonly SimpleEventMV2<string, EventHandlerMV2<object, object>> NewExprEvent = new SimpleEventMV2<string, EventHandlerMV2<object, object>>();
+		protected readonly SimpleEventMV2<string, EventHandlerMV2<object, object>> RemoveExprEvent = new SimpleEventMV2<string, EventHandlerMV2<object, object>>();
 
 		/**
 		 * 监听未监听过的接口
@@ -146,11 +158,11 @@ namespace DataBind.UIBind
 		 */
 		public TWatchExprCall OnWatchNewExpr(TWatchExprCall call)
 		{
-			return this.newExprEvent.On(call);
+			return this.NewExprEvent.On(call);
 		}
 		public void OffWatchNewExpr(TWatchExprCall call)
 		{
-			this.newExprEvent.Off(call);
+			this.NewExprEvent.Off(call);
 		}
 		/**
 		 * 不再监听某个接口
@@ -158,11 +170,11 @@ namespace DataBind.UIBind
 		 */
 		public TWatchExprCall OnUnWatchExpr(TWatchExprCall call)
 		{
-			return this.removeExprEvent.On(call);
+			return this.RemoveExprEvent.On(call);
 		}
 		public void OffUnWatchExpr(TWatchExprCall call)
 		{
-			this.removeExprEvent.Off(call);
+			this.RemoveExprEvent.Off(call);
 		}
 
 		/**
@@ -182,12 +194,12 @@ namespace DataBind.UIBind
 		 */
 		public void DoWatchNewExpr(string expr, EventHandlerMV2<object, object> call)
 		{
-			this.watchingExprs[expr] = this.watchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
-			this.watchingExprs[expr]++;
+			this.WatchingExprs[expr] = this.WatchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
+			this.WatchingExprs[expr]++;
 
-			if (this.watchingExprs[expr] == 1)
+			if (this.WatchingExprs[expr] == 1)
 			{
-				this.newExprEvent.emit(expr, call);
+				this.NewExprEvent.Emit(expr, call);
 			}
 		}
 		/**
@@ -196,38 +208,39 @@ namespace DataBind.UIBind
 		 */
 		public void DoUnWatchExprOnce(string expr)
 		{
-			this.watchingExprs[expr] = this.watchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
-			this.watchingExprs[expr]--;
+			this.WatchingExprs[expr] = this.WatchingExprs.TryGetValue(expr, out var watchingExpr) ? watchingExpr : 0;
+			this.WatchingExprs[expr]--;
 
 
 
-			if (this.watchingExprs[expr] == 0)
+			if (this.WatchingExprs[expr] == 0)
 			{
-				this.removeExprEvent.emit(expr, null);
+				this.RemoveExprEvent.Emit(expr, null);
 			}
 		}
 
 		public EventHandlerMV3<string, object, object> OnAnyValueChanged(EventHandlerMV3<string, object, object> call)
 		{
-			return this.listeners.OnAnyEvent(call);
+			return this.Listeners.OnAnyEvent(call);
 		}
 		public void OffAnyValueChanged(EventHandlerMV3<string, object, object> call)
 		{
-			this.listeners.OffAnyEvent(call);
+			this.Listeners.OffAnyEvent(call);
 		}
 
-		protected readonly SEventMV2<object, object> listeners = new SEventMV2<object, object>();
+		protected readonly SEventMV2<object, object> Listeners = new SEventMV2<object, object>();
 		public ISEventCleanInfo2<object, object> WatchExprValue(string expr, EventHandlerMV2<object, object> call)
 		{
-			return this.listeners.On(expr, call);
+			Debug.Assert(call.Target is IRawObjObservable, "call.Target is IRawObjObservable");
+			return this.Listeners.On(expr, call);
 		}
 		public void UnWatchExprValue(string expr, EventHandlerMV2<object, object> call)
 		{
-			this.listeners.Off(expr, call);
+			this.Listeners.Off(expr, call);
 		}
 		protected void EmitExprValueChanged(string expr, object value, object oldValue)
 		{
-			this.listeners.Emit(expr, value, oldValue);
+			this.Listeners.Emit(expr, value, oldValue);
 		}
 
 		public void Clear()
