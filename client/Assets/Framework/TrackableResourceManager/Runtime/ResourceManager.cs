@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -5,10 +6,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace TrackableResourceManager.Runtime
 {
-	public class ModuleResourceAccessKeys
-	{
-		public static readonly ResourceKey CheckInBgImage = new ResourceKey("@eeeeeeeeee:CheckInBgImage");
-	}
+	// public class ModuleResourceAccessKeys
+	// {
+	// 	public static readonly ResourceKey CheckInBgImage = new ResourceKey("@eeeeeeeeee:CheckInBgImage");
+	// }
 
 	// internal class ResourceManager
 	// {
@@ -35,10 +36,34 @@ namespace TrackableResourceManager.Runtime
 	// 	}
 	// }
 
-	public struct LoadAsyncOp<T>
+	public struct LoadAsyncOp<T> : IEnumerator
 	{
 		internal Task<AsyncOperationHandle<T>> LoadOpTask { get; set; }
 
 		public Task<T> Task { get; internal set; }
+
+		public bool MoveNext()
+		{
+			return !Task.IsCompleted;
+		}
+
+		public void Reset()
+		{
+		}
+
+		object IEnumerator.Current
+		{
+			get
+			{
+				if (Task.IsCompleted)
+				{
+					return Task.Result;
+				}
+
+				return null;
+			}
+		}
+
+		public T Result => Task.Result;
 	}
 }

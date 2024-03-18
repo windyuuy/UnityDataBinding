@@ -1,17 +1,20 @@
 ﻿
 // ReSharper disable InconsistentNaming
-namespace TrackableResourceManager.Runtime
+
+using TrackableResourceManager.Runtime;
+
+namespace SampleResources
 {
 	public static partial class R
 	{
 	#region hello_group
 		#region ew fge3r
 
-		public static readonly ResourceKey Weeew_HelloGroup_EwFge3r = ResourceKey.ParseFromLiteral("@hello_group:ew_fge3r:weeew");
+		public static readonly ResourceKey Ffffffffffffffffffffffffffffffff_HelloGroup_EwFge3r = ResourceKey.ParseFromLiteral("@hello_group:ewfge3r:ffffffffffffffffffffffffffffffff");
 
-		public static readonly ResourceKey NewPrefab1_HelloGroup_EwFge3r = ResourceKey.ParseFromLiteral("@hello_group:ew_fge3r:NewPrefab1");
+		public static readonly ResourceKey NewPrefab1_HelloGroup_EwFge3r = ResourceKey.ParseFromLiteral("@hello_group:ewfge3r:NewPrefab1");
 
-		public static readonly ResourceKey NewPrefab2_HelloGroup_EwFge3r = ResourceKey.ParseFromLiteral("@hello_group:ew_fge3r:NewPrefab2");
+		public static readonly ResourceKey NewPrefab2_HelloGroup_EwFge3r = ResourceKey.ParseFromLiteral("@hello_group:ewfge3r:NewPrefab2");
 
 		#endregion
 	#endregion

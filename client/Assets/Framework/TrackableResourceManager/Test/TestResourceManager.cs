@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using SampleResources;
 using TrackableResourceManager.Runtime;
 using UISys.Runtime;
 using UnityEngine;
@@ -16,9 +17,9 @@ namespace TrackableResourceManager.Test
 			// var wfe=await layerRootRefer1.LoadAssetAsync().Task;
 			// var wfe2=await layerRootRefer2.LoadAssetAsync().Task;
 			Debug.Log("TestResourceManager");
-			{
-				using var rr = ResourceScope.New;
-			}
+			// {
+			// 	using var rr = ResourceScope.New;
+			// }
 
 			StartCoroutine(DelayTest());
 		}
@@ -28,6 +29,9 @@ namespace TrackableResourceManager.Test
 			yield return new WaitForEndOfFrame();
 			{
 				using var rr = ResourceScope.New;
+				var loadAsyncOp = rr.LoadAsync<GameObject>(R.Ffffffffffffffffffffffffffffffff_HelloGroup_EwFge3r);
+				yield return loadAsyncOp;
+				var ret = loadAsyncOp.Result;
 			}
 		}
 	}

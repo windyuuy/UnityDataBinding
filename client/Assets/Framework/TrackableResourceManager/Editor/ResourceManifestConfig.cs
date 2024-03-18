@@ -274,7 +274,15 @@ namespace TrackableResourceManager.Runtime
 		public IEnumerable<ResourceItem> CollectResourceItems()
 		{
 			IEnumerable<ResourceItem> items = this.itemSets.MergeGroup(itemSet =>
-				itemSet.items).Distinct();
+				itemSet.items.Where(item => !string.IsNullOrWhiteSpace(item.key))).Distinct();
+			return items;
+		}
+
+		public IEnumerable<(string setName, ResourceItem item)> CollectResourceItemsWithSetName()
+		{
+			IEnumerable<(string setName, ResourceItem item)> items = this.itemSets.MergeGroup(itemSet =>
+				itemSet.items.Where(item => !string.IsNullOrWhiteSpace(item.key))
+					.Select(item => (itemSet.setName, item))).Distinct();
 			return items;
 		}
 
@@ -311,6 +319,7 @@ namespace TrackableResourceManager.Runtime
 			// generate for sets without name
 			var codeFilePath = Path.ChangeExtension(AssetDatabase.GetAssetPath(this), "cs");
 			var groupName = group.groupName;
+			var ns = string.IsNullOrWhiteSpace(group.ns) ? "SampleResources" : group.ns;
 			var groupNameMembered = FormatMemberName(groupName);
 
 			var setClassesCode = string.Join('\n', itemSets
@@ -334,9 +343,9 @@ namespace TrackableResourceManager.Runtime
 								.Select(item =>
 								{
 									var fieldCode = @"		public static readonly ResourceKey " +
-									                $"{FormatMemberName(item.key)}_{groupNameMembered}_{FormatMemberName(setName)}" +
+									                $"{FormatMemberName(item.key)}_{groupNameMembered}_{setNameFormat}" +
 									                @" = ResourceKey.ParseFromLiteral(" +
-									                $"\"@{FormatKey(groupName)}:{FormatKey(setName)}:{FormatKey(item.key)}\"" +
+									                $"\"{ToAddress(groupName, setName, item.key)}\"" +
 									                @");
 ";
 									return fieldCode;
@@ -358,7 +367,10 @@ namespace TrackableResourceManager.Runtime
 	}";
 			var fileCode = @"
 // ReSharper disable InconsistentNaming
-namespace ResourceManager.Trackable.Runtime
+
+using TrackableResourceManager.Runtime;
+
+namespace " + ns + @"
 {
 " + groupClassCode + @"
 }
@@ -369,9 +381,15 @@ namespace ResourceManager.Trackable.Runtime
 			// generate for named sets
 		}
 
+		public static string ToAddress(string groupName, string setName, string itemKey)
+		{
+			return $"@{FormatKey(groupName)}:{FormatKey(setName)}:{FormatKey(itemKey)}";
+		}
+
 		public static string FormatKey(string itemKey)
 		{
-			return itemKey.Replace(' ', '_');
+			// return string.Join("",itemKey.Replace(' ', '_').Split("_").Select(key => char.ToUpper(key[0]) + key.Substring(1)));
+			return itemKey.Replace(" ", "");
 		}
 
 		public bool ResolveNamespace(string guid, string key, int order, out string conflictKey)

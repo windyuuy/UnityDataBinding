@@ -12,7 +12,7 @@ namespace TrackableResourceManager.Runtime
 			_resourceSet = set ?? new();
 		}
 
-		public void DelayDispose(IEnumerator delayer = null)
+		private void DelayDispose(IEnumerator delayer = null)
 		{
 			LoomMG.SharedLoom.StartCoroutine(DelayDisposeCo(delayer));
 		}

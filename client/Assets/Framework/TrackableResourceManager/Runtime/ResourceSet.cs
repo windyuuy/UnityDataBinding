@@ -39,6 +39,27 @@ namespace TrackableResourceManager.Runtime
 		protected readonly Dictionary<CacheKey, IEnumerator> Cached = new();
 		protected readonly List<IEnumerator> CachedInstance = new();
 
+		public bool IsAllLoaded()
+		{
+			foreach (var keyValuePair in Cached)
+			{
+				if (keyValuePair.Value.MoveNext())
+				{
+					return false;
+				}
+			}
+			
+			foreach (var enumerator in CachedInstance)
+			{
+				if (enumerator.MoveNext())
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		public async Task<string> LoadKeyUri(ResourceKey key)
 		{
 			return key.Key;
@@ -53,7 +74,8 @@ namespace TrackableResourceManager.Runtime
 				var task = loadOp();
 				op0.LoadOpTask = task;
 				var op = await task;
-				return await op.Task;
+				var opResult = await op.Task;
+				return opResult;
 			}
 
 			op0.Task = Load();
@@ -304,7 +326,7 @@ namespace TrackableResourceManager.Runtime
 
 			foreach (var keyValuePair in this.Cached)
 			{
-				Addressables.Release(keyValuePair.Value);
+				Addressables.Release(keyValuePair.Value.Current);
 			}
 
 			Cached.Clear();

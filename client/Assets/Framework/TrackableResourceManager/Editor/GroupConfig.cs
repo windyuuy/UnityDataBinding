@@ -11,6 +11,8 @@ namespace TrackableResourceManager.Runtime
 	[CreateAssetMenu(fileName = "资源分组.asset", menuName = "UISys/资源分组")]
 	public class GroupConfig : ScriptableObject
 	{
+		[Header("命名空间")] public string ns;
+		
 		[Header("分组名")] public string groupName;
 
 		// split with ;
@@ -75,10 +77,10 @@ namespace TrackableResourceManager.Runtime
 
 		protected bool IsLoaded = false;
 
-		public IEnumerable<ResourceManifestConfig.ResourceItem> LoadAllManifestItems()
+		public IEnumerable<(string setName, ResourceManifestConfig.ResourceItem item)> LoadAllManifestItems()
 		{
 			var assets = FindResourceManifestConfigs();
-			var items = assets.MergeGroup(resourceManifestConfig => resourceManifestConfig.CollectResourceItems());
+			var items = assets.MergeGroup(resourceManifestConfig => resourceManifestConfig.CollectResourceItemsWithSetName());
 			return items;
 		}
 
@@ -236,10 +238,10 @@ namespace TrackableResourceManager.Runtime
 						new List<AddressableAssetGroupSchema>());
 				}
 
-				foreach (var resourceItem in items)
+				foreach (var (setName, resourceItem) in items)
 				{
 					var entry = aaSettings.CreateOrMoveEntry(resourceItem.ResUri, group, true);
-					entry.SetAddress(resourceItem.key);
+					entry.SetAddress(ResourceManifestConfig.ToAddress(groupName, setName, resourceItem.key));
 
 					entry.labels.Clear();
 					foreach (var assetTag in asset.Tags)
